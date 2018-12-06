@@ -1,0 +1,12 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/waip.css')
+
+block content
+  .container-fluid
+    include includes/clock
+
+  script(src='/js/textFit.min.js')
+  script(src='/js/waip.js')
+  

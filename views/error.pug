@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-12
+          .card.border-warning
+            .card-header
+              = message
+            .card-body    
+              h5.card-title= error.status
+              pre.card-text #{error.stack}

@@ -1,0 +1,14 @@
+header
+  // Fixed navbar
+  nav.navbar.navbar-expand-md.navbar-dark.bg-primary.fixed-top
+    a.navbar-brand(href='/') Wachalarm Web
+    button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarCollapse', aria-controls='navbarColor01', aria-expanded='false', aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    #navbarCollapse.collapse.navbar-collapse
+      ul.navbar-nav.mr-auto
+        li(class=(title == 'Startseite') ? 'active' : null)
+          a.nav-link(href='/') Startseite
+        li(class=(title == 'Alarmmonitor') ? 'active' : null)
+          a.nav-link(href='/waip') Alarmmonitor
+        li(class=(title == 'Über') ? 'active' : null)
+          a.nav-link(href='/ueber') Über

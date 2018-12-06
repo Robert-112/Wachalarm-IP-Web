@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  main(role='main')
+    .jumbotron
+       .container
+         h1.text-danger.display-3 Wachalarm Web
+         p Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
+         p Bitte w&auml;hlen Sie aus einer der nachfolgend aufgef&uuml;hrten Wachen aus. Entsprechend Ihrer Berechtigungen werden Ihnen auf dem Alarmbild alle oder nur ausgew&auml;hlte Einsatzdaten angezeigt.
+         p.text-muted (Ihre Berechtigungen k&ouml;nnen Sie #[a(href="#") hier] einsehen)
+    .container
+      .row
+        .col-md-4
+          h1.text-info Wache
+          p Zeigt den Wachalarm einer der einzelnen Wache (z.B. Feuerwach, Rettungswache etc.) an.
+          .dropdown
+            button.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+              | bitte ausw&auml;hlen
+            .dropdown-menu
+              each item in list_wache
+                a.dropdown-item(href='/waip/'+ item.nr)= item.name
+        .col-md-4
+          h1.text-info Tr&auml;ger
+          p Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
+          .dropdown
+            button.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+              | bitte ausw&auml;hlen
+            .dropdown-menu
+              each item in list_traeger
+                a.dropdown-item(href='/waip/'+ item.nr)= item.name
+        .col-md-4
+          h1.text-info Kreis
+          p Zeigt alle Wachalarme des gesamten Kreises (egal ob f&uuml; Feuerwehr oder Rettungsdienst) an.
+          .dropdown
+            button.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+              | bitte ausw&auml;hlen
+            .dropdown-menu
+              each item in list_kreis
+                a.dropdown-item(href='/waip/'+ item.nr)= item.name

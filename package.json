@@ -1,0 +1,24 @@
+{
+  "name": "waip-web",
+  "version": "0.1.0",
+  "description": "Web-Version des Wachalarm-IP",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "async": "^2.6.1",
+    "body-parser": "^1.18.3",
+    "compression": "^1.6.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.13.4",
+    "npm": "^5.8.0",
+    "pug": "^2.0.3",
+    "serve-favicon": "^2.5.0",
+    "socket.io": "^2.1.0",
+    "sqlite3": "^4.0.3"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "6.1.0"
+  }
+}

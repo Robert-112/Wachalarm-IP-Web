@@ -1,0 +1,172 @@
+/***********************************************/
+/************ Wachalarm-Web-CSS*****************/
+/***********************************************/
+
+/*** Anpassungen für fixed Header und Footer ***/
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  padding-top: 5rem;
+  padding-bottom: 0;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+}
+
+.fullheight {
+  height: calc(100vh - 60px - 5rem);
+}
+
+/*** Anpassungen an Bootstrap ******************/
+
+audio {
+  display: none;
+}
+
+.h-5 {
+  height: 5% !important;
+}
+
+.h-10 {
+  height: 10% !important;
+}
+
+.h-15 {
+  height: 15% !important;
+}
+
+.h-20 {
+  height: 20% !important;
+}
+
+.h-30 {
+  height: 30% !important;
+}
+
+.h-35 {
+  height: 35% !important;
+}
+
+.h-40 {
+  height: 40% !important;
+}
+
+.h-70 {
+  height: 70% !important;
+}
+
+.h-45 {
+  height: 45% !important;
+}
+
+.h-55 {
+  height: 55% !important;
+}
+
+.h-80 {
+  height: 80% !important;
+}
+
+.h-90 {
+  height: 90% !important;
+}
+
+/*** Klassen in Abhängigkeit der Rotation ******/
+
+@media screen and (orientation:portrait) {
+  .pt-3_pt {
+    padding-top: 1rem !important;
+  }
+}
+
+@media screen and (orientation:landscape) {
+  .ptr-3_ls {
+    padding-top: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .py-3_ls {
+    padding-bottom: 1rem !important;
+    padding-top: 1rem !important;
+  }
+
+  .col-5_ls {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 41.6666666667%;
+    flex: 0 0 41.6666666667%;
+    max-width: 41.6666666667%;
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .col-7_ls {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 58.3333333333%;
+    flex: 0 0 58.3333333333%;
+    max-width: 58.3333333333%;
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .h-15_ls {
+    height: 15% !important;
+  }
+
+  .h-20_ls {
+    height: 20% !important;
+  }
+
+  .h-70_ls {
+    height: 70% !important;
+  }
+
+  .h-75_ls {
+    height: 75% !important;
+  }
+
+  .h-80_ls {
+    height: 80% !important;
+  }
+
+  .h-100_ls {
+    height: 100% !important;
+  }
+}
+
+/*** Uhrzeit dynamisch bewegen lassen **********/
+
+.clock_x {
+  animation: x 1200s linear infinite alternate;
+}
+
+.clock_y {
+  animation: y 960s linear infinite alternate;
+}
+
+@keyframes x {
+  100% {
+    transform: translatex(100%);
+  }
+}
+
+@keyframes y {
+  100% {
+    transform: translatey(100%);
+  }
+}

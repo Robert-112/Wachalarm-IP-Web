@@ -1,0 +1,21 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/ionicons.min.css')
+  link(rel='stylesheet', href='/css/leaflet.css')
+
+block content
+  include includes/modal
+  .container-fluid
+    #waipclock.d-none
+      include includes/clock
+    #waiptableau.d-none
+      include includes/wachalarm
+  #app_id.d-none=app_id
+
+  script(src='/js/leaflet.js')
+  script(src='/js/textFit.min.js')
+  script(src='/socket.io/socket.io.js') 
+  script.
+    wachen_id="#{wachen_id}"
+  script(src='/js/waip.js')
