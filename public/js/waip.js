@@ -1,4 +1,4 @@
-// TODO: Remote-Reload per Socket
+﻿// TODO: Remote-Reload per Socket
 // TODO: Client-Server-Version abgleichen
 // TODO: Modal bei Chrome, dass Audio erst bei interaktion aktiv
 
@@ -56,7 +56,9 @@ function setup_inactivcheck() {
   this.addEventListener("mousedown", resetActivTimer, false);
   this.addEventListener("keypress", resetActivTimer, false);
   this.addEventListener("DOMMouseScroll", resetActivTimer, false);
-  this.addEventListener("mousewheel", resetActivTimer, {passive: true}, false);
+  this.addEventListener("mousewheel", resetActivTimer, {
+    passive: true
+  }, false);
   this.addEventListener("touchmove", resetActivTimer, false);
   this.addEventListener("MSPointerMove", resetActivTimer, false);
   start_inactivtimer();
@@ -152,7 +154,7 @@ socket.on('connect', function() {
 
 socket.on('connect_error', function(err) {
   $('#waipModalTitle').html('FEHLER');
-  $('#waipModalBody').html(`Verbindung zum Server getrennt!`);
+  $('#waipModalBody').html('Verbindung zum Server getrennt!');
   $('#waipModal').modal('show');
 });
 
@@ -161,10 +163,14 @@ socket.on('io.version', function(server_id) {
   var client_id = $('#app_id').html();
   //console.log('server_id: ' + server_id);
   //console.log('client_id: ' + client_id);
+  // TODO: socket.emit(lade client xxx neu)
   if (client_id != server_id) {
     $('#waipModalTitle').html('ACHTUNG');
-    $('#waipModalBody').html(`Neue Server-Version. Seite wird in 10 Sekunden neu geladen!`);
-    $('#waipModal').modal('toggle');
+    $('#waipModalBody').html('Neue Server-Version. Seite wird in 10 Sekunden neu geladen!');
+    if ($('#waipModal').hasClass('in')) {
+      $('#waipModal').modal('hide');
+    };
+    $('#waipModal').modal('show');
     setTimeout(function() {
       location.reload();
     }, 10000);
@@ -174,6 +180,12 @@ socket.on('io.version', function(server_id) {
 // ggf. Fehler ausgeben
 socket.on('io.error', function(data) {
   console.log('Error:', data);
+});
+
+// Sounds abspielen
+socket.on('io.stopaudio', function(data) {
+  var audio = document.getElementById('audio');
+  audio.pause;
 });
 
 // Sounds abspielen
@@ -347,3 +359,19 @@ function set_clock() {
 
 // Uhrzeit jede Sekunden anpassen
 setInterval(set_clock, 1000);
+
+/* ########################### */
+/* ######## SONSTIGES ######## */
+/* ########################### */
+
+// Audio-Blockade des Browsers erkennen
+var promise = document.querySelector('audio').play();
+if (promise !== undefined) {
+    promise.catch(function(error) {
+      if (error && error.toString().toLowerCase().includes('play() request was interrupted')) {
+        $('#waipModalTitle').html('Audio-Fehler');
+        $('#waipModalBody').html('Die Audio-Wiedergabe wird aktuell durch Ihren Browser blockiert. Wenn Sie Chrome-Desktop benutzen, genügt es wenn Sie nur einmal irgendwo hinklicken. Fehlermeldung: ' + error.message);
+        $('#waipModal').modal('show');
+      };
+    });
+};

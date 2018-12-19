@@ -21,22 +21,29 @@ module.exports = function(app, sql, app_cfg) {
 
   // get /waip
   app.get('/waip', function(req, res) {
-    res.render('waip', {
-      title: 'Wachalarm-IP-Web'
-    });
+    res.redirect('/waip/0');
   });
 
   // get /waip/<wachennummer>
-  app.get('/waip/:wachen_id', function(req, res) {
-    sql.db_wache_vorhanden(req.params.wachen_id, function(result) {
-      res.render('waip', {
-        title: 'Alarmmonitor',
-        wachen_id: req.params.wachen_id,
-        data_wache: ' '+ result.name,
-        app_id: app_cfg.global.app_id
-      });
+  // TODO: Abstruz bei unbekannter/falscher Wachennummer
+  app.get('/waip/:wachen_id', function(req, res, next) {
+    var parmeter_id = req.params.wachen_id;
+    sql.db_wache_vorhanden(parmeter_id, function(result) {
+      if (result) {
+        res.render('waip', {
+          title: 'Alarmmonitor',
+          wachen_id: parmeter_id,
+          data_wache: ' ' + result.name,
+          app_id: app_cfg.global.app_id
+        });
+      } else {
+        var err = new Error('Wache '+ parmeter_id +' nicht vorhanden');
+        err.status = 404;
+        next (err);
+      }
     });
   });
+
 
   // get /ueber
   app.get('/ueber', function(req, res) {

@@ -2,6 +2,7 @@ module.exports = function(db) {
 
   function db_einsatz_vorhanden(content, callback) {
     // ermittelt den letzten vorhanden Einsatz zu einer Wache
+    if (parseInt(content) == 0) {content = '%'};
     db.all('select em.waip_einsaetze_id from waip_einsatzmittel em ' +
       'left join waip_wachen wa on wa.id = em.waip_wachen_id  ' +
       'where wa.nr_wache like ?||\'%\' ' +
@@ -88,11 +89,20 @@ module.exports = function(db) {
     } else {
       var len = content.toString().length
       // content muss 2, 4 oder 6 Zeichen lang sein
-      if (len != 2 && len != 4 && len != 6) {
+      if (parseInt(content) != 0 && len != 2 && len != 4 && len != 6) {
         // Fehler: Wachennummer nicht plausibel.
         callback && callback(null);
       } else {
         // je nach laenge andere SQL ausfuehren
+        if (parseInt(content) == 0) {
+          db.get('select \'1\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function(err, row) {
+            if (err == null && row) {
+              callback && callback(row);
+            } else {
+              callback && callback(null);
+            };
+          });
+        };
         if (len == 2) {
           db.get('select \'2\' length, nr_kreis nr, name_kreis name from waip_wachen where nr_kreis like SUBSTR(?,-2, 2) group by name_kreis LIMIT 1', [content], function(err, row) {
             if (err == null && row) {
@@ -150,6 +160,8 @@ module.exports = function(db) {
       where em.waip_einsaetze_ID = ? group by w.nr_wache`, [waip_id, waip_id, waip_id],
       function(err, rows) {
         if (err == null && rows.length > 0) {
+          // falls einsätze vorhanden, auch die null hinzufuegen
+          rows.push({"room":0});
           callback && callback(rows);
         } else {
           callback && callback(null);
@@ -230,9 +242,10 @@ module.exports = function(db) {
     } else {
       var len = wachen_nr.toString().length
       // wachen_nr muss 2, 4 oder 6 Zeichen lang sein
-      if (len != 2 && len != 4 && len != 6) {
+      if (parseInt(wachen_nr) != 0 && len != 2 && len != 4 && len != 6 && len == null) {
         callback && callback(null);
       } else {
+        if (parseInt(wachen_nr) == 0) {wachen_nr = '%'};
         // je nach laenge andere SQL ausfuehren
         db.get('SELECT e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE ' +
           'FROM WAIP_EINSAETZE e ' +
@@ -305,6 +318,26 @@ module.exports = function(db) {
     });
   };
 
+  function db_update_client_status(socket_id, client_status) {
+    db.run('UPDATE waip_clients '+
+      'SET client_status=\'' + client_status + '\'' +
+      'WHERE socket_id=\'' + socket_id + '\'');
+  };
+
+  function db_check_client_waipid(socketId, waip_id, callback) {
+    db.get('SELECT client_status id from waip_clients where socket_id like ?', [socketId], function(err, row) {
+      if (err == null && row) {
+        if (row.id == waip_id) {
+          callback && callback(row);
+        } else {
+          callback && callback(null);
+        };
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
@@ -323,7 +356,9 @@ module.exports = function(db) {
     db_client_save: db_client_save,
     db_client_delete: db_client_delete,
     db_tts_einsatzmittel: db_tts_einsatzmittel,
-    db_get_socket_by_id:db_get_socket_by_id
+    db_get_socket_by_id: db_get_socket_by_id,
+    db_update_client_status: db_update_client_status,
+    db_check_client_waipid: db_check_client_waipid
   };
 
 };

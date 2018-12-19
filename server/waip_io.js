@@ -26,10 +26,12 @@ module.exports = function(io, sql, async, app_cfg) {
                 console.log('Einsatz ' + result_einsatz[0].waip_einsaetze_ID + ' fuer Wache ' + wachen_id + ' vorhanden');
                 //letzten Einsatz verteilen
                 einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
+                sql.db_update_client_status(socket.id, result_einsatz[0].waip_einsaetze_ID);
               } else {
                 console.log('Kein Einsatz fuer Wache ' + wachen_id + ' vorhanden, Standby');
                 //oder falls kein Einsatz vorhanden ist, dann
                 io.sockets.to(socket.id).emit('io.standby', null);
+                sql.db_update_client_status(socket.id, 'standby');
               };
             });
           });
@@ -75,6 +77,7 @@ module.exports = function(io, sql, async, app_cfg) {
         // Einsatz senden
         console.log('Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket_id + ' gesendet');
         io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten);
+        sql.db_update_client_status(socket_id, waip_id);
         // Sound erstellen
         tts_erstellen(app_cfg, socket_id, einsatzdaten, function(tts) {
           // Sound senden
@@ -84,7 +87,8 @@ module.exports = function(io, sql, async, app_cfg) {
       } else {
         // Standby senden
         io.sockets.to(socket_id).emit('io.standby', null);
-        console.log('Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket_id + ' gesendet');
+        console.log('Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket_id + ' gesendet..');
+        sql.db_update_client_status(socket_id, 'standby');
       };
     });
   };
@@ -179,8 +183,14 @@ module.exports = function(io, sql, async, app_cfg) {
                 Object.keys(room_stockets.sockets).forEach(function(socketId) {
                   // Standby senden
                   // TODO: Standby nur senden, wenn kein anderer (als der zu löschende) Einsatz angezeigt wird
-                  io.sockets.to(socketId).emit('io.standby', null);
-                  console.log('Standby an Socket ' + socketId + ' gesendet');
+                  sql.db_check_client_waipid(socketId, waip_id, function(same_id){
+                    if (same_id) {
+                      io.sockets.to(socketId).emit('io.standby', null);
+                      io.sockets.to(socketId).emit('io.stopaudio', null);
+                      console.log('Standby an Socket ' + socketId + ' gesendet');
+                      sql.db_update_client_status(socketId, 'standby');
+                    };
+                  });
                 });
               };
             });

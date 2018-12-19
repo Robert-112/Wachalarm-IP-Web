@@ -71,7 +71,8 @@ module.exports = function(app_cfg) {
         connect_time DATETIME DEFAULT CURRENT_TIMESTAMP,
         socket_id TEXT,
         client_ip TEXT,
-        room_name TEXT)`);
+        room_name TEXT,
+        client_status TEXT)`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -81,6 +82,7 @@ module.exports = function(app_cfg) {
       db.run(`INSERT OR REPLACE INTO waip_wachen (
         nr_wache, nr_traeger, nr_kreis, name_wache, name_traeger, name_kreis)
         VALUES
+        (0,\'0\',0,\'Global - Alle Einsätze\',\'Global\',\'Global\'),
         (520101,\'01\',52,\'CB FW Cottbus 1\',\'Stadt Cottbus\',\'Stadt Cottbus\'),
         (520201,\'02\',52,\'CB FW Cottbus 2\',\'Stadt Cottbus\',\'Stadt Cottbus\'),
         (521101,\'11\',52,\'CB FW Branitz\',\'Stadt Cottbus\',\'Stadt Cottbus\'),
