@@ -6,6 +6,9 @@ app_cfg.global = {
 	database: './database.sqlite3',
 	soundpath: '/public/media/',
 	mediapath: '/media/',
+	defaultuser: 'me',
+	defaultpass: '123',
+	saltRounds: 10,
 	// TODO: eindeutige ID/Version für Anwendung hinterlegen
 	// TODO: Karten-URL für Client festlegen
 	app_id: process.pid

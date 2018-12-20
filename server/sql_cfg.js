@@ -1,4 +1,4 @@
-module.exports = function(app_cfg) {
+module.exports = function(bcrypt, app_cfg) {
 
   // TODO: gegen better-sqlite3 ersetzen
 
@@ -73,6 +73,12 @@ module.exports = function(app_cfg) {
         client_ip TEXT,
         room_name TEXT,
         client_status TEXT)`);
+      // Benutzer-Tabelle erstellen
+      db.run(`CREATE TABLE waip_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user TEXT,
+        password TEXT,
+        permissions TEXT)`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -783,6 +789,21 @@ module.exports = function(app_cfg) {
         (\'83\',\'RTW\'),
         (\'85\',\'KTW\'),
         (\'88\',\'Rettungsboot\')`);
+      // Benutzer-Tabelle mit Standard befuellen
+      db.get("SELECT user from waip_users", function(err, row) {
+        if (!row) {
+          /*bcrypt.hash('a', 1, function(err, hash) {
+            console.log(hash);
+          });*/
+        };
+      });
+      /*bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function(err, hash) {
+        db.run(`INSERT INTO waip_users ( user, password, permissions ) VALUES( ?, ?, 'admin' )`, app_cfg.global.defaultuser, hash, function(err) {
+          if (err) {
+            console.log(err);
+          };
+        });
+      });*/
     });
   };
 
