@@ -81,6 +81,10 @@ audio {
   height: 90% !important;
 }
 
+.h-95 {
+  height: 95% !important;
+}
+
 /*** Klassen in Abhängigkeit der Rotation ******/
 
 @media screen and (orientation:portrait) {
@@ -149,14 +153,10 @@ audio {
   }
 }
 
-/*** Uhrzeit dynamisch bewegen lassen **********/
+/*** Texte des Bildschirmschoners dynamisch bewegen lassen **********/
 
 .clock_x {
   animation: x 1200s linear infinite alternate;
-}
-
-.clock_y {
-  animation: y 960s linear infinite alternate;
 }
 
 @keyframes x {
@@ -165,8 +165,22 @@ audio {
   }
 }
 
+.clock_y {
+  animation: y 960s linear infinite alternate;
+}
+
 @keyframes y {
   100% {
     transform: translatey(100%);
+  }
+}
+
+.client_wache {
+  animation: x2 1200s linear infinite alternate;
+}
+
+@keyframes x2 {
+  100% {
+    transform: translatex(300%);
   }
 }
