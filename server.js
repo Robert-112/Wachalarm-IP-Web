@@ -8,6 +8,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
+var bcrypt = require('bcrypt');
 
 // Express-Einstellungen
 app.set('views', path.join(__dirname, 'views'));
@@ -22,7 +23,7 @@ app.use(cookieParser());
 
 // Scripte einbinden
 var app_cfg = require('./server/app_cfg.js');
-var sql_cfg = require('./server/sql_cfg')(app_cfg);
+var sql_cfg = require('./server/sql_cfg')(bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg)
 var waip_io = require('./server/waip_io')(io, sql, async, app_cfg);
 var udp = require('./server/udp')(app_cfg, waip_io);
