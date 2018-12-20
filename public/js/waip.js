@@ -1,4 +1,4 @@
-﻿// TODO: Remote-Reload per Socket
+// TODO: Remote-Reload per Socket
 // TODO: Client-Server-Version abgleichen
 // TODO: Modal bei Chrome, dass Audio erst bei interaktion aktiv
 
