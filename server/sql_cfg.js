@@ -9,7 +9,7 @@ module.exports = function(bcrypt, app_cfg) {
   var dbExists = fs.existsSync(dbFile);
 
   // Datenbank erstellen
-  var db = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE, (err) => {
+  var db = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
       console.error(err.message);
     }
@@ -789,21 +789,14 @@ module.exports = function(bcrypt, app_cfg) {
         (\'83\',\'RTW\'),
         (\'85\',\'KTW\'),
         (\'88\',\'Rettungsboot\')`);
-      // Benutzer-Tabelle mit Standard befuellen
-      db.get("SELECT user from waip_users", function(err, row) {
-        if (!row) {
-          /*bcrypt.hash('a', 1, function(err, hash) {
-            console.log(hash);
-          });*/
-        };
-      });
-      /*bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function(err, hash) {
+      // Benutzer-Tabelle mit Standard-Admin befuellen
+      bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function(err, hash) {
         db.run(`INSERT INTO waip_users ( user, password, permissions ) VALUES( ?, ?, 'admin' )`, app_cfg.global.defaultuser, hash, function(err) {
           if (err) {
             console.log(err);
           };
         });
-      });*/
+      });
     });
   };
 
