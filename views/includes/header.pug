@@ -6,9 +6,27 @@ header
       span.navbar-toggler-icon
     #navbarCollapse.collapse.navbar-collapse
       ul.navbar-nav.mr-auto
-        li(class=(title == 'Startseite') ? 'active' : null)
+        li.nav-item(class=(title == 'Startseite') ? 'active' : null)
           a.nav-link(href='/') Startseite
-        li(class=(title == 'Alarmmonitor') ? 'active' : null)
+        li.nav-item(class=(title == 'Alarmmonitor') ? 'active' : null)
           a.nav-link(href='/waip') Alarmmonitor
-        li(class=(title == 'Über') ? 'active' : null)
-          a.nav-link(href='/ueber') Über
+        li.nav-item(class=(title == 'Über') ? 'active' : null)
+          a.nav-link(href='/ueber') Über        
+      ul.navbar-nav.ml-auto
+        if user
+          li.nav-item(class=(title == 'Logout') ? 'active' : null)
+            a.nav-link(href='/logout') Logout
+          if user.permissions == 'admin'
+            li.nav-item.dropdown
+              a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                | Administration
+              .dropdown-menu(aria-labelledby='navbarDropdown')
+                a.dropdown-item(href='/account') Mein Account
+                .dropdown-divider
+                a.dropdown-item(href='/current_user') User Online
+                a.dropdown-item(href='/current_waip') Akutelle Einsätze
+                c.dropdown-divider       
+                a.dropdown-item(href='/logout') Logout          
+        else 
+          li.nav-item(class=(title == 'Login') ? 'active' : null)
+            a.nav-link(href='/login') Login
