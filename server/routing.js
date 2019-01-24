@@ -13,7 +13,7 @@ module.exports = function(app, sql, app_cfg, passport) {
             list_wache: data_wachen,
             list_traeger: data_traeger,
             list_kreis: data_kreis,
-            user:req.user
+            user: req.user
           });
         });
       });
@@ -36,12 +36,12 @@ module.exports = function(app, sql, app_cfg, passport) {
           wachen_id: parmeter_id,
           data_wache: ' ' + result.name,
           app_id: app_cfg.global.app_id,
-          user:req.user
+          user: req.user
         });
       } else {
-        var err = new Error('Wache '+ parmeter_id +' nicht vorhanden');
+        var err = new Error('Wache ' + parmeter_id + ' nicht vorhanden');
         err.status = 404;
-        next (err);
+        next(err);
       }
     });
   });
@@ -51,7 +51,7 @@ module.exports = function(app, sql, app_cfg, passport) {
   app.get('/ueber', function(req, res) {
     res.render('ueber', {
       title: 'Über',
-      user:req.user
+      user: req.user
     });
   });
 
@@ -59,7 +59,7 @@ module.exports = function(app, sql, app_cfg, passport) {
   app.get('/test_clock', function(req, res) {
     res.render('test_clock', {
       title: 'Test Uhr',
-      user:req.user
+      user: req.user
     });
   });
 
@@ -67,7 +67,7 @@ module.exports = function(app, sql, app_cfg, passport) {
   app.get('/test_tableau', function(req, res) {
     res.render('test_wachalarm', {
       title: 'Test Wachalarm',
-      user:req.user
+      user: req.user
     });
   });
 
@@ -75,21 +75,20 @@ module.exports = function(app, sql, app_cfg, passport) {
   app.get('/login', function(req, res) {
     res.render('login', {
       title: 'Login',
-      user:req.user
+      user: req.user
     });
   });
 
   app.post('/login', passport.authenticate('local', {
-      failureRedirect: '/'
-    }), function(req, res) {
-      res.redirect('/');
-    }
-  );
+    failureRedirect: '/login'
+  }), function(req, res) {
+    res.redirect('/');
+  });
 
   app.post('/logout', function(req, res) {
-  	req.session.destroy(function(err) {
-  		res.redirect('/');
-  	})
+    req.session.destroy(function(err) {
+      res.redirect('/');
+    })
   });
 
   // catch 404 and forward to error handler
