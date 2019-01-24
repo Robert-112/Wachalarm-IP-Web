@@ -46,6 +46,8 @@ var udp = require('./server/udp')(app_cfg, waip_io);
 var auth = require('./server/auth')(app_cfg, sql_cfg, bcrypt, passport, LocalStrategy);
 var routes = require('./server/routing')(app, sql, app_cfg, passport);
 
+
+
 // Server starten
 server.listen(app_cfg.global.webport, function() {
   console.log('Wachalarm-IP-Webserver auf Port ' + app_cfg.global.webport + ' gestartet');
