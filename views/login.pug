@@ -11,11 +11,11 @@ block content
               form(action='/login', method='POST')
                 .form-group
                   label(for='inputUser') Benutzername
-                  input#inputUser.form-control(type='user' placeholder='Benutzername eingeben' required='' autofocus='')
+                  input#login-user.form-control(type='text' name='user'  placeholder='Benutzername eingeben' required='' autofocus='')
                   small.form-text.text-muted Der Benutzer wird Ihnen von der Administration mitgeteilt.
                 .form-group
                   label(for='inputPassword') Passwort
-                  input#inputPassword.form-control(type='password' placeholder='Passwort' required='')                  
+                  input#login-password.form-control(type='password' name='password' placeholder='Passwort' required='')                  
                 .form-check
                   input#loginCheck1.form-check-input(type='checkbox')
                   label.form-check-label(for='loginCheck1') angemeldet bleiben
