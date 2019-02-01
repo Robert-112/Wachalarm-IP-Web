@@ -1,0 +1,33 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/datatables.min.css')
+  script(src='/js/datatables.min.js')
+  script(src='/js/dataTables.bootstrap4.min.js')
+
+block content
+  main(role='main')
+    .container
+      .row
+        table#table_log.table-striped.table-bordered.table-hover.display.table-sm.table-responsive
+            thead
+              tr
+                th id
+                th log_time
+                th log_typ
+                th log_text
+
+  script.
+    var datasets = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
+    $(document).ready(function() {
+    $('#table_log').DataTable( {
+    "data": datasets,
+    "language": { "url": "/js/datatables_german.json" },
+    "columns": [
+    { "data": "id" },
+    { "data": "log_time" },
+    { "data": "log_typ" },
+    { "data": "log_text" }
+    ]
+    } );
+    } );
