@@ -19,10 +19,12 @@ header
               a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                 | Administration
               .dropdown-menu(aria-labelledby='navbarDropdown')
-                a.dropdown-item(href='/users') Benutzer und Rechte verwalten
+                a.dropdown-item(href='/show_users') Benutzer und Rechte verwalten
                 .dropdown-divider
-                a.dropdown-item(href='/show_active_user') Verbundene PC/Benutzer
-                a.dropdown-item(href='/show_active_waip') Akutelle Einsätze       
+                a.dropdown-item(href='/show_active_user') Verbundene PCs/Benutzer
+                a.dropdown-item(href='/show_active_waip') Akutelle Einsätze  
+                .dropdown-divider
+                a.dropdown-item(href='/show_log') Log-Datei                     
           li.nav-item
             form(action='/logout', method='POST')
               button.btn.btn-outline-success(type='submit') Abmelden          
