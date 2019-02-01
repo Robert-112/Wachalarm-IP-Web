@@ -1,4 +1,4 @@
-module.exports = function(app_cfg, waip_io){
+module.exports = function(app_cfg, waip_io, sql){
 
   // Module laden
   var dgram = require('dgram');
@@ -18,16 +18,16 @@ module.exports = function(app_cfg, waip_io){
   udp_server.bind(app_cfg.global.udpport);
   udp_server.on('listening', function() {
     var address = udp_server.address();
-    console.log('UDP Server auf ' + address.address + ':' + address.port + ' gestartet.');
+    sql.db_log('Anwendung', 'UDP Server auf ' + address.address + ':' + address.port + ' gestartet.');
   });
 
   // Warten auf Einsatzdaten
   udp_server.on('message', function(message, remote) {
     if (isValidJSON(message)) {
-      console.log('Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
+      sql.db_log('WAIP','Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
       waip_io.einsatz_speichern(message);
     } else {
-      console.log('Fehler: Einsatz von ' + remote.address + ':' + remote.port + ' Fehlerhaft: ' + message);
+      sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote.address + ':' + remote.port + ' Fehlerhaft: ' + message);
     }
   });
 };

@@ -1,4 +1,4 @@
-module.exports = function(bcrypt, app_cfg) {
+module.exports = function (bcrypt, app_cfg) {
 
   // TODO: gegen better-sqlite3 ersetzen
 
@@ -18,7 +18,7 @@ module.exports = function(bcrypt, app_cfg) {
 
   // Datenbank bei Neustart bereinigen, oder Datenbank befuellen
   if (dbExists) {
-    db.serialize(function() {
+    db.serialize(function () {
       // alte Clients (Sockets) bei neustart des Servers entfernen
       db.run(`DELETE FROM waip_clients`);
     });
@@ -26,7 +26,7 @@ module.exports = function(bcrypt, app_cfg) {
     // Datenbankdatei erstellen
     fs.openSync(dbFile, 'w');
     // leere Datenbank befuellen
-    db.serialize(function() {
+    db.serialize(function () {
       // Einsatz-Tabelle erstellen
       db.run(`CREATE TABLE waip_einsaetze (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -84,6 +84,11 @@ module.exports = function(bcrypt, app_cfg) {
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         einsatzmittel_typ TEXT,
         einsatzmittel_rufname TEXT)`);
+      db.run(`CREATE TABLE waip_log (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        log_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        log_typ TEXT,
+        log_text TEXT)`);
       // Default-Wachen speichern
       db.run(`INSERT OR REPLACE INTO waip_wachen (
         nr_wache, nr_traeger, nr_kreis, name_wache, name_traeger, name_kreis)
@@ -790,10 +795,10 @@ module.exports = function(bcrypt, app_cfg) {
         (\'85\',\'KTW\'),
         (\'88\',\'Rettungsboot\')`);
       // Benutzer-Tabelle mit Standard-Admin befuellen
-      bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function(err, hash) {
-        db.run(`INSERT INTO waip_users ( user, password, permissions ) VALUES( ?, ?, 'admin' )`, app_cfg.global.defaultuser, hash, function(err) {
+      bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function (err, hash) {
+        db.run(`INSERT INTO waip_users ( user, password, permissions ) VALUES( ?, ?, 'admin' )`, app_cfg.global.defaultuser, hash, function (err) {
           if (err) {
-            console.log(err);
+            console.error(err.message);
           };
         });
       });

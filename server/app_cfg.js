@@ -9,6 +9,7 @@ app_cfg.global = {
 	defaultuser: 'me',
 	defaultpass: '123',
 	saltRounds: 10,
+	sessionsecret: '0987654321abcdef#xyz',
 	// TODO: eindeutige ID/Version für Anwendung hinterlegen
 	// TODO: Karten-URL für Client festlegen
 	app_id: process.pid

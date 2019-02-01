@@ -338,6 +338,24 @@ module.exports = function(db) {
     });
   };
 
+  function db_log(typ, text) {
+    db.run(`INSERT INTO waip_log (log_typ, log_text)
+      VALUES (
+        \'` + typ + `\',
+        \'` + text + `\')`);
+    //TODO: Log auf 20.000 Datensätze begrenzen
+  };
+  
+  function db_get_log(callback) {
+    db.all('select * from waip_log order by log_time DESC', function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
@@ -358,7 +376,9 @@ module.exports = function(db) {
     db_tts_einsatzmittel: db_tts_einsatzmittel,
     db_get_socket_by_id: db_get_socket_by_id,
     db_update_client_status: db_update_client_status,
-    db_check_client_waipid: db_check_client_waipid
+    db_check_client_waipid: db_check_client_waipid,
+    db_log: db_log,
+    db_get_log: db_get_log
   };
 
 };
