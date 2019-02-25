@@ -1,12 +1,12 @@
-module.exports = function (app, sql, app_cfg, passport, auth) {
+module.exports = function(app, sql, app_cfg, passport, auth) {
 
   // get index
-  app.get('/', function (req, res) {
-    sql.db_list_wachen(function (data) {
+  app.get('/', function(req, res) {
+    sql.db_list_wachen(function(data) {
       var data_wachen = data
-      sql.db_list_traeger(function (data) {
+      sql.db_list_traeger(function(data) {
         var data_traeger = data
-        sql.db_list_kreis(function (data) {
+        sql.db_list_kreis(function(data) {
           var data_kreis = data
           res.render('home', {
             title: 'Startseite',
@@ -21,15 +21,15 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
   });
 
   // get /waip
-  app.get('/waip', function (req, res) {
+  app.get('/waip', function(req, res) {
     res.redirect('/waip/0');
   });
 
   // get /waip/<wachennummer>
   // TODO: Abstruz bei unbekannter/falscher Wachennummer
-  app.get('/waip/:wachen_id', function (req, res, next) {
+  app.get('/waip/:wachen_id', function(req, res, next) {
     var parmeter_id = req.params.wachen_id;
-    sql.db_wache_vorhanden(parmeter_id, function (result) {
+    sql.db_wache_vorhanden(parmeter_id, function(result) {
       if (result) {
         res.render('waip', {
           title: 'Alarmmonitor',
@@ -48,7 +48,7 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
 
 
   // get /ueber
-  app.get('/ueber', function (req, res) {
+  app.get('/ueber', function(req, res) {
     res.render('ueber', {
       title: 'Über',
       user: req.user
@@ -56,7 +56,7 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
   });
 
   // get /uhr
-  app.get('/test_clock', function (req, res) {
+  app.get('/test_clock', function(req, res) {
     res.render('test_clock', {
       title: 'Test Uhr',
       user: req.user
@@ -64,16 +64,38 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
   });
 
   // get /test_tableau
-  app.get('/test_tableau', function (req, res) {
+  app.get('/test_tableau', function(req, res) {
     res.render('test_wachalarm', {
       title: 'Test Wachalarm',
       user: req.user
     });
   });
 
+  // get /show_active_user
+  app.get('/show_active_user', auth.ensureAuthenticated, function(req, res) {
+    sql.db_get_active_clients(function(data) {
+      res.render('show_active_user', {
+        title: 'Verbundene PCs/Benutzer',
+        user: req.user,
+        dataSet: data
+      });
+    });
+  });
+
+  // get /show_active_waip
+  app.get('/show_active_waip', auth.ensureAuthenticated, function(req, res) {
+    sql.db_get_active_waips(function(data) {
+      res.render('show_active_waip', {
+        title: 'Akutelle Einsätze',
+        user: req.user,
+        dataSet: data
+      });
+    });
+  });
+
   // get /show_log
-  app.get('/show_log', auth.ensureAuthenticated, function (req, res) {
-    sql.db_get_log(function (data) {
+  app.get('/show_log', auth.ensureAuthenticated, function(req, res) {
+    sql.db_get_log(function(data) {
       res.render('show_log', {
         title: 'Log-Datei',
         user: req.user,
@@ -82,8 +104,38 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
     });
   });
 
+  // get /edit_users
+  app.get('/edit_users', auth.ensureAuthenticated, function(req, res) {
+    sql.db_get_users(function(data) {
+      res.render('edit_users', {
+        title: 'Benutzer und Rechte verwalten',
+        user: req.user,
+        users: data
+      });
+    });
+  });
+
+  app.post('/edit_users', auth.ensureAuthenticated, function(req, res) {
+    console.log(req.body);
+    if (req.user && req.user.permissions == "admin") {
+      switch (req.body["_method"]) {
+        case "DELETE":
+          deleteUser(req, res);
+          break;
+        case "PUT":
+          editUser(req, res);
+          break;
+        default:
+          createUser(req, res);
+          break;
+      }
+    } else {
+      res.redirect('/edit_users');
+    }
+  });
+
   // get /login
-  app.get('/login', function (req, res) {
+  app.get('/login', function(req, res) {
     res.render('login', {
       title: 'Login',
       user: req.user
@@ -92,31 +144,33 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
 
   app.post('/login', passport.authenticate('local', {
     failureRedirect: '/login'
-  }), function (req, res) {
+  }), function(req, res) {
     res.redirect('/');
   });
 
-  app.post('/logout', function (req, res) {
-    req.session.destroy(function (err) {
+  app.post('/logout', function(req, res) {
+    req.session.destroy(function(err) {
       res.redirect('/');
     })
   });
 
   // catch 404 and forward to error handler
-  app.use(function (req, res, next) {
+  app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
   });
 
   // error handler
-  app.use(function (err, req, res, next) {
+  app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
     // render the error page
     res.status(err.status || 500);
-    res.render('error');
+    res.render('error', {
+      user: req.user
+    });
   });
 
 };
