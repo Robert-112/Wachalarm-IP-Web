@@ -345,9 +345,9 @@ module.exports = function(db) {
         \'` + text + `\')`);
     //TODO: Log auf 20.000 Datensätze begrenzen
   };
-  
+
   function db_get_log(callback) {
-    db.all('select * from waip_log order by log_time DESC', function(err, rows) {
+    db.all(`select * from waip_log order by id desc LIMIT 5000`, function(err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -355,6 +355,44 @@ module.exports = function(db) {
       };
     });
   };
+
+  function db_get_active_clients(callback) {
+    db.all(`select * from waip_clients`, function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_get_active_waips(callback) {
+    db.all(`select we.einsatzart, we.stichwort, we.ort, we.ortsteil,
+    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
+    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
+    GROUP_concat(DISTINCT wa.nr_wache) c
+    from waip_einsaetze we
+    left join waip_einsatzmittel em on em.waip_einsaetze_ID = we.id
+    left join waip_wachen wa on wa.id = em.waip_wachen_ID
+    GROUP by we.id
+    ORDER by we.einsatzart, we.stichwort`, function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_get_users(callback) {
+    db.all('SELECT id, user, permissions FROM waip_users', function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  }
 
   return {
     db_einsatz_speichern: db_einsatz_speichern,
@@ -378,7 +416,10 @@ module.exports = function(db) {
     db_update_client_status: db_update_client_status,
     db_check_client_waipid: db_check_client_waipid,
     db_log: db_log,
-    db_get_log: db_get_log
+    db_get_log: db_get_log,
+    db_get_active_clients: db_get_active_clients,
+    db_get_active_waips: db_get_active_waips,
+    db_get_users: db_get_users
   };
 
 };
