@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-12
+          h3 Einsätze sortiert nach Art und Ort
+        .col-12        
+          ol
+            each val in dataSet
+              li= val.einsatzart + ', ' + val.stichwort + ', ' + val.ort + ' ' + val.ortsteil
+                ul
+                  if val.a
+                    each val_a in (val.a).split(",")
+                      li
+                        a(href="/waip/" + val_a)= val_a
+                        ul
+                          each val_b in (val.b).split(",")
+                            if val_b.includes(val_a)
+                              li
+                                a(href="/waip/" + val_b)= val_b
+                                ul
+                                  each val_c in (val.c).split(",")
+                                    if val_c.includes(val_b)
+                                      li
+                                        a(href="/waip/" + val_c)= val_c
