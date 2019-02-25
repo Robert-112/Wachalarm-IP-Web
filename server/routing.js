@@ -71,11 +71,44 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
     });
   });
 
+  // get /show_active_user
+  app.get('/show_active_user', auth.ensureAuthenticated, function (req, res) {
+    sql.db_get_active_clients(function (data) {
+      res.render('show_active_user', {
+        title: 'Verbundene PCs/Benutzer',
+        user: req.user,
+        dataSet: data
+      });
+    });
+  });
+
+  // get /show_active_waip
+  app.get('/show_active_waip', auth.ensureAuthenticated, function (req, res) {
+    sql.db_get_active_waips(function (data) {
+      res.render('show_active_waip', {
+        title: 'Akutelle Einsätze',
+        user: req.user,
+        dataSet: data
+      });
+    });
+  });
+
   // get /show_log
   app.get('/show_log', auth.ensureAuthenticated, function (req, res) {
     sql.db_get_log(function (data) {
       res.render('show_log', {
         title: 'Log-Datei',
+        user: req.user,
+        dataSet: data
+      });
+    });
+  });
+
+  // get /edit_users
+  app.get('/edit_users', auth.ensureAuthenticated, function (req, res) {
+    sql.db_get_users(function (data) {
+      res.render('edit_users', {
+        title: 'Benutzer und Rechte verwalten',
         user: req.user,
         dataSet: data
       });
@@ -116,7 +149,9 @@ module.exports = function (app, sql, app_cfg, passport, auth) {
     res.locals.error = req.app.get('env') === 'development' ? err : {};
     // render the error page
     res.status(err.status || 500);
-    res.render('error');
+    res.render('error', {
+      user: req.user
+    });
   });
 
 };
