@@ -1,0 +1,68 @@
+extends layout
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-3
+        .col-6
+          .card.text-white.bg-success.mb-3
+            .card-body
+              h5.card-title Success
+              p.card-text password updated, user updated
+              a(href="#").btn.btn-primary Close
+      .row
+        .col-4
+          .card.border-success.mb-3
+            .card-body.text-success.text-center
+              h5.card-title Add User
+              button.btn.btn-primary +
+        .col-4
+          .card.border-dark.mb-3
+            .card-header Benutzer1 (admin)
+            .card-body.text-dark.text-right
+              .btn-group
+                button.btn.btn-primary Edit
+                button.btn.btn-danger Delete
+
+  #userModal.modal.fade(tabindex='-1', role='dialog', aria-hidden='true')
+    .modal-dialog.modal-dialog-centered(role='document')
+      .modal-content
+        .modal-header
+          h5#waipModalTitle.modal-title Edit User
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') ×
+        #waipModalBody.modal-body
+          form
+            .form-group
+              label(for='exampleInputEmail1') Email address
+              input.form-control(type='text', placeholder='Readonly input here…', readonly='')
+              small#emailHelp.form-text.text-muted We'll never share your email with anyone else.
+            fieldset.form-group
+              .row
+                legend.col-form-label.col-sm-3.pt-0 Berechtigung
+                .col-sm-9
+                  .form-check
+                    input#gridRadios1.form-check-input(type='radio', name='gridRadios', value='option1', checked='')
+                    label.form-check-label(for='gridRadios1')
+                      | Benuzter
+                  .form-check
+                    input#gridRadios2.form-check-input(type='radio', name='gridRadios', value='option2')
+                    label.form-check-label(for='gridRadios2')
+                      | Sichter
+                  .form-check
+                    input#gridRadios3.form-check-input(type='radio', name='gridRadios', value='option3', disabled='')
+                    label.form-check-label(for='gridRadios3')
+                      | Administrator
+            .form-group
+              label(for='exampleInputPassword1') Passwort
+              input#exampleInputPassword1.form-control(type='password', placeholder='...')
+              label(for='exampleInputPassword1') Password wiederholen
+              input#exampleInputPassword1.form-control(type='password', placeholder='...')
+        .modal-footer
+          button.btn.btn-primary(type='submit') Speichern
+          button.btn.btn-secondary(type='button', data-dismiss='modal') Abbrechen
+
+  script.
+    $('#userModal').modal('show')
+    var datasets = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
