@@ -6,8 +6,8 @@ module.exports = function (app, app_cfg, db, bcrypt, passport, LocalStrategy) {
 
   app.use(session({
     store: new SQLiteStore({
-      db: app_cfg.global.database,
-      concurrentDB: true
+      //db: app_cfg.global.database,
+      //concurrentDB: true
     }),
     secret: app_cfg.global.sessionsecret,
     resave: false,
@@ -57,6 +57,8 @@ module.exports = function (app, app_cfg, db, bcrypt, passport, LocalStrategy) {
     // denied. redirect to login
     res.redirect('/login')
   }
+
+  //TODO: ensureAuthenticated für admin-user erstellen
 
   return{
     ensureAuthenticated: ensureAuthenticated
