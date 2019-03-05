@@ -8,11 +8,13 @@ app_cfg.global = {
 	mediapath: '/media/',
 	defaultuser: 'me',
 	defaultpass: '123',
+	defaultuserip: '127.0.0.1',
 	saltRounds: 10,
 	sessionsecret: '0987654321abcdef#xyz',
 	// TODO: eindeutige ID/Version für Anwendung hinterlegen
 	// TODO: Karten-URL für Client festlegen
-	app_id: process.pid
+	app_id: process.pid,
+	map_tile: 'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
 };
 
 module.exports = app_cfg;
