@@ -7,7 +7,6 @@ var async = require('async');
 var path = require('path');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
-// kann gelöscht werden -> var cookieParser = require('cookie-parser');
 var bcrypt = require('bcrypt');
 var passport = require('passport');
 
@@ -20,7 +19,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
-// kann gelöscht werden -> app.use(cookieParser('secret'));
 
 // Scripte einbinden
 var app_cfg = require('./server/app_cfg.js');
@@ -28,7 +26,7 @@ var sql_cfg = require('./server/sql_cfg')(bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg)
 var waip_io = require('./server/waip_io')(io, sql, async, app_cfg);
 var udp = require('./server/udp')(app_cfg, waip_io, sql);
-var auth = require('./server/auth')(app, app_cfg, sql_cfg, bcrypt, passport);
+var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
 var routes = require('./server/routing')(app, sql, app_cfg, passport, auth);
 
 // Server starten
