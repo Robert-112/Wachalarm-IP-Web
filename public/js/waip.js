@@ -119,9 +119,8 @@ var map = L.map('map', {
 
 // Layer der Karte
 mapLink = L.tileLayer(
-  'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  map_tile, {
+    maxZoom: 18
   }).addTo(map);
 
 // Icon der Karte zuordnen
@@ -160,9 +159,6 @@ socket.on('connect_error', function(err) {
 
 // ID von Server und Client vergleichen, falls ungleich -> Seite neu laden
 socket.on('io.version', function(server_id) {
-  var client_id = $('#app_id').html();
-  //console.log('server_id: ' + server_id);
-  //console.log('client_id: ' + client_id);
   // TODO: socket.emit(lade client xxx neu)
   if (client_id != server_id) {
     $('#waipModalTitle').html('ACHTUNG');
