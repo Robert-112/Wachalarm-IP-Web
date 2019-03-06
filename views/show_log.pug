@@ -7,27 +7,36 @@ append head
 
 block content
   main(role='main')
-    .container
+    .container-fluid
       .row
-        table#table_log.table-striped.table-bordered.table-hover.display.table-sm.table-responsive
+        .col-12
+          h3 Es werden die letzten 5.000 Einträge der Log-Datei angezeigt
+        .col-12        
+          table#table_log.table-striped.table-bordered.table-hover.display.table-sm.table-responsive.w-100.table-dark
             thead
               tr
-                th id
-                th log_time
-                th log_typ
-                th log_text
+                th ID
+                th Zeitstempel
+                th Typ
+                th Protokolltext
 
   script.
     var datasets = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
     $(document).ready(function() {
-    $('#table_log').DataTable( {
-    "data": datasets,
-    "language": { "url": "/js/datatables_german.json" },
-    "columns": [
-    { "data": "id" },
-    { "data": "log_time" },
-    { "data": "log_typ" },
-    { "data": "log_text" }
-    ]
-    } );
-    } );
+      $('#table_log').DataTable( {
+        "data": datasets,
+        "language": { 
+          "url": "/js/datatables_german.json" 
+        },
+        "order": [
+          [ 0, "desc" ]
+        ],
+        "iDisplayLength": 25,
+        "columns": [
+          { "data": "id" },
+          { "data": "log_time" },
+          { "data": "log_typ" },
+          { "data": "log_text" }
+        ]
+      });
+    });
