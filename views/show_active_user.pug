@@ -1,0 +1,41 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/datatables.min.css')
+  script(src='/js/datatables.min.js')
+  script(src='/js/dataTables.bootstrap4.min.js')
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-12
+          h3 Zeigt alle jetzt verbundenen Clients und deren Status an
+        .col-12
+          table#table_active_user.table-striped.table-bordered.table-hover.display.table-sm.table-responsive.w-100.table-dark
+            thead
+              tr
+                th ID
+                th Verbunden seit
+                th Socket-ID
+                th Client-IP
+                th aufgerufener Wachalarm
+                th Client-Status (Einsazt-ID)
+
+  script.
+    var datasets = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
+    $(document).ready(function() {
+      $('#table_active_user').DataTable( {
+        "data": datasets,
+        "language": 
+          { "url": "/js/datatables_german.json" },
+        "columns": [
+          { "data": "id" },
+          { "data": "connect_time" },
+          { "data": "socket_id" },
+          { "data": "client_ip" },
+          { "data": "room_name" },
+          { "data": "client_status" }
+        ]
+      });
+    });
