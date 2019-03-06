@@ -1,27 +1,27 @@
-module.exports = function (io, sql, async, app_cfg) {
+module.exports = function(io, sql, async, app_cfg) {
 
   // Socket.IO
-  io.on('connection', function (socket) {
+  io.on('connection', function(socket) {
     sql.db_log('WAIP', 'Anwendung von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') geoeffnet');
     io.sockets.to(socket.id).emit('io.version', app_cfg.global.app_id);
     // disconnect
-    socket.on('disconnect', function () {
+    socket.on('disconnect', function() {
       sql.db_log('WAIP', 'Alarmmonitor von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') geschlossen');
       sql.db_client_delete(socket.id);
     });
     // Aufruf des Alarmmonitors einer bestimmten Wache verarbeiten
-    socket.on('wachen_id', function (wachen_id) {
+    socket.on('wachen_id', function(wachen_id) {
       sql.db_log('WAIP', 'Alarmmonitor Nr. ' + wachen_id + ' von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') aufgerufen');
       // prüfen ob Wachenummer in der Datenbank hinterlegt ist
-      sql.db_wache_vorhanden(wachen_id, function (result) {
+      sql.db_wache_vorhanden(wachen_id, function(result) {
         // wenn die Wachennummer vorhanden/plausibel dann weiter
         if (result) {
           // Socket-Room beitreiten
-          socket.join(wachen_id, function () {
+          socket.join(wachen_id, function() {
             // Socket-ID und Client-IP in der Datenbank speichern
             sql.db_client_save(socket.id, socket.request.connection.remoteAddress, wachen_id);
             // prüfen ob für diese Wache ein Einsatz vorhanden ist
-            sql.db_einsatz_vorhanden(wachen_id, function (result_einsatz) {
+            sql.db_einsatz_vorhanden(wachen_id, function(result_einsatz) {
               if (result_einsatz) {
                 sql.db_log('WAIP', 'Einsatz ' + result_einsatz[0].waip_einsaetze_ID + ' fuer Wache ' + wachen_id + ' vorhanden');
                 //letzten Einsatz verteilen
@@ -47,16 +47,16 @@ module.exports = function (io, sql, async, app_cfg) {
   // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(message) {
     // Einsatzmeldung (JSON) speichern
-    sql.db_einsatz_speichern(JSON.parse(message), function (waip_id) {
+    sql.db_einsatz_speichern(JSON.parse(message), function(waip_id) {
       // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln
       sql.db_log('WAIP', 'DEBUG: ' + waip_id);
-      sql.db_get_einsatzwachen(waip_id, function (data) {
+      sql.db_get_einsatzwachen(waip_id, function(data) {
         if (data) {
-          data.forEach(function (row) {
+          data.forEach(function(row) {
             // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
             var room_stockets = io.sockets.adapter.rooms[row.room];
             if (typeof room_stockets !== 'undefined') {
-              Object.keys(room_stockets.sockets).forEach(function (socketId) {
+              Object.keys(room_stockets.sockets).forEach(function(socketId) {
                 einsatz_verteilen(waip_id, socketId, row.room);
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socketId + ' (' + row.room + ') gesendet');
               });
@@ -72,17 +72,29 @@ module.exports = function (io, sql, async, app_cfg) {
   // Einsatz an Client verteilen
   function einsatz_verteilen(waip_id, socket_id, wachen_nr) {
     // Einsatzdaten für eine Wache aus Datenbank laden
-    sql.db_get_einsatzdaten(waip_id, wachen_nr, function (einsatzdaten) {
+    sql.db_get_einsatzdaten(waip_id, wachen_nr, function(einsatzdaten) {
       if (einsatzdaten) {
-        // Einsatz senden
-        sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket_id + ' gesendet');
-        io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten);
-        sql.db_update_client_status(socket_id, waip_id);
-        // Sound erstellen
-        tts_erstellen(app_cfg, socket_id, einsatzdaten, function (tts) {
-          // Sound senden
-          sql.db_log('WAIP', 'ttsfile: ' + tts);
-          io.sockets.to(socket_id).emit('io.playtts', tts);
+        // Berechtigung ueberpruefen
+        var permissions = io.sockets.sockets[socket_id].request.user.permissions;
+        sql.db_check_permission(permissions, waip_id, function(valid) {
+          //console.log(permissions + ' ' + wachen_nr);
+          //if (permissions == wachen_nr || permissions == 'admin') {} else {
+          if (!valid) {
+            einsatzdaten.besonderheiten = '';
+            einsatzdaten.strasse = '';
+            einsatzdaten.wgs84_x = '';
+            einsatzdaten.wgs84_y = '';
+          };
+          // Einsatz senden
+          io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
+          sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket_id + ' gesendet');
+          sql.db_update_client_status(socket_id, waip_id);
+          // Sound erstellen
+          tts_erstellen(app_cfg, socket_id, einsatzdaten, function(tts) {
+            // Sound senden
+            sql.db_log('WAIP', 'ttsfile: ' + tts);
+            io.sockets.to(socket_id).emit('io.playtts', tts);
+          });
         });
       } else {
         // Standby senden
@@ -108,7 +120,7 @@ module.exports = function (io, sql, async, app_cfg) {
       var mp3_bell = process.cwd() + app_cfg.global.soundpath + 'bell_short.mp3';
     };
     // Zusammensetzen der Sprachansage
-    async.map(JSON.parse(einsatzdaten.em_alarmiert), sql.db_tts_einsatzmittel, function (err, einsatzmittel) {
+    async.map(JSON.parse(einsatzdaten.em_alarmiert), sql.db_tts_einsatzmittel, function(err, einsatzmittel) {
       // Grunddaten
       var tts_text = einsatzdaten.einsatzart + ', ' + einsatzdaten.stichwort;
       if (einsatzdaten.objekt) {
@@ -151,11 +163,11 @@ module.exports = function (io, sql, async, app_cfg) {
         var childD = proc.spawn('powershell', commands);
         childD.stdin.setEncoding('ascii');
         childD.stderr.setEncoding('ascii');
-        childD.stderr.on('data', function (data) {
+        childD.stderr.on('data', function(data) {
           sql.db_log('Fehler-TTS', data);
           callback && callback(null);
         });
-        childD.on('exit', function () {
+        childD.on('exit', function() {
           callback && callback(mp3_url);
         });
         childD.stdin.end();
@@ -167,22 +179,22 @@ module.exports = function (io, sql, async, app_cfg) {
   };
 
   // Aufräumen (alle 10 Sekunden)
-  setInterval(function () {
+  setInterval(function() {
     // Nach alten Einsaetzen suchen und diese ggf. loeschen
-    sql.db_get_alte_einsaetze('5', function (waip_id) {
+    sql.db_get_alte_einsaetze('10', function(waip_id) {
       if (waip_id) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip_id + ' ist veraltet und kann gelöscht werden.')
         //beteiligte Wachen ermitteln
-        sql.db_get_einsatzwachen(waip_id, function (data) {
+        sql.db_get_einsatzwachen(waip_id, function(data) {
           if (data) {
-            data.forEach(function (row) {
+            data.forEach(function(row) {
               // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_stockets = io.sockets.adapter.rooms[row.room];
               if (typeof room_stockets !== 'undefined') {
-                Object.keys(room_stockets.sockets).forEach(function (socketId) {
+                Object.keys(room_stockets.sockets).forEach(function(socketId) {
                   // Standby senden
                   // TODO: Standby nur senden, wenn kein anderer (als der zu löschende) Einsatz angezeigt wird
-                  sql.db_check_client_waipid(socketId, waip_id, function (same_id) {
+                  sql.db_check_client_waipid(socketId, waip_id, function(same_id) {
                     if (same_id) {
                       io.sockets.to(socketId).emit('io.standby', null);
                       io.sockets.to(socketId).emit('io.stopaudio', null);
@@ -207,9 +219,9 @@ module.exports = function (io, sql, async, app_cfg) {
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
       // nur die mp3s von alten clients loeschen
       if (file.substring(0, 4) != 'bell' && file.substring(file.length - 3) == 'mp3' && file.substring(file.length - 8) != '_tmp.mp3') {
-        sql.db_get_socket_by_id(file.substring(0, file.length - 4), function (data) {
+        sql.db_get_socket_by_id(file.substring(0, file.length - 4), function(data) {
           if (!data) {
-            fs.unlink(process.cwd() + app_cfg.global.soundpath + file, function (err) {
+            fs.unlink(process.cwd() + app_cfg.global.soundpath + file, function(err) {
               if (err) return sql.db_log('Fehler-WAIP', err);
               sql.db_log('WAIP', file + ' wurde erfolgreich geloescht');
             });
