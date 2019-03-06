@@ -14,7 +14,7 @@ app_cfg.global = {
 	// TODO: eindeutige ID/Version für Anwendung hinterlegen
 	// TODO: Karten-URL für Client festlegen
 	app_id: process.pid,
-	map_tile: 'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
+	map_tile: '/media/maps/tiles_bw/{z}/{x}/{y}.png'
 };
 
 module.exports = app_cfg;
