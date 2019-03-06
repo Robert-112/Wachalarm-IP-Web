@@ -78,7 +78,8 @@ module.exports = function (bcrypt, app_cfg) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user TEXT,
         password TEXT,
-        permissions TEXT)`);
+        permissions TEXT,
+        ip_address TEXT)`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -796,7 +797,8 @@ module.exports = function (bcrypt, app_cfg) {
         (\'88\',\'Rettungsboot\')`);
       // Benutzer-Tabelle mit Standard-Admin befuellen
       bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function (err, hash) {
-        db.run(`INSERT INTO waip_users ( user, password, permissions ) VALUES( ?, ?, 'admin' )`, app_cfg.global.defaultuser, hash, function (err) {
+        db.run(`INSERT INTO waip_users ( user, password, permissions, ip_address ) VALUES( ?, ?, 'admin', ? )`,
+          app_cfg.global.defaultuser, hash, app_cfg.global.defaultuserip, function (err) {
           if (err) {
             console.error(err.message);
           };
