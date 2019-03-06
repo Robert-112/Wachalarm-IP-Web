@@ -16,8 +16,11 @@
     "express-session": "^1.15.6",
     "npm": "^5.8.0",
     "passport": "^0.4.0",
+    "passport-ip": "^0.1.2",
     "passport-local": "^1.0.0",
+    "passport.socketio": "^3.7.0",
     "pug": "^2.0.3",
+    "req-flash": "0.0.3",
     "serve-favicon": "^2.5.0",
     "socket.io": "^2.2.0",
     "sqlite3": "^4.0.4"
