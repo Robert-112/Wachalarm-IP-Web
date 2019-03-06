@@ -36,6 +36,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
           wachen_id: parmeter_id,
           data_wache: ' ' + result.name,
           app_id: app_cfg.global.app_id,
+          map_tile: app_cfg.global.map_tile,
           user: req.user
         });
       } else {
@@ -110,23 +111,24 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
       res.render('edit_users', {
         title: 'Benutzer und Rechte verwalten',
         user: req.user,
-        users: data
+        users: data,
+        error: req.flash("errorMessage"),
+        success: req.flash("successMessage")
       });
     });
   });
 
   app.post('/edit_users', auth.ensureAuthenticated, function(req, res) {
-    console.log(req.body);
     if (req.user && req.user.permissions == "admin") {
-      switch (req.body["_method"]) {
+      switch (req.body["modal_method"]) {
         case "DELETE":
-          deleteUser(req, res);
+          auth.deleteUser(req, res);
           break;
-        case "PUT":
-          editUser(req, res);
+        case "EDIT":
+          auth.editUser(req, res);
           break;
-        default:
-          createUser(req, res);
+        case "ADDNEW":
+          auth.createUser(req, res);
           break;
       }
     } else {
@@ -143,6 +145,12 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
   });
 
   app.post('/login', passport.authenticate('local', {
+    failureRedirect: '/login'
+  }), function(req, res) {
+    res.redirect('/');
+  });
+
+  app.post('/login_ip', passport.authenticate('ip', {
     failureRedirect: '/login'
   }), function(req, res) {
     res.redirect('/');
