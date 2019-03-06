@@ -2,7 +2,9 @@ module.exports = function(db) {
 
   function db_einsatz_vorhanden(content, callback) {
     // ermittelt den letzten vorhanden Einsatz zu einer Wache
-    if (parseInt(content) == 0) {content = '%'};
+    if (parseInt(content) == 0) {
+      content = '%'
+    };
     db.all('select em.waip_einsaetze_id from waip_einsatzmittel em ' +
       'left join waip_wachen wa on wa.id = em.waip_wachen_id  ' +
       'where wa.nr_wache like ?||\'%\' ' +
@@ -161,7 +163,9 @@ module.exports = function(db) {
       function(err, rows) {
         if (err == null && rows.length > 0) {
           // falls einsätze vorhanden, auch die null hinzufuegen
-          rows.push({"room":0});
+          rows.push({
+            "room": 0
+          });
           callback && callback(rows);
         } else {
           callback && callback(null);
@@ -245,7 +249,9 @@ module.exports = function(db) {
       if (parseInt(wachen_nr) != 0 && len != 2 && len != 4 && len != 6 && len == null) {
         callback && callback(null);
       } else {
-        if (parseInt(wachen_nr) == 0) {wachen_nr = '%'};
+        if (parseInt(wachen_nr) == 0) {
+          wachen_nr = '%'
+        };
         // je nach laenge andere SQL ausfuehren
         db.get('SELECT e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE ' +
           'FROM WAIP_EINSAETZE e ' +
@@ -300,7 +306,7 @@ module.exports = function(db) {
         if (err == null && row) {
           callback(null, row.name + ' ' + nr);
         } else {
-          callback(null, einsatzmittel.name );// + err + typ + nr + '_ ' + tmp);
+          callback(null, einsatzmittel.name); // + err + typ + nr + '_ ' + tmp);
         };
       });
     } else {
@@ -319,7 +325,7 @@ module.exports = function(db) {
   };
 
   function db_update_client_status(socket_id, client_status) {
-    db.run('UPDATE waip_clients '+
+    db.run('UPDATE waip_clients ' +
       'SET client_status=\'' + client_status + '\'' +
       'WHERE socket_id=\'' + socket_id + '\'');
   };
@@ -345,15 +351,81 @@ module.exports = function(db) {
         \'` + text + `\')`);
     //TODO: Log auf 20.000 Datensätze begrenzen
   };
-  
+
   function db_get_log(callback) {
-    db.all('select * from waip_log order by log_time DESC', function(err, rows) {
+    db.all(`select * from waip_log order by id desc LIMIT 5000`, function(err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
         callback && callback(null);
       };
     });
+  };
+
+  function db_get_active_clients(callback) {
+    db.all(`select * from waip_clients`, function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_get_active_waips(callback) {
+    db.all(`select we.einsatzart, we.stichwort, we.ort, we.ortsteil,
+    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
+    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
+    GROUP_concat(DISTINCT wa.nr_wache) c
+    from waip_einsaetze we
+    left join waip_einsatzmittel em on em.waip_einsaetze_ID = we.id
+    left join waip_wachen wa on wa.id = em.waip_wachen_ID
+    GROUP by we.id
+    ORDER by we.einsatzart, we.stichwort`, function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_get_users(callback) {
+    db.all('SELECT id, user, permissions, ip_address FROM waip_users', function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_check_permission(permissions, waip_id, callback) {
+    if (permissions === undefined) {
+      callback && callback(false);
+    } else {
+      if (permissions == 'admin') {
+        callback && callback(true);
+      } else {
+        //permissions -> 52,62,6690,....
+        db.get(`select group_concat(DISTINCT wa.nr_wache) wache from waip_einsatzmittel em
+          left join waip_wachen wa on wa.id = em.waip_wachen_ID
+          where waip_einsaetze_ID = ?`, [waip_id], function(err, row) {
+          if (err == null && row) {
+            var permission_arr = permissions.split(",");
+            var wachen_arr = row.wache.split(",");
+            const found = permission_arr.some(r => row.wache.search(RegExp(',' + r + '|\\b' + r)) >= 0);
+            if (found) {
+              callback && callback(true);
+            } else {
+              callback && callback(false);
+            };
+          } else {
+            callback && callback(false);
+          };
+        });
+      };
+    };
   };
 
   return {
@@ -378,7 +450,11 @@ module.exports = function(db) {
     db_update_client_status: db_update_client_status,
     db_check_client_waipid: db_check_client_waipid,
     db_log: db_log,
-    db_get_log: db_get_log
+    db_get_log: db_get_log,
+    db_get_active_clients: db_get_active_clients,
+    db_get_active_waips: db_get_active_waips,
+    db_get_users: db_get_users,
+    db_check_permission: db_check_permission
   };
 
 };
