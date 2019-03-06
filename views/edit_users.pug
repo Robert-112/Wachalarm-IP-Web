@@ -1,0 +1,138 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/ionicons.min.css')
+
+block content
+  main(role='main')
+    .container
+      #info.row
+        .col-md-3
+        .col-md-6.col-xs-12
+          if error
+            .card.text-white.bg-danger.mb-3
+              .card-body
+                .row
+                  .col-9
+                    h5.card-title.ion-md-close-circle-outline  Fehler
+                    p.card-text=error
+                  .col-3.text-right
+                    button#close_info.btn.btn-info.ion-md-close
+          if success
+            .card.text-white.bg-success.mb-3
+              .card-body
+                .row
+                  .col-9
+                    h5.card-title.ion-md-checkmark-circle-outline  Erfolg
+                    p.card-text=success
+                  .col-3.text-right
+                    button#close_info.btn.btn-info.ion-md-close
+      .row
+        .col-lg-4.col-12.d-flex.align-self-stretch
+          .card.border-success.mb-3.w-100
+            .card-body.text-success.text-center
+              h5.card-title Benutzer hinzufügen
+              button.btn.btn-success.btn-lg.ion-md-add-circle(onclick='addUser();')
+        each val in users
+          .col-lg-4.col-12.d-flex.align-self-stretch
+            .card.border-dark.mb-3.w-100
+              .card-header= val.user
+              .card-body.text-dark
+                p='Benutzerrechte: ' + val.permissions
+                p='IP-Adresse: ' + val.ip_address
+              .card-footer.text-right
+                button.btn.btn-primary.mx-2.ion-md-create(onclick='EditUser(this);', data-id=val.id, data-user=val.user, data-permissions=val.permissions, data-ip_address=val.ip_address)  Bearbeiten
+                form(action='/edit_users', method='POST', style='display:inline-block;')
+                  input(type='hidden', name='modal_method', value='DELETE')
+                  input(type='hidden', name='id', value=val.id)
+                  input(type='hidden', name='username', value=val.user)
+                  button.btn.btn-danger.mx-2.ion-md-trash(type='submit', value='submit')  Löschen
+
+  #userModal.modal.fade(tabindex='-1', role='dialog', aria-hidden='true')
+    .modal-dialog.modal-dialog-centered(role='document')
+      .modal-content
+        .modal-header
+          h5#userModalTitle.modal-title Edit User
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') ×
+        .modal-body
+          form#formModal(action="/edit_users", method="POST", oninput='password2.setCustomValidity(password2.value != password.value ? "Passwörter stimmen nicht überein!" : "")')
+            .form-group
+              input#modal_method(type='hidden', name='modal_method', value='')
+              input#modal_id(type='hidden', name='modal_id', value='')
+              label Benutzername
+              input#username.form-control(type='text', name='username', placeholder='Benutzername ...', readonly='')
+              small.form-text.text-muted Der Benutzername sollte eindeutig und nachvollziehbar sein.
+            fieldset.form-group
+              .row
+                legend.col-form-label.col-sm-3.pt-0 Berechtigung
+                .col-sm-9
+                  .form-check
+                    input#gridRadios1.form-check-input(type='radio', name='permissions', value='admin', required='')
+                    label.form-check-label(for='admin')
+                      | Administrator
+                    small.form-text.text-muted Administratoren können alle Einstellungen bearbeiten und sehen alle Wachalarme.
+                  .form-check
+                    input#gridRadios2.form-check-input(type='radio', name='permissions', value='user', required='')
+                    label.form-check-label(for='user')
+                      | Benutzer
+                    small.form-text.text-muted Benutzer können Wachalarme empfangen und eigene Einstzellungen festlegen.
+                    input#waip_rights.form-control(type='text', name='waip_rights', pattern='(((^|,)([0-9]+))+)', placeholder='00,0000,00000,000001,...')
+            .form-group
+              label Passwort
+              input#UserPassword.form-control(type='password', name='password', placeholder='...')
+              label Passwort erneut eingeben
+              input#UserPassword2.form-control(type='password', name='password2', placeholder='...')
+            .form-group
+              label IP-Adresse
+              input#ip.form-control(type='text', name='ip', placeholder='0.0.0.0 ...', pattern='^([0-9]{1,3}\.){3}[0-9]{1,3}$')
+              small.form-text.text-muted Die IP-Adresse dient zur automatischen Authentifizierung von Benuztern und ist optional
+        .modal-footer
+          button.btn.btn-primary(type='submit', form="formModal", value='submit') Speichern
+          button#userModalClose.btn.btn-secondary(type='button', data-dismiss='modal') Abbrechen
+
+  script.
+    $('#formModal').trigger("reset");
+    var addUser = function() {
+      $('#formModal').trigger("reset");
+      $("#userModalTitle").text("neuen Benutzer hinzufügen");
+      $("#modal_method").val("ADDNEW");
+      $("#modal_id").val("");
+      $("#username").prop("readonly", false);
+      $("#username").prop("required", true);
+      $("#UserPassword").prop("required", true);
+      $('#userModal').modal('show');
+    }
+    var EditUser = function(current_user) {
+      $('#formModal').trigger("reset");
+      $("#userModalTitle").text("Benutzer bearbeiten");
+      $("#modal_method").val("EDIT");
+      $("#modal_id").val($(current_user).data("id"));
+      $("#username").prop("readonly", true).val($(current_user).data("user"));
+      if ($(current_user).data("permissions") == "admin" ) {
+        $('#gridRadios1').click();  
+      } else {
+        $('#waip_rights').val($(current_user).data("permissions"));
+        $('#gridRadios2').val($(current_user).data("permissions"));
+        $('#gridRadios2').click(); 
+      }
+      $("#UserPassword").prop("required", false);
+      $("#ip").val($(current_user).data("ip_address"));
+      $('#userModal').modal('show');
+    }
+    $('#close_info').on('click', function(event) {
+      $('#info').addClass( 'd-none' )
+    });
+    $('#gridRadios1').change(function() {
+        if ($(this).is('input:checked')) {
+            $('#waip_rights').prop("required", false);
+        } 
+    });
+    $('#gridRadios2').change(function() {
+        if ($(this).is('input:checked')) {
+            $('#waip_rights').prop("required", true);
+        } 
+    });
+    $('#waip_rights').change(function() {
+      $('#gridRadios2').val($('#waip_rights').val());
+    });
