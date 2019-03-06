@@ -11,8 +11,10 @@ block content
       include includes/clock
     #waiptableau.d-none
       include includes/wachalarm
-  #app_id.d-none=app_id
 
+  script.
+    var map_tile = !{JSON.stringify(map_tile).replace(/<\//g, '<\\/')}
+    var client_id = !{JSON.stringify(app_id).replace(/<\//g, '<\\/')}
   script(src='/js/leaflet.js')
   script(src='/js/textFit.min.js')
   script(src='/socket.io/socket.io.js') 
