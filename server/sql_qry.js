@@ -1,4 +1,4 @@
-module.exports = function(db) {
+module.exports = function(db, async) {
 
   function db_einsatz_vorhanden(content, callback) {
     // ermittelt den letzten vorhanden Einsatz zu einer Wache
@@ -44,18 +44,22 @@ module.exports = function(db) {
         function(err) {
           if (err == null) {
             // Einsatzmittel zum Einsatz speichern
-            for (var i = 0; i < content.alarmdaten.length; i++) {
+            var id = this.lastID;
+            //for (var i = 0; i < content.alarmdaten.length; i++) {
+            async.forEach(content.alarmdaten, function(item, done) {
               db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
                 VALUES (
-                (select ID from waip_einsatzmittel where einsatzmittel like \'` + content.alarmdaten[i].einsatzmittel + `\'),
-                \'` + this.lastID + `\',
-                (select id from waip_wachen where name_wache like \'` + content.alarmdaten[i].wachenname + `\'),
-                \'` + content.alarmdaten[i].wachenname + `\',
-                \'` + content.alarmdaten[i].einsatzmittel + `\',
-                \'` + content.alarmdaten[i].zeit_a + `\')`);
-            };
-            // waip_id zurückgeben
-            callback && callback(this.lastID);
+                (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
+                \'` + id + `\',
+                (select id from waip_wachen where name_wache like \'` + item.wachenname + `\'),
+                \'` + item.wachenname + `\',
+                \'` + item.einsatzmittel + `\',
+                \'` + item.zeit_a + `\')`);
+              done();
+            }, function(err_) {
+              if (err_) console.error(err_.message);
+              callback && callback(id);
+            });
           } else {
             callback && callback(err);
           };
