@@ -324,11 +324,17 @@ function set_clock() {
   var d = new Date();
   var curr_day = d.getDay();
   var curr_date = d.getDate();
-  var curr_month = d.getMonth();
+  var curr_month_id = d.getMonth();
+  curr_month_id = curr_month_id + 1;
   var curr_year = d.getFullYear();
   var curr_hour = d.getHours();
   var curr_min = d.getMinutes();
-  // 0 vorsetzen
+  // Tag und Monat Anpassen
+  if ((String(curr_date)).length == 1)
+    curr_date = '0' + curr_date;
+  if ((String(curr_month_id)).length == 1)
+    curr_month_id = '0' + curr_month_id;
+  // Uhrzeit und Minute anpassen
   if (curr_min <= 9) {
     curr_min = '0' + curr_min;
   };
@@ -339,7 +345,7 @@ function set_clock() {
   var curr_year = d.getFullYear();
   var element_time = curr_hour + ':' + curr_min;
   var element_day = d_names[curr_day] + ', ' + curr_date + '. ' + m_names[curr_month];
-  var element_date_time = curr_date + '.' + curr_month + '.' + curr_year + ' - ' + element_time;
+  var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time;
   // nur erneuern wenn sich Zeit geändert hat
   if (document.getElementById('time').textContent !== element_time) {
     // Uhrzeit anzeigen
