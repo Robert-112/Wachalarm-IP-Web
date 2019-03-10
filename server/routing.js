@@ -147,12 +147,18 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
   app.post('/login', passport.authenticate('local', {
     failureRedirect: '/login'
   }), function(req, res) {
+    if(req.body.rememberme){
+      // der Benutzer muss sich fuer 5 Jahre nicht anmelden
+      req.session.cookie.maxAge = 5 * 365 * 24 * 60 * 60 * 1000;
+    };
     res.redirect('/');
   });
 
   app.post('/login_ip', passport.authenticate('ip', {
     failureRedirect: '/login'
   }), function(req, res) {
+    // der Benutzer muss sich fuer 5 Jahre nicht anmelden
+    req.session.cookie.maxAge = 5 * 365 * 24 * 60 * 60 * 1000;
     res.redirect('/');
   });
 
