@@ -84,6 +84,11 @@ _old/
 # other
 *.db
 
+# ssl
+.crt
+.key
+.pem
+
 # media-files
 public/media/*
 !public/media/marker-icon-2x-red.png
