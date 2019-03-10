@@ -82,8 +82,8 @@ module.exports = function(io, sql, async, app_cfg) {
           if (!valid) {
             einsatzdaten.besonderheiten = '';
             einsatzdaten.strasse = '';
-            einsatzdaten.wgs84_x = '';
-            einsatzdaten.wgs84_y = '';
+            einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
+			einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
           };
           // Einsatz senden
           io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
