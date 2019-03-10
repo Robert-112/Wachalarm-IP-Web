@@ -45,7 +45,6 @@ module.exports = function(db, async) {
           if (err == null) {
             // Einsatzmittel zum Einsatz speichern
             var id = this.lastID;
-            //for (var i = 0; i < content.alarmdaten.length; i++) {
             async.forEach(content.alarmdaten, function(item, done) {
               db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
                 VALUES (
