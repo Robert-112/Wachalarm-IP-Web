@@ -19,8 +19,8 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
     resave: false,
     saveUninitialized: true,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000
-    } // 1 Tag
+      maxAge: 60 * 60 * 1000
+    } // Standard ist eine Stunde
   }));
   app.use(cookieParser());
   app.use(flash());
