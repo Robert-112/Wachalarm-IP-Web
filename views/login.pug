@@ -15,7 +15,11 @@ block content
                   small.form-text.text-muted Der Benutzer wird Ihnen von der Administration mitgeteilt.
                 .form-group
                   label(for='inputPassword') Passwort
-                  input#login-password.form-control(type='password' name='password' placeholder='Passwort' required='')                  
+                  input#login-password.form-control(type='password' name='password' placeholder='Passwort' required='')  
+                .form-group
+                  .form-check
+                    input#rembemerme.form-check-input(type='checkbox' name='rememberme')
+                    label.form-check-label.text-warning(for='rembemerme') Anmeldung dauerhaft speichern
                 button.btn.btn-lg.btn-primary.btn-block.text-uppercase(type='submit') Anmelden
       .row
         .col-sm-9.col-md-7.col-lg-5.mx-auto
@@ -23,4 +27,8 @@ block content
             .card-body
               h5.card-title.text-center Anmeldung mit IP-Adresse
               form(action='/login_ip', method='POST')
-                button.btn.btn-lg.btn-primary.btn-block.text-uppercase(type='submit') Anmelden
+                .form-group
+                  small.form-text.text-muted Wenn die IP-Adresse Ihres Gerätes hinterlegt ist, 
+                    | können Sie sich auch ohne Benutzername/Kennwort anmelden. 
+                    | Ihre Anmeldung wird dann dauerhaft gespeichert.
+                button.btn.btn-lg.btn-outline-primary.btn-block.text-uppercase(type='submit') Anmelden
