@@ -1,10 +1,9 @@
-module.exports = function (bcrypt, app_cfg) {
+module.exports = function (fs, bcrypt, app_cfg) {
 
   // TODO: gegen better-sqlite3 ersetzen
 
   // Datenbank einrichten
   const sqlite3 = require('sqlite3').verbose();
-  var fs = require('fs');
   var dbFile = app_cfg.global.database;
   var dbExists = fs.existsSync(dbFile);
 
