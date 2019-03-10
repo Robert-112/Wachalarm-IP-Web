@@ -5,8 +5,8 @@ var app = express();
 var http = require('http') //.Server(app);
 var https = require('https'); //.Server(app);
 var webserver = https.createServer({
-  key: fs.readFileSync('server_v2.key', 'utf8'),
-  cert: fs.readFileSync('cert_v2.pem', 'utf8')
+  key: fs.readFileSync('./server/server.key', 'utf8'),
+  cert: fs.readFileSync('./server/server.cert', 'utf8')
 }, app);
 var io = require('socket.io').listen(webserver);
 var async = require('async');
