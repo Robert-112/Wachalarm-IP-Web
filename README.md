@@ -1,6 +1,22 @@
 # Wachalarm-IP-Web
 ![enter image description here](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
-In diesem Repository wird der Quellcode der Web-Version des **Wachalarm-IP** veröffentlicht. Die Anwendung wurde vollständig in [Node.js](https://nodejs.org/) geschrieben und kann unter Beachtung der Lizenzbedingungen kostenlos von jedem genutzt werden. 
+# DEMO
+[📺🔥 https://am7.info.tm/](https://am7.info.tm/)
+
+Login-Daten:
+- Benutzer: me
+- Passwort: 123
+
+Die Demo zeigt frei erfundene Einsätze die jede Stunde neu alarmiert werden.
+
+## TO-DO
+Nachfolgende Funktionen befinden sich noch in der Entwicklung:
+- Dauer der Anzeige des Wachalarms sollte durch Benutzer festgelegt werden können (aktuell immer 10 Minuten)
+- für jeden neuen Einsatz sollte eine UUID erstellt werden, die bei nachfolgen Alarmierungen verglichen wird (zur Vermeidung von doppelten Alarmierungen)
+- Rückmeldefunktion für Einsatzkräfte (auf der Oberfläche des Wachalarms, ohne externe Schnittstelle)
+- Mehr Informationen für angemeldete Benutzer ("Angemeldet als ...", Berechtigungen, etc.)
+
+# Beschreibung
 Ziel dieser Version des Wachalarms soll es sein, auf jedem Endgerät - egal ob Windows, Linux, Mac, PC oder Smartphone - Alarme anzuzeigen ohne zusätzliche Software zu installieren. Da es sich beim Wachalarm-IP-Web um eine reine Web-Server-Anwendung handelt, sollte dieser am besten durch eine Leitstelle betrieben werden, die Einsatzalarme direkt an das System übergibt. Der Zugriff erfolgt dann innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).
 Der Web-Server empfängt Einsatzdaten über eine definierte [Schnittstelle
 ](#schnittstelle) aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann  an die jeweiligen Clients.
@@ -15,17 +31,21 @@ Der Web-Server empfängt Einsatzdaten über eine definierte [Schnittstelle
  - Steuerung der übermittelten Daten durch den Server - auf dem Client werden keine Daten gespeichert (außer dem Session-Cookie)
  - Volle kompatibilität mit den gängigen Browsern (getestet in Chrome, Firefox, Safari, Microsoft Edge)
  - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
+
 # Installation & Konfiguration
 ## Vorbereitung & Installation
- - Installation von [Node.js](https://nodejs.org/) (Version 10 LTS oder höher)
- - Installation von [FFmpeg](https://www.ffmpeg.org/) (wird benötigt um Sound-Dateien umzuwandeln und neu zusammen zu setzen)
- - Download des Quellcodes ([Master](https://github.com/Robert-112/Wachalarm-IP-Web/archive/master.zip))
- - Entpacken der *.zip-Datei
- - Komandozeile öffnen (Powershell, CMD, Terminal etc.) und in das entpackte Verzeichnis wechseln. Dort folgende Befehle eingeben
-	 6. `npm install` (lädt und installiert alle Pakete)
-	 7. `npm start` (startet den Web-Server)
+ 1. Installation von [Node.js](https://nodejs.org/) (Version 10 LTS oder höher)
+ 2. Installation von [FFmpeg](https://www.ffmpeg.org/) (wird benötigt um Sound-Dateien umzuwandeln und neu zusammen zu setzen)
+ 3. *optional:* Installation von SVOX "[pico2wave](https://wiki.ubuntuusers.de/Sprachausgabe/#SVOX-pico2wave)" (nur zur Sprachausgabe unter Linux notwendig)
+ 4. Download des Quellcodes ([Master](https://github.com/Robert-112/Wachalarm-IP-Web/archive/master.zip))
+ 5. Entpacken der *.zip-Datei
+ 6. Komandozeile öffnen (Powershell, CMD, Terminal etc.) und in das entpackte Verzeichnis wechseln. Dort folgende Befehle eingeben
+ 7. `npm install` (lädt und installiert alle Pakete)
+ 8. `npm start` (startet den Web-Server)
+ 9. *optional:* eigenes SSL-Zertifikat erstellen und im Verzeichnis `/server` ablegen
+
 ## Server-Einstellungen
-In der  Unterverzeichnis Datei ./server/app_cfg.js können individuelle Einstellungen für den Betrieb des Servers gesetzt werden:
+In der Datei `./server/app_cfg.js` können individuelle Einstellungen für den Betrieb des Servers gesetzt werden:
  - `http_port: 3000` (HTTP-Port der Anwendung)
  - `https_port: 3443` (HTTPS-Port der Anwendung)
  - `udpport: 60233` (UDP-Port der Schnittstelle)
@@ -40,6 +60,7 @@ In der  Unterverzeichnis Datei ./server/app_cfg.js können individuelle Einstell
  - `sessionsecret: '0987654321abcdef#xyz'` (Geheimnis für Session-Speicherung)
  - `app_id: process.pid` (Prozess-ID)
  - `map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'` (Provider der Hintergrund-Karte des Wachalarms)
+
 ## Zertifikat
 Erläuterung folgt.
 Selbst signiertes Zertifikat erstellen:
