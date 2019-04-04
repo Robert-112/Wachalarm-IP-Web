@@ -10,6 +10,10 @@ $(window).on("resize", function() {
   resize_text();
 });
 
+$('#replay').on('click', function(event) {
+  audio.play();
+});
+
 /* ############################ */
 /* ####### TEXT-RESIZE ######## */
 /* ############################ */
@@ -19,7 +23,7 @@ function resize_text() {
   // Uhr-Text nur Anpassen wenn sichtbar
   if ($('#waipclock').is(':visible')) {
     textFit(document.getElementsByClassName('tf_clock'), {
-      minFontSize: 5,
+      minFontSize: 3,
       maxFontSize: 500
     });
     $("body").css("background-color", "#000");
@@ -27,7 +31,7 @@ function resize_text() {
   // Tableau-Text nur Anpassen wenn sichtbar
   if ($('#waiptableau').is(':visible')) {
     textFit(document.getElementsByClassName('tf_singleline'), {
-      minFontSize: 5,
+      minFontSize: 1,
       maxFontSize: 500
     });
     textFit(document.getElementsByClassName('tf_multiline'), {
@@ -68,7 +72,8 @@ setup_inactivcheck();
 
 // warte xxxx Millisekunden um dann do_on_Inactive zu starten
 function start_inactivtimer() {
-  timeoutID = window.setTimeout(do_on_Inactive, 2500);
+  clearTimeout(timeoutID);
+  timeoutID = window.setTimeout(do_on_Inactive, 3000);
 };
 
 // bei Inaktivitaet Header/Footer ausblenden
@@ -178,7 +183,7 @@ socket.on('io.error', function(data) {
   console.log('Error:', data);
 });
 
-// Sounds abspielen
+// Sounds stoppen
 socket.on('io.stopaudio', function(data) {
   var audio = document.getElementById('audio');
   audio.pause;
@@ -188,7 +193,17 @@ socket.on('io.stopaudio', function(data) {
 socket.on('io.playtts', function(data) {
   var audio = document.getElementById('audio');
   audio.src = (data);
-  audio.play();
+  // Audio-Blockade des Browsers erkennen
+  var promise = document.querySelector('audio').play();
+  if (promise !== undefined) {
+    promise.then(_ => {
+      audio.play();
+    }).catch(error => {
+      $('#waipModalTitle').html('Audio-Fehler');
+      $('#waipModalBody').html('Die automatische Audio-Wiedergabe wird durch Ihren Browser blockiert! Fehlermeldung: ' + error.message);
+      $('#waipModal').modal('show');
+    });
+  };
 });
 
 // Daten löschen, Uhr anzeigen
@@ -365,15 +380,3 @@ setInterval(set_clock, 1000);
 /* ########################### */
 /* ######## SONSTIGES ######## */
 /* ########################### */
-
-// Audio-Blockade des Browsers erkennen
-var promise = document.querySelector('audio').play();
-if (promise !== undefined) {
-    promise.catch(function(error) {
-      if (error && error.toString().toLowerCase().includes('play() request was interrupted')) {
-        $('#waipModalTitle').html('Audio-Fehler');
-        $('#waipModalBody').html('Die Audio-Wiedergabe wird aktuell durch Ihren Browser blockiert. Wenn Sie Chrome-Desktop benutzen, genügt es wenn Sie nur einmal irgendwo hinklicken. Fehlermeldung: ' + error.message);
-        $('#waipModal').modal('show');
-      };
-    });
-};
