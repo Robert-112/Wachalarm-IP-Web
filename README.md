@@ -7,7 +7,7 @@ Login-Daten:
 - Benutzer: me
 - Passwort: 123
 
-Die Demo zeigt frei erfundene Einsätze die jede Stunde neu alarmiert werden.
+Die Demo-Version zeigt frei erfundene Einsätze die jede Stunde neu alarmiert werden. Ohne Login wird der Wachalarm mit reduziertem Inhalt dargestellt (zur Wahrung des Datenschutzes).
 
 ## TO-DO
 Nachfolgende Funktionen befinden sich noch in der Entwicklung:
