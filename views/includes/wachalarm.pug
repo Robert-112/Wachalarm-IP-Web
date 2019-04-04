@@ -1,12 +1,15 @@
 #waiptableau.fullheight.row.no-gutters
   .col-2.h-5.d-flex.align-items-center.py-1.text-dark.tf_singleline 
     #date-time -Datum- - -Uhrzeit-
-  .col-7.h-5.d-flex.align-items-center.pt-2.px-3.py-1
+  .col-5.h-5.d-flex.align-items-center.pt-2.px-3.py-1
     // TODO: Progressbar für Hilfsfrist-Ablaufzeit anzeigen
     //.progress.flex-fill
       #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='900', style='width: 10%') 1:15
-  .col-3.h-5.d-flex.align-items-center.justify-content-end.py-1.text-dark.tf_singleline
-    #wachenname.ion-md-business=data_wache || ' -Wachenname-'
+  .col-4.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-dark.tf_singleline
+    #wachenname.p-2.ion-md-business=data_wache || ' -Wachenname-'
+  .col-1.h-5.d-flex.align-items-center.py-1.justify-content-end
+    button#replay.btn.btn-outline-dark.p-0.h-100.w-50.tf_singleline
+      .ion-md-musical-notes
   .col-10.h-15.h-20_ls.pr-3
     #einsatz_art.h-100.w-100.d-flex.align-items-center.font-weight-bold.p-3.rounded.bg-light.tf_singleline
       #einsatz_stichwort.ion-md-apps  -Stichwort-
@@ -17,7 +20,7 @@
     #map.h-100.rounded
   .col-12.col-7_ls.h-40.h-70_ls.py-3_ls
     .row.no-gutters.h-100
-      .col-6.h-80.d-flex.align-items-end.justify-content-start.tf_singleline
+      .col-6.h-80.d-flex.align-items-end.justify-content-start.tf_multiline
         #ortsdaten.flex-fill -Objekt-
           br
           | -Ort-
