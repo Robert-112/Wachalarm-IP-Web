@@ -1,16 +1,38 @@
 doctype html
 html
-	head
-		block head
-			meta(charset='utf-8')
-			meta(http-equiv='x-ua-compatible', content='ie=edge')
-			meta(name='viewport', content='width=device-width, initial-scale=1')
-			title= title
-			link(rel='stylesheet', href='/css/bootstrap.css')
-			link(rel='stylesheet', href='/css/waip.css')
-			script(src='/js/jquery.min.js')
-			script(src='/js/bootstrap.bundle.min.js')
-	body
-		include includes/header
-		block content
-		include includes/footer
+  head
+    block head
+      meta(charset='utf-8')
+      meta(http-equiv='x-ua-compatible', content='ie=edge')
+      meta(name='viewport', content='width=device-width, initial-scale=1')
+      title= title
+      link(rel='stylesheet', href='/css/bootstrap.css')
+      link(rel='stylesheet', href='/css/waip.css')
+      link(rel='stylesheet', href='/css/cookieconsent.min.css')
+      script(src='/js/jquery.min.js')
+      script(src='/js/bootstrap.bundle.min.js')
+      script(src='/js/cookieconsent.min.js')
+  body
+    include includes/header
+    block content
+    include includes/footer
+
+  script.
+    window.addEventListener("load", function(){ 
+      window.cookieconsent.initialise({ 
+        "palette": { 
+          "popup": { 
+            "background": "#3c404d", 
+            "text": "#d6d6d6" 
+          }, 
+          "button": { 
+            "background": "#8bed4f" 
+          } 
+        }, 
+        "content": { 
+          "message": "Wachalarm-IP-Web verwendet Cookies. \nBeim Aufruf des Alarmmonitors wird die aktuelle Verbindungs-ID (Socket-ID) gespeichert.\nBeim Login wird die Sitzung (Session-ID) gepseichert.",
+          "dismiss": "Verstanden"
+        },
+        "showLink": false
+      })
+    }); 
