@@ -83,7 +83,7 @@ module.exports = function(io, sql, async, app_cfg) {
             einsatzdaten.besonderheiten = '';
             einsatzdaten.strasse = '';
             einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
-			einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
+  			    einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
           };
           // Einsatz senden
           io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
@@ -139,41 +139,73 @@ module.exports = function(io, sql, async, app_cfg) {
       // Abschluss
       tts_text = tts_text + '. Ende der Durchsage!';
       // Sprachansage als mp3 erstellen
-      if (process.platform === "win32") {
-        // Powershell
-        var proc = require('child_process');
-        var commands = [
-          // TTS-Schnittstelle von Windows
-          'Add-Type -AssemblyName System.speech;' +
-          '$speak = New-Object System.Speech.Synthesis.SpeechSynthesizer;' +
-          // Ausgabedatei und Sprachtext
-          '$speak.SetOutputToWaveFile(\"' + wav_tts + '\");' +
-          '$speak.Speak(\"' + tts_text + '\");' +
-          '$speak.Dispose();' +
-          // speak.wav in mp3 umwandeln
-          'ffmpeg -nostats -hide_banner -loglevel 0 -y -i ' + wav_tts + ' -vn -ar 44100 -ac 2 -ab 128k -f mp3 ' + mp3_tmp + ';' +
-          // Gong und Ansage zu einer mp3 zusammensetzen
-          'ffmpeg -nostats -hide_banner -loglevel 0 -y -i \"concat:' + mp3_bell + '|' + mp3_tmp + '\" -acodec copy ' + mp3_tts + ';' +
-          'rm ' + wav_tts + ';' +
-          'rm ' + mp3_tmp + ';'
-        ];
-        var options = {
-          shell: true
-        };
-        var childD = proc.spawn('powershell', commands);
-        childD.stdin.setEncoding('ascii');
-        childD.stderr.setEncoding('ascii');
-        childD.stderr.on('data', function(data) {
-          sql.db_log('Fehler-TTS', data);
+      switch (process.platform) {
+      //if (process.platform === "win32") {
+        case 'win32':
+          // Powershell
+          var proc = require('child_process');
+          var commands = [
+            // TTS-Schnittstelle von Windows
+            'Add-Type -AssemblyName System.speech;' +
+            '$speak = New-Object System.Speech.Synthesis.SpeechSynthesizer;' +
+            // Ausgabedatei und Sprachtext
+            '$speak.SetOutputToWaveFile(\"' + wav_tts + '\");' +
+            '$speak.Speak(\"' + tts_text + '\");' +
+            '$speak.Dispose();' +
+            // speak.wav in mp3 umwandeln
+            'ffmpeg -nostats -hide_banner -loglevel 0 -y -i ' + wav_tts + ' -vn -ar 44100 -ac 2 -ab 128k -f mp3 ' + mp3_tmp + ';' +
+            // Gong und Ansage zu einer mp3 zusammensetzen
+            'ffmpeg -nostats -hide_banner -loglevel 0 -y -i \"concat:' + mp3_bell + '|' + mp3_tmp + '\" -acodec copy ' + mp3_tts + ';' +
+            'rm ' + wav_tts + ';' +
+            'rm ' + mp3_tmp + ';'
+          ];
+          var options = {
+            shell: true
+          };
+          var childD = proc.spawn('powershell', commands);
+          childD.stdin.setEncoding('ascii');
+          childD.stderr.setEncoding('ascii');
+          childD.stderr.on('data', function(data) {
+            sql.db_log('Fehler-TTS', data);
+            callback && callback(null);
+          });
+          childD.on('exit', function() {
+            callback && callback(mp3_url);
+          });
+          childD.stdin.end();
+          break;
+        case 'linux':
+          // bash
+          var proc = require('child_process');
+          var commands = [
+            // TTS-Schnittstelle SVOX PicoTTS
+            '-c',  `
+            pico2wave --lang=de-DE --wave=` + wav_tts + ` \"` + tts_text + `\" 
+            ffmpeg -nostats -hide_banner -loglevel 0 -y -i ` + wav_tts + ` -vn -ar 44100 -ac 2 -ab 128k -f mp3 ` + mp3_tmp + `
+            ffmpeg -nostats -hide_banner -loglevel 0 -y -i \"concat:` + mp3_bell + `|` + mp3_tmp + `\" -acodec copy ` + mp3_tts + `
+            rm ` + wav_tts + `
+            rm ` + mp3_tmp
+          ];
+          var options = {
+            shell: true
+          };
+          console.log(commands);
+          var childD = proc.spawn('/bin/sh', commands);
+          childD.stdin.setEncoding('ascii');
+          childD.stderr.setEncoding('ascii');
+          childD.stderr.on('data', function(data) {
+            sql.db_log('Fehler-TTS', data);
+            callback && callback(null);
+          });
+          childD.on('exit', function() {
+            callback && callback(mp3_url);
+          });
+          childD.stdin.end();
+          break;
+    //  } else {
+        default:
+          sql.db_log('Fehler-TTS', 'TTS für dieses Server-Betriebssystem nicht verfügbar');
           callback && callback(null);
-        });
-        childD.on('exit', function() {
-          callback && callback(mp3_url);
-        });
-        childD.stdin.end();
-      } else {
-        sql.db_log('Fehler-TTS', 'OS ist nicht Windows');
-        callback && callback(null);
       };
     });
   };
