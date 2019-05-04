@@ -1,7 +1,7 @@
 header
   // Fixed navbar
   nav.navbar.navbar-expand-md.navbar-dark.bg-primary.fixed-top
-    a.navbar-brand(href='/') Wachalarm Web
+    a.navbar-brand(href='/') Wachalarm
     button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarCollapse', aria-controls='navbarColor01', aria-expanded='false', aria-label='Toggle navigation')
       span.navbar-toggler-icon
     #navbarCollapse.collapse.navbar-collapse
@@ -16,7 +16,7 @@ header
         if user
           if user.permissions == 'admin'
             li.nav-item.dropdown
-              a#navbarDropdown.nav-link.px-4.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+              a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                 | Administration
               .dropdown-menu(aria-labelledby='navbarDropdown')
                 a.dropdown-item(href='/edit_users') Benutzer und Rechte verwalten
@@ -24,10 +24,12 @@ header
                 a.dropdown-item(href='/show_active_user') Verbundene PCs/Benutzer
                 a.dropdown-item(href='/show_active_waip') Akutelle Einsätze  
                 .dropdown-divider
-                a.dropdown-item(href='/show_log') Log-Datei                     
+                a.dropdown-item(href='/show_log') Log-Datei   
+          li.nav-item.pr-3(class=(title == 'Einstellungen') ? 'active' : null)
+            a.nav-link(href='/config') Einstellungen                 
           li.nav-item
             form(action='/logout', method='POST')
-              button.btn.btn-outline-success(type='submit') Abmelden          
+              button.btn.btn-outline-warning(type='submit')='\''+user.user +'\' abmelden'         
         else 
           li.nav-item(class=(title == 'Login') ? 'active' : null)
             a.nav-link(href='/login') Anmelden
