@@ -47,6 +47,22 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
     });
   });
 
+  // get /config
+  app.get('/config', auth.ensureAuthenticated, function(req, res) {
+    sql.db_get_userconfig(req.user.id, function(data) {
+      res.render('config', {
+        title: 'Einstellungen',
+        user: req.user,
+        reset_counter: data
+      });
+    });
+  });
+
+  app.post('/config', auth.ensureAuthenticated, function(req, res) {
+    sql.db_set_userconfig(req.user.id, req.body.set_reset_counter, function(data) {
+      res.redirect('/config');
+    });
+  });
 
   // get /ueber
   app.get('/ueber', function(req, res) {
