@@ -1,14 +1,33 @@
-module.exports = function(db, async) {
+module.exports = function(db, async, app_cfg) {
 
-  function db_einsatz_vorhanden(content, callback) {
-    // ermittelt den letzten vorhanden Einsatz zu einer Wache
-    if (parseInt(content) == 0) {
-      content = '%'
+  // ermittelt den letzten vorhanden Einsatz zu einer Wache
+  function db_einsatz_vorhanden(wachen_id, user_id, callback) {
+    var select_reset_counter;
+    var dts = app_cfg.global.default_time_for_standby;
+    // wenn Wachen-ID 0 ist, dann % setzen
+    if (parseInt(wachen_id) == 0) {
+      wachen_id = '%'
     };
-    db.all('select em.waip_einsaetze_id from waip_einsatzmittel em ' +
-      'left join waip_wachen wa on wa.id = em.waip_wachen_id  ' +
-      'where wa.nr_wache like ?||\'%\' ' +
-      'group by em.waip_einsaetze_id ORDER BY em.waip_einsaetze_id DESC', [content],
+    // wenn user_id keine zahl ist, dann default_time_for_standby setzen
+    if (isNaN(user_id)) {
+      select_reset_counter = dts;
+    } else {
+      // wenn user_id vorhanden, aber keine config, dann dts COALESCE(MAX(reset_counter), xxx)
+      select_reset_counter = `(SELECT COALESCE(MAX(reset_counter), ` + dts + `)
+      reset_counter FROM waip_configs WHERE user_id = ` + user_id + `)`;
+    };
+    // Einsätze für die gewählte Wachen_ID ermittel, und Ablaufzeit beachten
+    db.all(`SELECT waip_einsaetze_ID FROM
+    	(
+      	SELECT em.waip_einsaetze_id, we.zeitstempel FROM waip_einsatzmittel em
+      	LEFT JOIN waip_wachen wa 	ON wa.id = em.waip_wachen_id
+      	LEFT JOIN waip_einsaetze we ON we.id = em.waip_einsaetze_ID
+      	WHERE wa.nr_wache LIKE ?||\'%\'
+      	GROUP BY em.waip_einsaetze_id
+      	ORDER BY em.waip_einsaetze_id DESC
+    	)
+      WHERE DATETIME(zeitstempel,	\'+\' || ? || \' minutes\')
+      	> DATETIME(\'now\')`, [wachen_id, select_reset_counter],
       function(err, rows) {
         if (err == null && rows.length > 0) {
           //callback && callback(row.waip_einsaetze_ID); ALT
@@ -327,9 +346,34 @@ module.exports = function(db, async) {
     });
   };
 
-  function db_update_client_status(socket_id, client_status) {
+  function db_update_client_status(socket, client_status) {
+    //console.log(socket);
+    var socket_id = socket.id;
+    var user_name = socket.request.user.user;
+    var user_permissions = socket.request.user.permissions;
+    var user_agent = socket.request.headers['user-agent'];
+    var client_ip = socket.request.connection.remoteAddress;
+    var reset_timestamp = socket.request.user.reset_counter;
+    if (isNaN(client_status)) {
+      client_status = 'Standby';
+    };
+    if (typeof user_name === "undefined") {
+      user_name = '';
+    };
+    if (typeof user_permissions === "undefined") {
+      user_permissions = '';
+    };
+    if (typeof reset_timestamp === "undefined") {
+      reset_timestamp = app_cfg.global.default_time_for_standby;
+    };
     db.run('UPDATE waip_clients ' +
-      'SET client_status=\'' + client_status + '\'' +
+      'SET client_status=\'' + client_status + '\', ' +
+      'client_ip=\'' + client_ip + '\', ' +
+      //'room_name=\'' + room_name + '\', ' +
+      'user_name=\'' + user_name + '\', ' +
+      'user_permissions=\'' + user_permissions + '\', ' +
+      'user_agent=\'' + user_agent + '\', ' +
+      'reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ' + reset_timestamp + ' || \' minutes\') from waip_einsaetze where id = ' + client_status + ') ' +
       'WHERE socket_id=\'' + socket_id + '\'');
   };
 
@@ -431,6 +475,47 @@ module.exports = function(db, async) {
     };
   };
 
+  function db_get_userconfig(user_id, callback) {
+    db.get(`SELECT reset_counter FROM waip_configs
+      WHERE user_id = ?`, [user_id], function(err, row) {
+      if (err == null && row) {
+        callback && callback(row.reset_counter);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_set_userconfig(user_id, reset_counter, callback) {
+    // reset_counter validieren, ansonsten default setzen
+    if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
+      reset_counter = app_cfg.global.default_time_for_standby;
+    };
+    db.run((`INSERT OR REPLACE INTO waip_configs
+      (id, user_id, reset_counter)
+      VALUES (
+      (select ID from waip_configs where user_id like \'` + user_id + `\'),
+      \'` + user_id + `\',
+      \'` + reset_counter + `\')`), function(err) {
+      if (err == null) {
+        callback && callback();
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_get_sockets_to_standby(callback) {
+    db.all(`select socket_id from waip_clients
+      where reset_timestamp < DATETIME(\'now\')`, function(err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
@@ -457,7 +542,10 @@ module.exports = function(db, async) {
     db_get_active_clients: db_get_active_clients,
     db_get_active_waips: db_get_active_waips,
     db_get_users: db_get_users,
-    db_check_permission: db_check_permission
+    db_check_permission: db_check_permission,
+    db_get_userconfig: db_get_userconfig,
+    db_set_userconfig: db_set_userconfig,
+    db_get_sockets_to_standby: db_get_sockets_to_standby
   };
 
 };
