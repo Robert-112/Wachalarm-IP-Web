@@ -77,7 +77,9 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
   });
 
   passport.deserializeUser(function(id, done) {
-    db.get('SELECT id, user, permissions FROM waip_users WHERE id = ?', id, function(err, row) {
+    db.get(`SELECT id, user, permissions,
+      (select reset_counter from waip_configs where user_id = ?) reset_counter
+      FROM waip_users WHERE id = ?`, [id, id], function(err, row) {
       if (!row) {
         return done(null, false);
       }
