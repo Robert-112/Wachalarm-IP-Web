@@ -13,7 +13,7 @@ module.exports = function(io, sql, async, app_cfg) {
     socket.on('wachen_id', function(wachen_id) {
       sql.db_log('WAIP', 'Alarmmonitor Nr. ' + wachen_id + ' von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') aufgerufen');
       // prüfen ob Wachenummer in der Datenbank hinterlegt ist
-      sql.db_wache_vorhanden(wachen_id, function(result) {
+      sql.db_wache_vorhanden(wachen_id,function(result) {
         // wenn die Wachennummer vorhanden/plausibel dann weiter
         if (result) {
           // Socket-Room beitreiten
@@ -21,17 +21,17 @@ module.exports = function(io, sql, async, app_cfg) {
             // Socket-ID und Client-IP in der Datenbank speichern
             sql.db_client_save(socket.id, socket.request.connection.remoteAddress, wachen_id);
             // prüfen ob für diese Wache ein Einsatz vorhanden ist
-            sql.db_einsatz_vorhanden(wachen_id, function(result_einsatz) {
+            sql.db_einsatz_vorhanden(wachen_id, socket.request.user.id, function(result_einsatz) {
               if (result_einsatz) {
                 sql.db_log('WAIP', 'Einsatz ' + result_einsatz[0].waip_einsaetze_ID + ' fuer Wache ' + wachen_id + ' vorhanden');
                 //letzten Einsatz verteilen
                 einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
-                sql.db_update_client_status(socket.id, result_einsatz[0].waip_einsaetze_ID);
+                sql.db_update_client_status(socket, result_einsatz[0].waip_einsaetze_ID);
               } else {
                 sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_id + ' vorhanden, Standby');
                 //oder falls kein Einsatz vorhanden ist, dann
                 io.sockets.to(socket.id).emit('io.standby', null);
-                sql.db_update_client_status(socket.id, 'standby');
+                sql.db_update_client_status(socket, null);
               };
             });
           });
@@ -88,7 +88,7 @@ module.exports = function(io, sql, async, app_cfg) {
           // Einsatz senden
           io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket_id + ' gesendet');
-          sql.db_update_client_status(socket_id, waip_id);
+          sql.db_update_client_status(io.sockets.sockets[socket_id], waip_id);
           // Sound erstellen
           tts_erstellen(app_cfg, socket_id, einsatzdaten, function(tts) {
             // Sound senden
@@ -100,7 +100,7 @@ module.exports = function(io, sql, async, app_cfg) {
         // Standby senden
         io.sockets.to(socket_id).emit('io.standby', null);
         sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket_id + ' gesendet..');
-        sql.db_update_client_status(socket_id, 'standby');
+        sql.db_update_client_status(io.sockets.sockets[socket_id], null);
       };
     });
   };
@@ -180,7 +180,7 @@ module.exports = function(io, sql, async, app_cfg) {
           var commands = [
             // TTS-Schnittstelle SVOX PicoTTS
             '-c',  `
-            pico2wave --lang=de-DE --wave=` + wav_tts + ` \"` + tts_text + `\" 
+            pico2wave --lang=de-DE --wave=` + wav_tts + ` \"` + tts_text + `\"
             ffmpeg -nostats -hide_banner -loglevel 0 -y -i ` + wav_tts + ` -vn -ar 44100 -ac 2 -ab 128k -f mp3 ` + mp3_tmp + `
             ffmpeg -nostats -hide_banner -loglevel 0 -y -i \"concat:` + mp3_bell + `|` + mp3_tmp + `\" -acodec copy ` + mp3_tts + `
             rm ` + wav_tts + `
@@ -212,8 +212,19 @@ module.exports = function(io, sql, async, app_cfg) {
 
   // Aufräumen (alle 10 Sekunden)
   setInterval(function() {
+    // alle User-Einstellungen prüfen und ggf. Standby senden
+    sql.db_get_sockets_to_standby(function(socket_ids){
+      if (socket_ids) {
+        socket_ids.forEach(function(row) {
+          io.sockets.to(row.socket_id).emit('io.standby', null);
+          io.sockets.to(row.socket_id).emit('io.stopaudio', null);
+          sql.db_log('WAIP', 'Standby an Socket ' + row.socket_id + ' gesendet');
+          sql.db_update_client_status(io.sockets.sockets[row.socket_id], null);
+        });
+      };
+    });
     // Nach alten Einsaetzen suchen und diese ggf. loeschen
-    sql.db_get_alte_einsaetze('10', function(waip_id) {
+    sql.db_get_alte_einsaetze(app_cfg.global.time_to_delete_waip, function(waip_id) {
       if (waip_id) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip_id + ' ist veraltet und kann gelöscht werden.')
         //beteiligte Wachen ermitteln
@@ -231,7 +242,7 @@ module.exports = function(io, sql, async, app_cfg) {
                       io.sockets.to(socketId).emit('io.standby', null);
                       io.sockets.to(socketId).emit('io.stopaudio', null);
                       sql.db_log('WAIP', 'Standby an Socket ' + socketId + ' gesendet');
-                      sql.db_update_client_status(socketId, 'standby');
+                      sql.db_update_client_status(io.sockets.sockets[socketId], null);
                     };
                   });
                 });
