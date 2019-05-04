@@ -1,0 +1,28 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/ionicons.min.css')
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-12.d-flex.align-self-stretch
+          .card.border-dark.mb-3.w-100
+            .card-header Einstellungen
+            .card-body.text-dark
+              .row
+                .col-8
+                  p Anzeigezeit für Wachalarme
+                  p.text-muted (Wachalarme werden nach Ablauf der hier gesetzten Zeit automatisch ausgeblendet)
+                .col-4
+                  form(action="/config", method="POST")
+                    .form-group
+                      label(for='ResetCounterSelect') Zeit in Minuten
+                      select#ResetCounterSelect.form-control(name='set_reset_counter', onchange='this.form.submit()')
+                        option= 'Standard'
+                        each _, i in Array(60)
+                          if(i+1 == reset_counter)
+                            option(selected)= i+1
+                          else
+                            option= i+1                      
