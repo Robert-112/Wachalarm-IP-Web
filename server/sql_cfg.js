@@ -71,7 +71,11 @@ module.exports = function (fs, bcrypt, app_cfg) {
         socket_id TEXT,
         client_ip TEXT,
         room_name TEXT,
-        client_status TEXT)`);
+        client_status TEXT,
+        user_name TEXT,
+        user_permissions TEXT,
+        user_agent TEXT,
+        reset_timestamp DATETIME)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,6 +83,11 @@ module.exports = function (fs, bcrypt, app_cfg) {
         password TEXT,
         permissions TEXT,
         ip_address TEXT)`);
+      // Einstellungs-Tabelle für Benutzer erstellen
+      db.run(`CREATE TABLE waip_configs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        reset_counter INTEGER)`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
