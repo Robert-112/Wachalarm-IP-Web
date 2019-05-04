@@ -7,6 +7,8 @@ app_cfg.global = {
 	database: './database.sqlite3',
 	soundpath: '/public/media/',
 	mediapath: '/media/',
+	time_to_delete_waip: 60,
+	default_time_for_standby: 10,
 	defaultuser: 'me',
 	defaultpass: '123',
 	defaultuserip: '127.0.0.1',
