@@ -17,17 +17,29 @@ module.exports = function(db, async, app_cfg) {
       reset_counter FROM waip_configs WHERE user_id = ` + user_id + `)`;
     };
     // Einsätze für die gewählte Wachen_ID ermittel, und Ablaufzeit beachten
+    console.log(`SELECT waip_einsaetze_ID FROM
+      (
+        SELECT em.waip_einsaetze_ID, we.zeitstempel FROM waip_einsatzmittel em
+        LEFT JOIN waip_wachen wa 	ON wa.id = em.waip_wachen_id
+        LEFT JOIN waip_einsaetze we ON we.id = em.waip_einsaetze_ID
+        WHERE wa.nr_wache LIKE \'` + wachen_id + `\'||\'%\'
+        GROUP BY em.waip_einsaetze_id
+        ORDER BY em.waip_einsaetze_id DESC
+      )
+      WHERE DATETIME(zeitstempel,	\'+\' || ` + select_reset_counter + ` || \' minutes\')
+        > DATETIME(\'now\')`);
+
     db.all(`SELECT waip_einsaetze_ID FROM
     	(
-      	SELECT em.waip_einsaetze_id, we.zeitstempel FROM waip_einsatzmittel em
+      	SELECT em.waip_einsaetze_ID, we.zeitstempel FROM waip_einsatzmittel em
       	LEFT JOIN waip_wachen wa 	ON wa.id = em.waip_wachen_id
       	LEFT JOIN waip_einsaetze we ON we.id = em.waip_einsaetze_ID
       	WHERE wa.nr_wache LIKE ?||\'%\'
       	GROUP BY em.waip_einsaetze_id
       	ORDER BY em.waip_einsaetze_id DESC
     	)
-      WHERE DATETIME(zeitstempel,	\'+\' || ? || \' minutes\')
-      	> DATETIME(\'now\')`, [wachen_id, select_reset_counter],
+      WHERE DATETIME(zeitstempel,	\'+\' || ` + select_reset_counter + ` || \' minutes\')
+      	> DATETIME(\'now\')`, [wachen_id],
       function(err, rows) {
         if (err == null && rows.length > 0) {
           //callback && callback(row.waip_einsaetze_ID); ALT
@@ -261,7 +273,7 @@ module.exports = function(db, async, app_cfg) {
     });
   };
 
-  function db_get_einsatzdaten(waip_id, wachen_nr, callback) {
+  function db_get_einsatzdaten(waip_id, wachen_nr, user_id, callback) {
     // vorsichtshalber nochmals id pruefen
     if (isNaN(waip_id) || isNaN(wachen_nr)) {
       callback && callback(null);
@@ -274,24 +286,34 @@ module.exports = function(db, async, app_cfg) {
         if (parseInt(wachen_nr) == 0) {
           wachen_nr = '%'
         };
+        if (isNaN(user_id)) {
+          user_id = app_cfg.global.default_time_for_standby;
+        };
         // je nach laenge andere SQL ausfuehren
-        db.get('SELECT e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE ' +
-          'FROM WAIP_EINSAETZE e ' +
-          'LEFT JOIN (' +
-          'SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_alarmiert ' +
-          'FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id in ( ' +
-          'select id from waip_wachen where nr_wache like ?||\'%\') ' +
-          'GROUP BY waip_einsaetze_id ' +
-          ') em1 ON em1.waip_einsaetze_id = e.ID ' +
-          'LEFT JOIN (' +
-          'SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_weitere ' +
-          'FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id not in ( ' +
-          'select id from waip_wachen where nr_wache like ?||\'%\') ' +
-          'GROUP BY waip_einsaetze_id ' +
-          ') em0 ON em0.waip_einsaetze_id = e.ID ' +
-          'WHERE e.id LIKE ? ' +
-          'ORDER BY e.id DESC LIMIT 1', [waip_id, wachen_nr, waip_id, wachen_nr, waip_id],
-          function(err, row) {
+        db.get(`SELECT
+          DATETIME(e.zeitstempel, 'localtime') zeitstempel,
+        	DATETIME(e.zeitstempel,	'+' || (
+            SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_configs WHERE user_id = ?
+            ) || ' minutes', 'localtime') ablaufzeit,
+          e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
+          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE
+          FROM WAIP_EINSAETZE e
+          LEFT JOIN (
+            SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_alarmiert
+            FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id in (
+              select id from waip_wachen where nr_wache like ?||\'%\')
+              GROUP BY waip_einsaetze_id
+            ) em1 ON em1.waip_einsaetze_id = e.ID
+          LEFT JOIN (
+            SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_weitere
+            FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id not in (
+              select id from waip_wachen where nr_wache like ?||\'%\')
+              GROUP BY waip_einsaetze_id
+            ) em0 ON em0.waip_einsaetze_id = e.ID
+          WHERE e.id LIKE ?
+          ORDER BY e.id DESC LIMIT 1`,
+          [app_cfg.global.default_time_for_standby, user_id, waip_id, wachen_nr, waip_id, wachen_nr, waip_id], function(err, row) {
+            console.log(row);
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -354,7 +376,7 @@ module.exports = function(db, async, app_cfg) {
     var user_agent = socket.request.headers['user-agent'];
     var client_ip = socket.request.connection.remoteAddress;
     var reset_timestamp = socket.request.user.reset_counter;
-    if (isNaN(client_status)) {
+    if (isNaN(client_status) || client_status == null) {
       client_status = 'Standby';
     };
     if (typeof user_name === "undefined") {
@@ -366,15 +388,14 @@ module.exports = function(db, async, app_cfg) {
     if (typeof reset_timestamp === "undefined") {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
-    db.run('UPDATE waip_clients ' +
-      'SET client_status=\'' + client_status + '\', ' +
-      'client_ip=\'' + client_ip + '\', ' +
-      //'room_name=\'' + room_name + '\', ' +
-      'user_name=\'' + user_name + '\', ' +
-      'user_permissions=\'' + user_permissions + '\', ' +
-      'user_agent=\'' + user_agent + '\', ' +
-      'reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ' + reset_timestamp + ' || \' minutes\') from waip_einsaetze where id = ' + client_status + ') ' +
-      'WHERE socket_id=\'' + socket_id + '\'');
+    db.run(`UPDATE waip_clients
+      SET client_status=\'` + client_status + `\',
+      client_ip=\'` + client_ip + `\',
+      user_name=\'` + user_name + `\',
+      user_permissions=\'` + user_permissions + `\',
+      user_agent=\'` + user_agent + `\',
+      reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\')
+      WHERE socket_id=\'` + socket_id + `\'`);
   };
 
   function db_check_client_waipid(socketId, waip_id, callback) {

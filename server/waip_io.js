@@ -23,6 +23,7 @@ module.exports = function(io, sql, async, app_cfg) {
             // prüfen ob für diese Wache ein Einsatz vorhanden ist
             sql.db_einsatz_vorhanden(wachen_id, socket.request.user.id, function(result_einsatz) {
               if (result_einsatz) {
+                console.log(result_einsatz[0].waip_einsaetze_ID);
                 sql.db_log('WAIP', 'Einsatz ' + result_einsatz[0].waip_einsaetze_ID + ' fuer Wache ' + wachen_id + ' vorhanden');
                 //letzten Einsatz verteilen
                 einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
@@ -72,7 +73,7 @@ module.exports = function(io, sql, async, app_cfg) {
   // Einsatz an Client verteilen
   function einsatz_verteilen(waip_id, socket_id, wachen_nr) {
     // Einsatzdaten für eine Wache aus Datenbank laden
-    sql.db_get_einsatzdaten(waip_id, wachen_nr, function(einsatzdaten) {
+    sql.db_get_einsatzdaten(waip_id, wachen_nr, io.sockets.sockets[socket_id].request.user.id, function(einsatzdaten) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
         var permissions = io.sockets.sockets[socket_id].request.user.permissions;
