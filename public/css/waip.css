@@ -73,6 +73,10 @@ audio {
   height: 55% !important;
 }
 
+.h-65 {
+  height: 65% !important;
+}
+
 .h-80 {
   height: 80% !important;
 }
@@ -83,6 +87,10 @@ audio {
 
 .h-95 {
   height: 95% !important;
+}
+
+#rueckmeldung .list-group-item {
+  padding: 0.25rem;
 }
 
 /*** Klassen in Abhängigkeit der Rotation ******/
