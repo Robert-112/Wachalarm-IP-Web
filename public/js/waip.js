@@ -275,15 +275,19 @@ socket.on('io.neuerEinsatz', function(data) {
   });
   // Icon der Einsatzart enfernen
   $('#einsatz_stichwort').removeClass();
+  // Rückmeldung ausblenden
+  $('#rueckmeldung').addClass("d-none");
   // Art und Stichwort festlegen hinterlegen
   switch (data.einsatzart) {
     case 'Brandeinsatz':
       $('#einsatz_art').addClass("bg-danger");
       $('#einsatz_stichwort').addClass("ion-md-flame");
+      $('#rueckmeldung').removeClass("d-none");
       break;
     case 'Hilfeleistungseinsatz':
       $('#einsatz_art').addClass("bg-info");
       $('#einsatz_stichwort').addClass("ion-md-construct");
+      $('#rueckmeldung').removeClass("d-none");
       break;
     case 'Rettungseinsatz':
       $('#einsatz_art').addClass("bg-warning");
@@ -424,7 +428,7 @@ setInterval(set_clock, 1000);
 /* ########################### */
 
 $('#rueckmeldung a').on('click', function (e) {
-  $('#waipModalTitle').html('Rückmeldung');
-  $('#waipModalBody').html('Ich melde mich als: BUTTON(EK, MA, AGT, FK)');
-  $('#waipModal').modal('show');
+  //$('#waipModalTitle').html('Rückmeldung');
+  //$('#waipModalBody').html('Ich melde mich als: BUTTON(EK, MA, AGT, FK)');
+  $('#responseModal').modal('show');
 })
