@@ -7,11 +7,11 @@ header
     #navbarCollapse.collapse.navbar-collapse
       ul.navbar-nav.mr-auto
         li.nav-item(class=(title == 'Startseite') ? 'active' : null)
-          a.nav-link(href='/') Startseite
+          a.nav-link.ion-md-home(href='/')  Start
         li.nav-item(class=(title == 'Alarmmonitor') ? 'active' : null)
-          a.nav-link(href='/waip') Alarmmonitor
+          a.nav-link.ion-md-desktop(href='/waip')  Alarmmonitor
         li.nav-item(class=(title == 'Über') ? 'active' : null)
-          a.nav-link(href='/ueber') Über        
+          a.nav-link.ion-md-help-buoy(href='/ueber')  Hilfe        
       ul.navbar-nav.ml-auto
         if user
           if user.permissions == 'admin'
@@ -22,14 +22,14 @@ header
                 a.dropdown-item(href='/edit_users') Benutzer und Rechte verwalten
                 .dropdown-divider
                 a.dropdown-item(href='/show_active_user') Verbundene PCs/Benutzer
-                a.dropdown-item(href='/show_active_waip') Akutelle Einsätze  
+                a.dropdown-item(href='/show_active_waip') laufende Einsätze  
                 .dropdown-divider
                 a.dropdown-item(href='/show_log') Log-Datei   
           li.nav-item.pr-3(class=(title == 'Einstellungen') ? 'active' : null)
-            a.nav-link(href='/config') Einstellungen                 
+            a.ion-md-settings.nav-link(href='/config')  Einstellungen                 
           li.nav-item
             form(action='/logout', method='POST')
-              button.btn.btn-outline-warning(type='submit')='\''+user.user +'\' abmelden'         
+              button.btn.btn-outline-warning.ion-md-log-out(type='submit')=' \''+user.user +'\' abmelden'         
         else 
           li.nav-item(class=(title == 'Login') ? 'active' : null)
-            a.nav-link(href='/login') Anmelden
+            a.nav-link.ion-md-log-in(href='/login')  Anmelden
