@@ -1,14 +1,11 @@
 #waiptableau.fullheight.row.no-gutters
-  .col-2.h-5.d-flex.align-items-center.py-1.text-dark.tf_singleline 
+  .col-6.h-5.d-flex.align-items-center.py-1.text-dark.tf_singleline 
     #date-time -Datum- - -Uhrzeit-
-  .col-5.h-5.d-flex.align-items-center.pt-2.px-3.py-1
-    // TODO: Progressbar für Hilfsfrist-Ablaufzeit anzeigen
-    //.progress.flex-fill
-      #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='75', aria-valuemin='0', aria-valuemax='900', style='width: 10%') 1:15
-  .col-4.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-dark.tf_singleline
-    #wachenname.p-2.ion-md-business=data_wache || ' -Wachenname-'
-  .col-1.h-5.d-flex.align-items-center.py-1.justify-content-end
-    button#replay.btn.btn-outline-dark.p-0.h-100.w-50.tf_singleline
+  
+  .col-5.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-dark.tf_singleline
+    #wachenname.ion-md-business=data_wache || ' -Wachenname-'
+  .col-1.h-5.d-flex.align-items-center.pl-3.py-1.justify-content-end
+    button#replay.btn.btn-outline-dark.h-100.w-100.tf_singleline
       .ion-md-musical-notes
   .col-10.h-15.h-20_ls.pr-3
     #einsatz_art.h-100.w-100.d-flex.align-items-center.font-weight-bold.p-3.rounded.bg-light.tf_singleline
@@ -17,10 +14,16 @@
     #sondersignal.ion-md-apps
     // TODO: Button um Sound nochmals abzuspielen
   .col-12.col-5_ls.h-35.h-70_ls.pt-3_pt.ptr-3_ls 
-    #map.h-100.rounded
-  .col-12.col-7_ls.h-40.h-70_ls.py-3_ls
-    .row.no-gutters.h-100
-      .col-6.h-80.d-flex.align-items-end.justify-content-start.tf_multiline
+    #map.h-100.rounded  
+  .col-12.col-7_ls.h-40.h-70_ls
+    .row.no-gutters.h-100.pt-3
+      .col-12.h-10.h-100.w-100
+        #rueckmeldung.list-group.list-group-horizontal.text-center.h-100.w-100.d-none
+          a.list-group-item.flex-fill.list-group-item-action.text-warning.tf_singleline(href='#') EK 0
+          a.list-group-item.flex-fill.list-group-item-action.text-warning.tf_singleline(href='#') MA 0
+          a.list-group-item.flex-fill.list-group-item-action.text-warning.tf_singleline(href='#') FK 0
+          a.list-group-item.flex-fill.list-group-item-action.text-danger.tf_singleline(href='#') AGT 0
+      .col-6.h-65.d-flex.align-items-end.justify-content-start.tf_multiline
         #ortsdaten.flex-fill -Objekt-
           br
           | -Ort-
@@ -28,15 +31,18 @@
           | -Ortsteil-
           br
           | -Straße Hsnr-
-      .col-6.h-80.d-flex.align-items-end.justify-content-end.tf_multiline
+      .col-6.h-65.d-flex.align-items-end.justify-content-end.tf_multiline
           ul#em_alarmiert.list-group
             li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 1-
             li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 2-
             li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel n-  
           // TODO: Status mit anzeigen (als .badge.badge-pill)
-      .col-12.h-20.d-flex.align-items-center.mt-3.rounded.bg-light.font-weight-bold.text-info.tf_singleline
+      .col-12.h-5.d-flex.align-items-end.justify-content-center.text-dark.tf_singleline
+        #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
+      .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
         #besonderheiten -Besonderheiten-
-  .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-2.text-dark.tf_singleline 
-    #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
+  .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
+    .progress(style='height: 100%;').flex-fill
+      #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width: 0%')       
   audio#audio(controls='')
     source(src='', type='audio/mpeg')  
