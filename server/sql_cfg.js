@@ -76,6 +76,14 @@ module.exports = function (fs, bcrypt, app_cfg) {
         user_permissions TEXT,
         user_agent TEXT,
         reset_timestamp DATETIME)`);
+      // Rueckmelde-Tabelle erstellen
+      db.run(`CREATE TABLE waip_response (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        waip_einsaetze_id INTEGER NOT NULL,
+        einsatzkraft TEXT,
+        maschinist TEXT,
+        fuehrungskraft TEXT,
+        atemschutz TEXT)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
