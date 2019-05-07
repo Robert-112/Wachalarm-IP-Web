@@ -17,18 +17,6 @@ module.exports = function(db, async, app_cfg) {
       reset_counter FROM waip_configs WHERE user_id = ` + user_id + `)`;
     };
     // Einsätze für die gewählte Wachen_ID ermittel, und Ablaufzeit beachten
-    console.log(`SELECT waip_einsaetze_ID FROM
-      (
-        SELECT em.waip_einsaetze_ID, we.zeitstempel FROM waip_einsatzmittel em
-        LEFT JOIN waip_wachen wa 	ON wa.id = em.waip_wachen_id
-        LEFT JOIN waip_einsaetze we ON we.id = em.waip_einsaetze_ID
-        WHERE wa.nr_wache LIKE \'` + wachen_id + `\'||\'%\'
-        GROUP BY em.waip_einsaetze_id
-        ORDER BY em.waip_einsaetze_id DESC
-      )
-      WHERE DATETIME(zeitstempel,	\'+\' || ` + select_reset_counter + ` || \' minutes\')
-        > DATETIME(\'now\')`);
-
     db.all(`SELECT waip_einsaetze_ID FROM
     	(
       	SELECT em.waip_einsaetze_ID, we.zeitstempel FROM waip_einsatzmittel em
