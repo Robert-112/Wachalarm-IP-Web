@@ -28,6 +28,12 @@ module.exports = function(io, sql, async, app_cfg) {
                 //letzten Einsatz verteilen
                 einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
                 sql.db_update_client_status(socket, result_einsatz[0].waip_einsaetze_ID);
+                //vorhanden Rückmeldungen verteilen
+                sql.db_get_response(result_einsatz[0].waip_einsaetze_ID, function(result){
+                  if (result) {
+                    reuckmeldung_verteilen(result_einsatz[0].waip_einsaetze_ID, result);
+                  };
+                });
               } else {
                 sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_id + ' vorhanden, Standby');
                 //oder falls kein Einsatz vorhanden ist, dann
@@ -40,6 +46,15 @@ module.exports = function(io, sql, async, app_cfg) {
           sql.db_log('Fehler-WAIP', 'Fehler: Wachnnummer ' + wachen_id + 'nicht vorhanden');
           io.sockets.to(socket.id).emit('io.error', 'Fehler: Wachnnummer \'' + wachen_id + '\' nicht vorhanden!');
         };
+      });
+    });
+    socket.on('response', function(waip_id, ek, ma, fk, agt) {
+      var i_ek = ek ? 1 : 0;
+      var i_ma = ma ? 1 : 0;
+      var i_fk = fk ? 1 : 0;
+      var i_agt = agt ? 1 : 0;
+      sql.db_update_response(waip_id, i_ek, i_ma, i_fk, i_agt, function(result){
+        reuckmeldung_verteilen(waip_id, result);
       });
     });
     // TODO: socket.on(Version) um Server-Version abzugleichen
@@ -102,6 +117,25 @@ module.exports = function(io, sql, async, app_cfg) {
         io.sockets.to(socket_id).emit('io.standby', null);
         sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket_id + ' gesendet..');
         sql.db_update_client_status(io.sockets.sockets[socket_id], null);
+      };
+    });
+  };
+
+  function reuckmeldung_verteilen(waip_id, result) {
+    sql.db_get_einsatzwachen(waip_id, function(data) {
+      if (data) {
+        data.forEach(function(row) {
+          // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
+          var room_stockets = io.sockets.adapter.rooms[row.room];
+          if (typeof room_stockets !== 'undefined') {
+            Object.keys(room_stockets.sockets).forEach(function(socket_id) {
+              io.sockets.to(socket_id).emit('io.response', result)
+              sql.db_log('WAIP', 'Rückmeldung ' + result + ' an Socket ' + socket_id + ' gesendet');
+            });
+          };
+        });
+      } else {
+        sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden, Rückmeldung konnte nicht verteilt werden!');
       };
     });
   };
