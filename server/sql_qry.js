@@ -86,7 +86,7 @@ module.exports = function(db, async, app_cfg) {
   };
 
   function db_einsatz_laden(waip_id, wachen_id, callback) {
-    db.get('SELECT e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, ' +
+    db.get('SELECT e.id, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, ' +
       'e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE FROM WAIP_EINSAETZE e ' +
       'left join ' +
       '(SELECT waip_einsaetze_id, waip_wachen_id, group_concat(einsatzmittel) AS em_alarmiert FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id = ? GROUP BY waip_wachen_id, waip_einsaetze_id) em1 ' +
@@ -279,6 +279,7 @@ module.exports = function(db, async, app_cfg) {
         };
         // je nach laenge andere SQL ausfuehren
         db.get(`SELECT
+          e.id,
           DATETIME(e.zeitstempel, 'localtime') zeitstempel,
         	DATETIME(e.zeitstempel,	'+' || (
             SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_configs WHERE user_id = ?
@@ -301,7 +302,6 @@ module.exports = function(db, async, app_cfg) {
           WHERE e.id LIKE ?
           ORDER BY e.id DESC LIMIT 1`,
           [app_cfg.global.default_time_for_standby, user_id, waip_id, wachen_nr, waip_id, wachen_nr, waip_id], function(err, row) {
-            console.log(row);
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -376,6 +376,15 @@ module.exports = function(db, async, app_cfg) {
     if (typeof reset_timestamp === "undefined") {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
+console.log(`UPDATE waip_clients
+  SET client_status=\'` + client_status + `\',
+  client_ip=\'` + client_ip + `\',
+  user_name=\'` + user_name + `\',
+  user_permissions=\'` + user_permissions + `\',
+  user_agent=\'` + user_agent + `\',
+  reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\')
+  WHERE socket_id=\'` + socket_id + `\'`);
+
     db.run(`UPDATE waip_clients
       SET client_status=\'` + client_status + `\',
       client_ip=\'` + client_ip + `\',
@@ -525,6 +534,56 @@ module.exports = function(db, async, app_cfg) {
     });
   };
 
+  function db_update_response(waip_id, i_ek, i_ma, i_fk, i_agt, callback) {
+    db.run(`
+      UPDATE waip_response SET
+      einsatzkraft = einsatzkraft + \'` + i_ek + `\',
+      maschinist = maschinist + \'` + i_ma + `\',
+      fuehrungskraft = fuehrungskraft + \'` + i_fk + `\',
+      atemschutz = atemschutz + \'` + i_agt + `\'
+      WHERE waip_einsaetze_id like \'` + waip_id + `\'`, function(err) {
+      if (err == null) {
+        db.run(`
+          INSERT OR IGNORE INTO waip_response
+            (id, waip_einsaetze_id, einsatzkraft, maschinist, fuehrungskraft, atemschutz)
+       	  VALUES (
+            (select ID from waip_response where waip_einsaetze_id like \'` + waip_id + `\'),
+         	  \'` + waip_id + `\',
+            \'` + i_ek + `\',
+            \'` + i_ma + `\',
+            \'` + i_fk + `\',
+            \'` + i_agt + `\');
+          UPDATE waip_response`, function(err) {
+          if (err == null) {
+            db.get(`SELECT einsatzkraft EK, maschinist MA, fuehrungskraft FK, atemschutz AGT FROM waip_response
+              WHERE waip_einsaetze_id = ?`, [waip_id], function(err, row) {
+              if (err == null && row) {
+                callback && callback(row);
+              } else {
+                callback && callback(null);
+              };
+            });
+          } else {
+            callback && callback(null);
+          };
+        });
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_get_response(waip_id, callback){
+    db.get(`SELECT einsatzkraft EK, maschinist MA, fuehrungskraft FK, atemschutz AGT FROM waip_response
+      WHERE waip_einsaetze_id = ?`, [waip_id], function(err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
@@ -554,7 +613,9 @@ module.exports = function(db, async, app_cfg) {
     db_check_permission: db_check_permission,
     db_get_userconfig: db_get_userconfig,
     db_set_userconfig: db_set_userconfig,
-    db_get_sockets_to_standby: db_get_sockets_to_standby
+    db_get_sockets_to_standby: db_get_sockets_to_standby,
+    db_update_response: db_update_response,
+    db_get_response:db_get_response
   };
 
 };
