@@ -373,7 +373,7 @@ module.exports = function(db, async, app_cfg) {
     if (typeof user_permissions === "undefined") {
       user_permissions = '';
     };
-    if (typeof reset_timestamp === "undefined") {
+    if ((typeof reset_timestamp === "undefined") || (reset_timestamp == null)) {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
 console.log(`UPDATE waip_clients
