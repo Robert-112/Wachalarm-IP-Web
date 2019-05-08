@@ -11,15 +11,15 @@
           | Aufgabenwahrnehmung
         p Ich komme als:
         .form-check
-          input#radios_res_ek.form-check-input(type='radio', name='radios_res', value='option1', checked='')
+          input#radios_res_ek.form-check-input(type='radio', name='radios_res', value='1')
           label.form-check-label(for='radios_res_ek')
             | Einsatzkraft
         .form-check
-          input#radios_res_ma.form-check-input(type='radio', name='radios_res', value='option2')
+          input#radios_res_ma.form-check-input(type='radio', name='radios_res', value='1')
           label.form-check-label(for='radios_res_ma')
             | Maschinist
         .form-check
-          input#radios_res_fk.form-check-input(type='radio', name='radios_res', value='option3')
+          input#radios_res_fk.form-check-input(type='radio', name='radios_res', value='1')
           label.form-check-label(for='radios_res_fk')
             | Führungskraft
         br
@@ -28,8 +28,8 @@
         h4.text-info 
           | AGT
         .form-check
-          input#cb_res_agt.form-check-input(type='checkbox', value='')
+          input#cb_res_agt.form-check-input(type='checkbox', value='1')
           label.form-check-label(for='cb_res_agt')
             | Außerdem bin ich Atemschutzgeräteträger!
       .modal-footer
-        button.btn.btn-warning(type='button', data-dismiss='modal') Senden
+        button#send_response.btn.btn-warning(type='button', data-dismiss='modal') Senden
