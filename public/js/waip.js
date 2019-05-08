@@ -122,13 +122,15 @@ var counter_ID = 0;
 function start_counter(zeitstempel, ablaufzeit) {
   // Split timestamp into [ Y, M, D, h, m, s ]
   var t1 = zeitstempel.split(/[- :]/),
-      t2 = ablaufzeit.split(/[- :]/);
+    t2 = ablaufzeit.split(/[- :]/);
 
-  var start = new Date(t1[0], t1[1]-1, t1[2], t1[3], t1[4], t1[5]),
-      end   = new Date(t2[0], t2[1]-1, t2[2], t2[3], t2[4], t2[5]);
+  var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
+    end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
 
   clearInterval(counter_ID);
-  counter_ID = setInterval(function(){ do_progressbar(start, end); }, 1000);
+  counter_ID = setInterval(function() {
+    do_progressbar(start, end);
+  }, 1000);
 };
 
 function do_progressbar(start, end) {
@@ -137,9 +139,9 @@ function do_progressbar(start, end) {
   var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
 
   var diff = Math.abs(end - today);
-  var minutesDifference = Math.floor(diff/1000/60);
-  diff -= minutesDifference*1000*60;
-  var secondsDifference = Math.floor(diff/1000);
+  var minutesDifference = Math.floor(diff / 1000 / 60);
+  diff -= minutesDifference * 1000 * 60;
+  var secondsDifference = Math.floor(diff / 1000);
   if (secondsDifference <= 9) {
     secondsDifference = '0' + secondsDifference;
   };
@@ -246,6 +248,8 @@ socket.on('io.playtts', function(data) {
 
 // Daten löschen, Uhr anzeigen
 socket.on('io.standby', function(data) {
+  // Einsatz-ID auf 0 setzen
+  waip_id = null;
   // TODO: Wenn vorhanden, hier #hilfsfrist zurücksetzen
   $('#einsatz_art').removeClass(function(index, className) {
     return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
@@ -268,7 +272,9 @@ socket.on('io.standby', function(data) {
 // Einsatzdaten laden, Wachalarm anzeigen
 socket.on('io.neuerEinsatz', function(data) {
   // DEBUG
-  console.log(data);
+  //console.log(data);
+  // Einsatz-ID speichern
+  waip_id = data.id;
   // Hintergrund der Einsatzart zunächst entfernen
   $('#einsatz_art').removeClass(function(index, className) {
     return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
@@ -362,8 +368,6 @@ socket.on('io.neuerEinsatz', function(data) {
   map.setView(new L.LatLng(data.wgs84_x, data.wgs84_y), 14);
   // Hilfsfrist setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
-  //var intervalid;
-  //createInterval(countdown, intervalid, data.zeitstempel, data.ablaufzeit, 1000);
   // Uhr ausblenden
   $("#waipclock").addClass("d-none");
   $("#waiptableau").removeClass("d-none");
@@ -424,11 +428,44 @@ function set_clock() {
 setInterval(set_clock, 1000);
 
 /* ########################### */
-/* ######## SONSTIGES ######## */
+/* ####### Rückmeldung ####### */
 /* ########################### */
 
-$('#rueckmeldung a').on('click', function (e) {
-  //$('#waipModalTitle').html('Rückmeldung');
-  //$('#waipModalBody').html('Ich melde mich als: BUTTON(EK, MA, AGT, FK)');
-  $('#responseModal').modal('show');
-})
+$('#rueckmeldung').each(function(index) {
+    $(this).on("click", function(){
+      $('#responseModal').modal('show');
+    });
+});
+
+$('#send_response').on('click', function() {
+  // Rückmeldung senden
+  socket.emit(
+    'response',
+    waip_id,
+    $('#radios_res_ek').prop('checked'),
+    $('#radios_res_ma').prop('checked'),
+    $('#radios_res_fk').prop('checked'),
+    $('#cb_res_agt').prop('checked')
+  );
+});
+
+socket.on('io.response', function(data) {
+  // Rückmeldungen hinterlegen
+  $('#rueckmeldung').empty();
+  //{einsatzkraft: "0", maschinist: "0", fuehrungskraft: "0", atemschutz: "0"}
+  for (var i in data) {
+    var item_class = 'list-group-item flex-fill list-group-item-action tf_singleline';
+    switch (data[i]) {
+      case '0':
+        item_class = item_class + ' text-danger';
+        break;
+      case '1':
+        item_class = item_class + ' text-warning';
+        break;
+      default:
+        item_class = item_class + ' text-success';
+    };
+    $('#rueckmeldung').append('<a class="' + item_class + '">' + data[i] + ' ' + i + '</a>');
+  };
+  resize_text();
+});
