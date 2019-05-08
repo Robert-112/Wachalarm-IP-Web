@@ -173,6 +173,10 @@ module.exports = function(io, sql, async, app_cfg) {
       };
       // Abschluss
       tts_text = tts_text + '. Ende der Durchsage!';
+      // ungewollte zeichen aus Sprachansage entfernen
+      tts_text = tts_text.replace(/:/g, " ");
+      tts_text = tts_text.replace(/\//g, " ");
+      tts_text = tts_text.replace(/-/g, " ");
       // Sprachansage als mp3 erstellen
       switch (process.platform) {
       //if (process.platform === "win32") {
