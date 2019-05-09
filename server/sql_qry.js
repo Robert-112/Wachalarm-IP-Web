@@ -376,15 +376,6 @@ module.exports = function(db, async, app_cfg) {
     if ((typeof reset_timestamp === "undefined") || (reset_timestamp == null)) {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
-console.log(`UPDATE waip_clients
-  SET client_status=\'` + client_status + `\',
-  client_ip=\'` + client_ip + `\',
-  user_name=\'` + user_name + `\',
-  user_permissions=\'` + user_permissions + `\',
-  user_agent=\'` + user_agent + `\',
-  reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\')
-  WHERE socket_id=\'` + socket_id + `\'`);
-
     db.run(`UPDATE waip_clients
       SET client_status=\'` + client_status + `\',
       client_ip=\'` + client_ip + `\',
