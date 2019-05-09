@@ -96,6 +96,7 @@ module.exports = function(io, sql, async, app_cfg) {
           //console.log(permissions + ' ' + wachen_nr);
           //if (permissions == wachen_nr || permissions == 'admin') {} else {
           if (!valid) {
+            einsatzdaten.objekt = '';
             einsatzdaten.besonderheiten = '';
             einsatzdaten.strasse = '';
             einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
