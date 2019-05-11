@@ -43,11 +43,19 @@ webserver.listen(app_cfg.global.https_port, function() {
 // Redirect all HTTP traffic to HTTPS
 http.createServer(function(req, res) {
   var host = req.headers.host;
-  host = host.replace(/:\d+$/, ":" + app_cfg.global.https_port);
-  res.writeHead(301, {
-    "Location": "https://" + host + req.url
-  });
-  res.end();
+  // prüfen ob host gesetzt, sonst 404
+  if (typeof host !== 'undefined' && host) {
+    // Anfrage auf https umleiten
+    host = host.replace(/:\d+$/, ":" + app_cfg.global.https_port);
+    res.writeHead(301, {
+      "Location": "https://" + host + req.url
+    });
+    res.end();
+  } else {
+    // HTTP status 404: NotFound
+    res.status(404)
+      .send('Not found - use https instead!');
+  };
 }).listen(app_cfg.global.http_port);
 
 // TODO: auf HTTPS mit TLS1.2 umstellen, inkl. WSS
