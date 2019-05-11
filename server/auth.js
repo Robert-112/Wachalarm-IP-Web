@@ -92,13 +92,24 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
     if (req.isAuthenticated()) {
       // req.user is available for use here
       return next();
-    }
+    };
     // denied. redirect to login
-    res.redirect('/login')
-  }
+    var err = new Error('Sie sind nicht angemeldet!');
+    err.status = 401;
+    next(err);
+  };
 
-  //TODO: ensureAuthenticated für admin-user erstellen
-  //-> req.user && req.user.permissions == "admin"
+  function ensureAdmin(req, res, next) {
+    db.get('SELECT permissions FROM waip_users WHERE id = ?', req.user.id, function(err, row) {
+      if ((req.isAuthenticated()) && (row.permissions == "admin")) {
+        // req.user is available for use here
+        return next();
+      };
+      var err = new Error('Sie verfügen nicht über die notwendigen Berechtigungen!');
+      err.status = 401;
+      next(err);
+    });
+  };
 
   function createUser(req, res) {
     db.get('SELECT user FROM waip_users WHERE user = ?', req.body.username, function(err, row) {
@@ -192,6 +203,7 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
 
   return {
     ensureAuthenticated: ensureAuthenticated,
+    ensureAdmin:ensureAdmin,
     createUser: createUser,
     deleteUser: deleteUser,
     editUser: editUser
