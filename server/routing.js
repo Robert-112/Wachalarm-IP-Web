@@ -40,7 +40,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
           user: req.user
         });
       } else {
-        var err = new Error('Wache ' + parmeter_id + ' nicht vorhanden');
+        var err = new Error('Wache ' + parmeter_id + ' nicht vorhanden!');
         err.status = 404;
         next(err);
       }
@@ -89,7 +89,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
   });
 
   // get /show_active_user
-  app.get('/show_active_user', auth.ensureAuthenticated, function(req, res) {
+  app.get('/show_active_user', auth.ensureAdmin, function(req, res) {
     sql.db_get_active_clients(function(data) {
       res.render('show_active_user', {
         title: 'Verbundene PCs/Benutzer',
@@ -100,7 +100,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
   });
 
   // get /show_active_waip
-  app.get('/show_active_waip', auth.ensureAuthenticated, function(req, res) {
+  app.get('/show_active_waip', auth.ensureAdmin, function(req, res) {
     sql.db_get_active_waips(function(data) {
       res.render('show_active_waip', {
         title: 'Akutelle Einsätze',
@@ -111,7 +111,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
   });
 
   // get /show_log
-  app.get('/show_log', auth.ensureAuthenticated, function(req, res) {
+  app.get('/show_log', auth.ensureAdmin, function(req, res) {
     sql.db_get_log(function(data) {
       res.render('show_log', {
         title: 'Log-Datei',
@@ -122,7 +122,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
   });
 
   // get /edit_users
-  app.get('/edit_users', auth.ensureAuthenticated, function(req, res) {
+  app.get('/edit_users', auth.ensureAdmin, function(req, res) {
     sql.db_get_users(function(data) {
       res.render('edit_users', {
         title: 'Benutzer und Rechte verwalten',
@@ -134,7 +134,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
     });
   });
 
-  app.post('/edit_users', auth.ensureAuthenticated, function(req, res) {
+  app.post('/edit_users', auth.ensureAdmin, function(req, res) {
     if (req.user && req.user.permissions == "admin") {
       switch (req.body["modal_method"]) {
         case "DELETE":
@@ -186,7 +186,7 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
 
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {
-    var err = new Error('Not Found');
+    var err = new Error('Seite nicht gefunden!');
     err.status = 404;
     next(err);
   });
