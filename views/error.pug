@@ -6,10 +6,12 @@ block content
       .row
         .col-12
           .card.border-warning
-            .card-header="Fehler - " + error.status
+            .card-header
+              h1= error.status
             .card-body    
-              h5.card-title= message
-              pre.card-text.text-monospace
+              .card-title
+                h5.ion-md-bug= " Fehler - " +message
+              pre.text-monospace
                 |
                 | __/\\\\\\\\\\\\\\\____/\\\\\\\\\________/\\\\\\\\\___________/\\\\\_________/\\\\\\\\\_____        
                 |  _\/\\\///////////___/\\\///////\\\____/\\\///////\\\_______/\\\///\\\_____/\\\///////\\\___       
