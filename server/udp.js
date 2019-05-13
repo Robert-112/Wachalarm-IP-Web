@@ -1,4 +1,4 @@
-module.exports = function(app_cfg, waip_io, sql){
+module.exports = function(app_cfg, waip_io, sql) {
 
   // Module laden
   var dgram = require('dgram');
@@ -24,10 +24,22 @@ module.exports = function(app_cfg, waip_io, sql){
   // Warten auf Einsatzdaten
   udp_server.on('message', function(message, remote) {
     if (isValidJSON(message)) {
-      sql.db_log('WAIP','Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
+      sql.db_log('WAIP', 'Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
       waip_io.einsatz_speichern(message);
     } else {
       sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote.address + ':' + remote.port + ' Fehlerhaft: ' + message);
     }
   });
+
+  function send_message(message) {
+    udp_server.send(message, 0, message.length, app_cfg.global.udpport, 'localhost', function(err, bytes) {
+      if (err) throw err;
+      sql.db_log('UDP-Testalarm an localhost Port ' + app_cfg.global.udpport + ' gesendet.');
+      //client.close();
+    });
+  };
+
+  return {
+    send_message: send_message
+  };
 };
