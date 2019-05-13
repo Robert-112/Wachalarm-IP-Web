@@ -53,8 +53,11 @@ http.createServer(function(req, res) {
     res.end();
   } else {
     // HTTP status 404: NotFound
-    res.status(404)
-      .send('Not found - use https instead!');
+	res.writeHead(404, {
+	  "Content-Type": "text/plain"
+	});
+	res.write("404 Not Found - use https instead!\n");
+	res.end();
   };
 }).listen(app_cfg.global.http_port);
 
