@@ -100,15 +100,20 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
   };
 
   function ensureAdmin(req, res, next) {
-    db.get('SELECT permissions FROM waip_users WHERE id = ?', req.user.id, function(err, row) {
-      if ((req.isAuthenticated()) && (row.permissions == "admin")) {
-        // req.user is available for use here
-        return next();
-      };
-      var err = new Error('Sie verfügen nicht über die notwendigen Berechtigungen!');
-      err.status = 401;
-      next(err);
-    });
+	if (req.isAuthenticated()) {  
+	  db.get('SELECT permissions FROM waip_users WHERE id = ?', req.user.id, function(err, row) {
+	    if (row.permissions == "admin") {
+		  // req.user is available for use here
+		  return next();
+	    };
+	    var err = new Error('Sie verfügen nicht über die notwendigen Berechtigungen!');
+	    err.status = 401;
+	    next(err);
+	  });
+	// denied. redirect to login
+    var err = new Error('Sie sind nicht angemeldet!');
+    err.status = 401;
+    next(err);
   };
 
   function createUser(req, res) {
