@@ -1,4 +1,4 @@
-module.exports = function(app, sql, app_cfg, passport, auth) {
+module.exports = function(app, sql, app_cfg, passport, auth, udp) {
 
   // get index
   app.get('/', function(req, res) {
@@ -64,10 +64,10 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
     });
   });
 
-  // get /ueber
-  app.get('/ueber', function(req, res) {
-    res.render('ueber', {
-      title: 'Über',
+  // get /help
+  app.get('/help', function(req, res) {
+    res.render('help', {
+      title: 'Hilfe',
       user: req.user
     });
   });
@@ -119,6 +119,18 @@ module.exports = function(app, sql, app_cfg, passport, auth) {
         dataSet: data
       });
     });
+  });
+
+  // get /test_alert
+  app.get('/test_alert', auth.ensureAdmin, function(req, res) {
+    res.render('test_alert', {
+      title: 'Test-Alarm',
+      user: req.user,
+    });
+  });
+
+  app.post('/test_alert', auth.ensureAdmin, function(req, res) {
+    udp.send_message(req.body.test_alert);
   });
 
   // get /edit_users
