@@ -10,8 +10,8 @@ header
           a.nav-link.ion-md-home(href='/')  Start
         li.nav-item(class=(title == 'Alarmmonitor') ? 'active' : null)
           a.nav-link.ion-md-desktop(href='/waip')  Alarmmonitor
-        li.nav-item(class=(title == 'Über') ? 'active' : null)
-          a.nav-link.ion-md-help-buoy(href='/ueber')  Hilfe        
+        li.nav-item(class=(title == 'Hilfe') ? 'active' : null)
+          a.nav-link.ion-md-help-buoy(href='/help')  Hilfe        
       ul.navbar-nav.ml-auto
         if user
           if user.permissions == 'admin'
@@ -19,12 +19,13 @@ header
               a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                 | Administration
               .dropdown-menu(aria-labelledby='navbarDropdown')
-                a.dropdown-item(href='/edit_users') Benutzer und Rechte verwalten
+                a.dropdown-item.ion-md-contacts(href='/edit_users')  Benutzer und Rechte verwalten
                 .dropdown-divider
                 a.dropdown-item(href='/show_active_user') Verbundene PCs/Benutzer
                 a.dropdown-item(href='/show_active_waip') laufende Einsätze  
                 .dropdown-divider
-                a.dropdown-item(href='/show_log') Log-Datei   
+                a.dropdown-item.text-danger.ion-md-warning(href='/test_alert')  Test-Alarm 
+                a.dropdown-item.ion-md-document(href='/show_log')  Log-Datei                   
           li.nav-item.pr-3(class=(title == 'Einstellungen') ? 'active' : null)
             a.ion-md-settings.nav-link(href='/config')  Einstellungen                 
           li.nav-item
