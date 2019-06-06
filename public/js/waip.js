@@ -236,9 +236,9 @@ socket.on('io.playtts', function(data) {
   // Audio-Blockade des Browsers erkennen
   var promise = document.querySelector('audio').play();
   if (promise !== undefined) {
-    promise.then(_ => {
+    promise.then(function(_) {
       audio.play();
-    }).catch(error => {
+    }).catch(function(error) {
       $('#waipModalTitle').html('Audio-Fehler');
       $('#waipModalBody').html('Die automatische Audio-Wiedergabe wird durch Ihren Browser blockiert! Fehlermeldung: ' + error.message);
       $('#waipModal').modal('show');
