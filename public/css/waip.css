@@ -169,7 +169,7 @@ audio {
 
 @keyframes x {
   100% {
-    transform: translatex(100%);
+    transform: translatex(35%);
   }
 }
 
@@ -179,7 +179,7 @@ audio {
 
 @keyframes y {
   100% {
-    transform: translatey(100%);
+    transform: translatey(40%);
   }
 }
 
