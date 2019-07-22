@@ -1,5 +1,13 @@
 # Wachalarm-IP-Web
 ![enter image description here](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
+# DEMO
+[📺🔥 https://am7.info.tm/](https://am7.info.tm/)
+
+Login-Daten:
+- Benutzer: me
+- Passwort: 123
+
+Die Demo-Version zeigt frei erfundene Einsätze die jede Stunde neu alarmiert werden. Ohne Login wird der Wachalarm mit reduziertem Inhalt dargestellt (zur Wahrung des Datenschutzes).
 
 ## TO-DO
 Nachfolgende Funktionen befinden sich noch in der Entwicklung:
