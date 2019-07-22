@@ -15,6 +15,20 @@ $('#replay').on('click', function(event) {
 });
 
 /* ############################ */
+/* ######### BUTTONS ########## */
+/* ############################ */
+
+var waipAudio = document.getElementById('audio');
+
+waipAudio.addEventListener('ended', function(){
+   $('.ion-md-pause').toggleClass("ion-md-play-circle");
+});
+
+  waipAudio.addEventListener("play", function () {
+      $('.ion-md-play-circle').toggleClass("ion-md-pause");
+});
+
+/* ############################ */
 /* ####### TEXT-RESIZE ######## */
 /* ############################ */
 
@@ -46,6 +60,26 @@ function resize_text() {
     map.invalidateSize();
     $("body").css("background-color", "#222");
   };
+};
+
+
+// Text nach bestimmter Laenge, in Abhaengigkeit von Zeichen, umbrechen
+function break_text_15(text){
+  var new_text;
+  new_text = text.replace(/.{15}(\s+|\-+)+/g, "$&@")
+  new_text = new_text.split(/@/);
+  new_text= new_text.join("<br>");
+  console.log(new_text);
+  return new_text;
+};
+
+
+function break_text_35(text){
+  var new_text;
+  new_text = text.replace(/.{50}\S*\s+/g, "$&@").split(/\s+@/);
+  new_text= new_text.join("<br>");
+  console.log(new_text);
+  return new_text;
 };
 
 /* ############################ */
@@ -239,9 +273,11 @@ socket.on('io.playtts', function(data) {
     promise.then(function(_) {
       audio.play();
     }).catch(function(error) {
-      $('#waipModalTitle').html('Audio-Fehler');
-      $('#waipModalBody').html('Die automatische Audio-Wiedergabe wird durch Ihren Browser blockiert! Fehlermeldung: ' + error.message);
-      $('#waipModal').modal('show');
+      //$('#waipModalTitle').html('Audio-Fehler');
+      //$('#waipModalBody').html('Die automatische Audio-Wiedergabe wird durch Ihren Browser blockiert! Fehlermeldung: ' + error.message);
+      //$('#waipModal').modal('show');
+      $('#volume').addClass("btn-danger");
+      $('.ion-md-volume-high').toggleClass("ion-md-volume-off");
     });
   };
 });
@@ -321,23 +357,23 @@ socket.on('io.neuerEinsatz', function(data) {
   var small_ortsdaten;
   small_ortsdaten = '';
   if (data.objekt) {
-    small_ortsdaten = small_ortsdaten + data.objekt + '<br>';
+    small_ortsdaten = small_ortsdaten + break_text_15(data.objekt) + '<br>';
   };
   if (data.ort) {
-    small_ortsdaten = small_ortsdaten + data.ort + '<br>';
+    small_ortsdaten = small_ortsdaten + break_text_15(data.ort) + '<br>';
   };
   if (data.ortsteil) {
-    small_ortsdaten = small_ortsdaten + data.ortsteil + '<br>';
+    small_ortsdaten = small_ortsdaten + break_text_15(data.ortsteil) + '<br>';
   };
   if (data.strasse) {
-    small_ortsdaten = small_ortsdaten + data.strasse + '<br>';
+    small_ortsdaten = small_ortsdaten + break_text_15(data.strasse) + '<br>';
   };
   if (small_ortsdaten.substr(small_ortsdaten.length - 4) == '<br>') {
     small_ortsdaten = small_ortsdaten.slice(0, -4);
   };
   $('#ortsdaten').html(small_ortsdaten);
   // Besonderheiten setzen
-  $('#besonderheiten').html(data.besonderheiten);
+  $('#besonderheiten').html(break_text_35(data.besonderheiten));
   // alarmierte Einsatzmittel setzen
   $('#em_alarmiert').empty();
   var data_em_alarmiert = JSON.parse(data.em_alarmiert);
@@ -365,7 +401,7 @@ socket.on('io.neuerEinsatz', function(data) {
   marker = L.marker(new L.LatLng(data.wgs84_x, data.wgs84_y), {
     icon: redIcon
   }).addTo(map);
-  map.setView(new L.LatLng(data.wgs84_x, data.wgs84_y), 14);
+  map.setView(new L.LatLng(data.wgs84_x, data.wgs84_y), 15);
   // Hilfsfrist setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // Uhr ausblenden
