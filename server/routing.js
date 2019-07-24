@@ -131,6 +131,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
 
   app.post('/test_alert', auth.ensureAdmin, function(req, res) {
     udp.send_message(req.body.test_alert);
+	res.redirect('/test_alert');
   });
 
   // get /edit_users
