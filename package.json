@@ -14,7 +14,7 @@
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
-    "npm": "^6.10.2",
+    "npm": "^6.13.4",
     "passport": "^0.4.0",
     "passport-ip": "^0.1.2",
     "passport-local": "^1.0.0",
