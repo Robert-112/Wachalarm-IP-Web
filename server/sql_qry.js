@@ -64,7 +64,35 @@ module.exports = function(db, async, app_cfg) {
           if (err == null) {
             // Einsatzmittel zum Einsatz speichern
             var id = this.lastID;
-            async.forEach(content.alarmdaten, function(item, done) {
+
+            function loop_done(waip_id) {
+              callback && callback(waip_id);
+              //console.log('all done');
+            }
+            
+            var itemsProcessed = 0;
+            content.alarmdaten.forEach(function (item, index, array) {
+              db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
+              VALUES (
+              (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
+              \'` + id + `\',
+              (select id from waip_wachen where name_wache like \'` + item.wachenname + `\'),
+              \'` + item.wachenname + `\',
+              \'` + item.einsatzmittel + `\',
+              \'` + item.zeit_a + `\')`,
+              function(err) {
+                if (err == null) {
+                  itemsProcessed++;
+              
+                  if (itemsProcessed === array.length) {
+                    loop_done(id);
+                  };
+                } else {
+                  callback && callback(err);
+                };
+            });
+          });
+            /*async.concat(content.alarmdaten, function(item, done) {
               db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
                 VALUES (
                 (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
@@ -75,9 +103,12 @@ module.exports = function(db, async, app_cfg) {
                 \'` + item.zeit_a + `\')`);
               done();
             }, function(err_) {
-              if (err_) console.error(err_.message);
-              callback && callback(id);
-            });
+              if (err_) {
+                console.error(err_.message);
+              } else {
+                callback && callback(id);
+              }
+            });*/
           } else {
             callback && callback(err);
           };
@@ -185,9 +216,9 @@ module.exports = function(db, async, app_cfg) {
       function(err, rows) {
         if (err == null && rows.length > 0) {
           // falls einsätze vorhanden, auch die null hinzufuegen
-          rows.push({
-            "room": 0
-          });
+          //rows.push({
+            //"room": 0
+          //});
           callback && callback(rows);
         } else {
           callback && callback(null);
