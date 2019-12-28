@@ -69,7 +69,7 @@ function break_text_15(text){
   new_text = text.replace(/.{15}(\s+|\-+)+/g, "$&@")
   new_text = new_text.split(/@/);
   new_text= new_text.join("<br>");
-  console.log(new_text);
+  //console.log(new_text);
   return new_text;
 };
 
@@ -78,7 +78,7 @@ function break_text_35(text){
   var new_text;
   new_text = text.replace(/.{50}\S*\s+/g, "$&@").split(/\s+@/);
   new_text= new_text.join("<br>");
-  console.log(new_text);
+  //console.log(new_text);
   return new_text;
 };
 
