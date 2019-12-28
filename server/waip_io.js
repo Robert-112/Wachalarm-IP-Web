@@ -68,11 +68,17 @@ module.exports = function(io, sql, async, app_cfg) {
       sql.db_log('WAIP', 'DEBUG: ' + waip_id);
       sql.db_get_einsatzwachen(waip_id, function(data) {
         if (data) {
+          console.log(data);
           data.forEach(function(row) {
             // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
-            var room_stockets = io.sockets.adapter.rooms[row.room];
-            if (typeof room_stockets !== 'undefined') {
-              Object.keys(room_stockets.sockets).forEach(function(socketId) {
+            var room_sockets = io.sockets.adapter.rooms[row.room];
+            //console.log(row);
+            //console.log(row.room);
+            
+            //console.log(room_sockets);
+            //console.log(io.sockets.adapter);
+            if (typeof room_sockets !== 'undefined') {
+              Object.keys(room_sockets.sockets).forEach(function(socketId) {
                 einsatz_verteilen(waip_id, socketId, row.room);
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socketId + ' (' + row.room + ') gesendet');
               });
