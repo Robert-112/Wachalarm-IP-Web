@@ -1,7 +1,7 @@
 # Wachalarm-IP-Web
 ![enter image description here](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
 # DEMO
-[📺🔥 https://am7.info.tm/](https://am7.info.tm/)
+[📺🔥 https://wachalarm.info.tm/](https://am7.info.tm/)
 
 Login-Daten:
 - Benutzer: me

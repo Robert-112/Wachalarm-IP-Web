@@ -80,9 +80,8 @@ _old/
 
 # db
 *.sqlite3
-
-# other
 *.db
+sessions
 
 # ssl
 .crt
