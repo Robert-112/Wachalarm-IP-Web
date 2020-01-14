@@ -29,9 +29,10 @@ app.use(bodyParser.urlencoded({
 // Scripte einbinden
 var app_cfg = require('./server/app_cfg.js');
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
-var sql = require('./server/sql_qry')(sql_cfg, async, app_cfg)
-var waip_io = require('./server/waip_io')(io, sql, async, app_cfg);
-var udp = require('./server/udp')(app_cfg, waip_io, sql);
+var sql = require('./server/sql_qry')(sql_cfg, async, app_cfg);
+var waip = require('./server/waip')(io, sql, async, app_cfg);
+var socket = require('./server/socket')(io, sql, app_cfg, waip);
+var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
 var routes = require('./server/routing')(app, sql, app_cfg, passport, auth, udp);
 

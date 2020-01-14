@@ -28,6 +28,7 @@
 - Uhrzeit am Anfang irgendwo platzieren (nicht immer oben links)
 - Maus auf Alarmmonitor nach Zeit x ausblenden
 - Datenbank nach bestimmter Zeit aufräumen
+- Client-IP bei Reverse-Proxy richtig ermitteln
 
 ## 3. Priorität (Neuerungen)
 

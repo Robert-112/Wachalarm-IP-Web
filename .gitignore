@@ -75,6 +75,9 @@ typings/
 # FuseBox cache
 .fusebox/
 
+# Forever
+.foreverignore
+
 # old Scripts
 _old/
 

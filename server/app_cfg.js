@@ -4,6 +4,7 @@ app_cfg.global = {
 	http_port: 3000,
 	https_port: 3443,
 	udpport: 60233,
+	remoteapi: "http://localhost:8078/api",
 	database: './database.sqlite3',
 	soundpath: '/public/media/',
 	mediapath: '/media/',
