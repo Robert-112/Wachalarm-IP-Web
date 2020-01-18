@@ -54,9 +54,11 @@ module.exports = function(io, sql, async, app_cfg) {
           sql.db_update_client_status(io.sockets.sockets[socket_id], waip_id);
           // Sound erstellen
           tts_erstellen(app_cfg, socket_id, einsatzdaten, function(tts) {
-            // Sound senden
-            sql.db_log('WAIP', 'ttsfile: ' + tts);
-            io.sockets.to(socket_id).emit('io.playtts', tts);
+            if (tts) {				
+			  // Sound senden
+			  sql.db_log('WAIP', 'ttsfile: ' + tts);
+			  io.sockets.to(socket_id).emit('io.playtts', tts);
+			};
           });
         });
       } else {
@@ -179,14 +181,15 @@ module.exports = function(io, sql, async, app_cfg) {
           var childD = proc.spawn('/bin/sh', commands);
           childD.stdin.setEncoding('ascii');
           childD.stderr.setEncoding('ascii');
-          childD.stderr.on('data', function(data) {
-            sql.db_log('Fehler-TTS', data);
-            callback && callback(null);
+          childD.on('exit', function(code, signal) {
+			if (code > 0) {
+			  sql.db_log('Fehler-TTS', 'Exit-Code '+ code +'; Fehler beim erstellen der TTS-Datei');
+			  callback && callback(null);
+			} else {
+			  callback && callback(mp3_url);
+			};
           });
-          childD.on('exit', function() {
-            callback && callback(mp3_url);
-          });
-          childD.stdin.end();
+          childD.stdin.end(); 
           break;
     //  } else {
         default:
