@@ -34,7 +34,7 @@ module.exports = function(app_cfg, waip, sql) {
   function send_message(message) {
     udp_server.send(message, 0, message.length, app_cfg.global.udpport, 'localhost', function(err, bytes) {
       if (err) throw err;
-      sql.db_log('UDP-Testalarm an localhost Port ' + app_cfg.global.udpport + ' gesendet.');
+      sql.db_log('UDP-Testalarm an Localhost (Port ' + app_cfg.global.udpport + ') gesendet.');
       //client.close();
     });
   };
