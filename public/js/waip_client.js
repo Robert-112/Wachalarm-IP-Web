@@ -474,19 +474,18 @@ $('#rueckmeldung').each(function(index) {
 });
 
 $('#send_response').on('click', function() {
+  // Rückmeldung sammeln
+  var respo = {};
+  respo.einsatzkraft = $('#radios_res_ek').prop('checked');
+  respo.maschinist = $('#radios_res_ma').prop('checked');
+  respo.fuehrungskraft = $('#radios_res_fk').prop('checked');
+  respo.atemschutz = $('#cb_res_agt').prop('checked');
   // Rückmeldung senden
-  socket.emit(
-    'response',
-    waip_id,
-    $('#radios_res_ek').prop('checked'),
-    $('#radios_res_ma').prop('checked'),
-    $('#radios_res_fk').prop('checked'),
-    $('#cb_res_agt').prop('checked')
-  );
+  socket.emit('response',waip_id,respo);
 });
 
 socket.on('io.response', function(data) {
-  // Rückmeldungen hinterlegen
+  // neue Rückmeldungen hinterlegen
   $('#rueckmeldung').empty();
   //{einsatzkraft: "0", maschinist: "0", fuehrungskraft: "0", atemschutz: "0"}
   for (var i in data) {

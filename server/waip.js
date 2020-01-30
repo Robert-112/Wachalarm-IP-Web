@@ -14,7 +14,6 @@ module.exports = function(io, sql, async, app_cfg) {
             var room_sockets = io.sockets.adapter.rooms[row.room];
             //console.log(row);
             //console.log(row.room);
-            
             //console.log(room_sockets);
             //console.log(io.sockets.adapter);
             if (typeof room_sockets !== 'undefined') {
