@@ -28,9 +28,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
     db.serialize(function () {
       // Einsatz-Tabelle erstellen
       db.run(`CREATE TABLE waip_einsaetze (
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         zeitstempel DATETIME DEFAULT CURRENT_TIMESTAMP,
-        uuid TEXT, 
         einsatznummer TEXT,
         alarmzeit TEXT,
         einsatzart TEXT,
@@ -45,9 +44,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         objektart TEXT,
         wachenfolge INTEGER,
         wgs84_x TEXT,
-        wgs84_y TEXT,
-        wgs84_area,
-        UNIQUE (id, uuid))`);
+        wgs84_y TEXT)`);
       // Einsatzmittel-Tabelle erstellen
       // TODO: Erweitern um Status, Staerke, AGT
       db.run(`CREATE TABLE waip_einsatzmittel (
@@ -89,7 +86,10 @@ module.exports = function (fs, bcrypt, app_cfg) {
       db.run(`CREATE TABLE waip_response (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_einsaetze_id INTEGER NOT NULL,
-        response_json TEXT)`);
+        einsatzkraft TEXT,
+        maschinist TEXT,
+        fuehrungskraft TEXT,
+        atemschutz TEXT)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -778,11 +778,10 @@ module.exports = function (fs, bcrypt, app_cfg) {
       db.run(`INSERT OR REPLACE INTO waip_ttsreplace (
         einsatzmittel_typ, einsatzmittel_rufname)
         VALUES
-        (\'10\',\'KDOW\'),
+        (\'10\',\'ELW\'),
         (\'11\',\'ELW\'),
-        (\'12\',\'ELW 2\'),
         (\'14\',\'KDOW\'),
-        (\'19\',\'MTF\'),
+        (\'19\',\'MTW\'),
         (\'20\',\'Tanklöschfahrzeug\'),
         (\'21\',\'Tanklöschfahrzeug\'),
         (\'22\',\'Vorauslöschfahrzeug\'),
@@ -790,14 +789,13 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (\'24\',\'Tanklöschfahrzeug\'),
         (\'25\',\'Großtanklöschfahrzeug\'),
         (\'26\',\'Tanklöschfahrzeug\'),
-        (\'27\',\'Tanklöschfahrzeug\'),
         (\'29\',\'Großtanklöschfahrzeug\'),
         (\'30\',\'Drehleiter\'),
         (\'31\',\'Drehleiter\'),
         (\'32\',\'Drehleiter\'),
         (\'33\',\'Drehleiter\'),
         (\'34\',\'Hubarbeitsbühne\'),
-        (\'35\',\'Gelenkmast\'),
+        (\'35\',\'Drehleiter\'),
         (\'36\',\'Teleskopmast\'),
         (\'37\',\'Teleskopmast \'),
         (\'38\',\'Hubretter\'),
@@ -810,21 +808,11 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (\'46\',\'Löschfahrzeug\'),
         (\'47\',\'TSF\'),
         (\'48\',\'TSF\'),
-        (\'49\',\'Speziallöschfahrzeug\'),
         (\'51\',\'Rüstwagen\'),
         (\'52\',\'Rüstwagen\'),
-        (\'53\',\'Rüstwagen\'),
+        (\'59\',\'Rüstwagen\'),
         (\'59\',\'Gerätewagen\'),
-        (\'61\',\'Schlauchwagen\'),
-        (\'62\',\'Schlauchwagen\'),
-        (\'63\',\'Schlauchwagen\'),
-        (\'64\',\'Schlauchtransportwagen\'),
-        (\'65\',\'Wechsellader\'),
-        (\'66\',\'Wechsellader\'),
-        (\'67\',\'Wechsellader\'),
         (\'69\',\'TSA\'),
-        (\'76\',\'Krad\'),
-        (\'78\',\'Löschboot\'),
         (\'79\',\'Mehrzweckboot\'),
         (\'82\',\'NEF\'),
         (\'83\',\'RTW\'),

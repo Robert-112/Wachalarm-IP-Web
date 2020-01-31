@@ -1,8 +1,5 @@
 module.exports = function(db, async, app_cfg) {
 
-  // Module laden
-  const uuidv4 = require('uuid/v4');
-
   // ermittelt den letzten vorhanden Einsatz zu einer Wache
   function db_einsatz_vorhanden(wachen_id, user_id, callback) {
     var select_reset_counter;
@@ -42,17 +39,12 @@ module.exports = function(db, async, app_cfg) {
   };
 
   function db_einsatz_speichern(content, callback) {
-    // uuid erzeugen und zuweisen falls nicht vorhanden
-    if !(content.einsatzdaten.uuid) {
-      content.einsatzdaten.uuid = uuidv4();
-    };
     db.serialize(function() {
       // Einsatzdaten speichern
       db.run(`INSERT OR REPLACE INTO waip_einsaetze (
-        id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y)
+        id, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y)
         VALUES (
         (select ID from waip_einsaetze where einsatznummer like \'` + content.einsatzdaten.nummer + `\'),
-        \'` + content.einsatzdaten.uuid + `\',
         \'` + content.einsatzdaten.nummer + `\',
         \'` + content.einsatzdaten.alarmzeit + `\',
         \'` + content.einsatzdaten.art + `\',
@@ -69,7 +61,7 @@ module.exports = function(db, async, app_cfg) {
         \'` + content.ortsdaten.wgs84_x + `\',
         \'` + content.ortsdaten.wgs84_y + `\')`,
         function(err) {
-          if (err == null) 
+          if (err == null) {
             // Einsatzmittel zum Einsatz speichern
             var id = this.lastID;
 
@@ -564,8 +556,7 @@ module.exports = function(db, async, app_cfg) {
     });
   };
 
-  /*function db_update_response(waip_id, responseobj, callback) {
-  // veraltet
+  function db_update_response(waip_id, i_ek, i_ma, i_fk, i_agt, callback) {
     db.run(`
       UPDATE waip_response SET
       einsatzkraft = einsatzkraft + \'` + i_ek + `\',
@@ -602,78 +593,13 @@ module.exports = function(db, async, app_cfg) {
         callback && callback(null);
       };
     });
-  }; */
-  
-  function db_save_response(waip_id, responseobj, callback) {
-    db.run((`INSERT INTO waip_response
-      (waip_einsaetze_id, response_json)
-      VALUES (
-      \'` + waip_id + `\',
-      \'` + responseobj + `\')`), function(err) {
-      if (err == null) {
-        callback && callback();
-      } else {
-        callback && callback(null);
-      };
-    });
   };
 
-  function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback){
-    db.all(`SELECT response_json FROM waip_response
-      WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function(err, row) {
-      if (err == null && rows) {
-        callback && callback(rows);
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback){
-    db.all(`SELECT response_json FROM waip_response
-      WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function(err, row) {
-      if (err == null && rows) {
-        
-        function loop_done(waip_id) {
-          callback && callback(waip_id);
-        };
-            
-        var itemsProcessed = 0;
-        var response_wache = {};
-        
-        rows.forEach(function (item, index, array) {
-          if (item.wachen_nr.startsWith(wachen_nr)) {
-            // hier jsonobjekt increment erstellen
-          };
-        
-              db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
-              VALUES (
-              (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
-              \'` + id + `\',
-              (select id from waip_wachen where name_wache like \'` + item.wachenname + `\'),
-              \'` + item.wachenname + `\',
-              \'` + item.einsatzmittel + `\',
-              \'` + item.zeit_a + `\')`,
-              function(err) {
-                if (err == null) {
-                  itemsProcessed++;
-              
-                  if (itemsProcessed === array.length) {
-                    loop_done(id);
-                  };
-                } else {
-                  callback && callback(null);
-                };
-            });
-        
-        
-        
-        
-        
-        
-        
-        
-        //callback && callback(row);
+  function db_get_response(waip_id, callback){
+    db.get(`SELECT einsatzkraft EK, maschinist MA, fuehrungskraft FK, atemschutz AGT FROM waip_response
+      WHERE waip_einsaetze_id = ?`, [waip_id], function(err, row) {
+      if (err == null && row) {
+        callback && callback(row);
       } else {
         callback && callback(null);
       };

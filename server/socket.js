@@ -60,12 +60,12 @@ socket_api.emit('CH01', 'me', 'test msg');
         };
       });
     });
-    socket.on('response', function(waip_id, responseobj) {
-      //var i_ek = ek ? 1 : 0;
-      //var i_ma = ma ? 1 : 0;
-      //var i_fk = fk ? 1 : 0;
-      //var i_agt = agt ? 1 : 0;
-      sql.db_update_response(waip_id, responseobj, function(result){
+    socket.on('response', function(waip_id, ek, ma, fk, agt) {
+      var i_ek = ek ? 1 : 0;
+      var i_ma = ma ? 1 : 0;
+      var i_fk = fk ? 1 : 0;
+      var i_agt = agt ? 1 : 0;
+      sql.db_update_response(waip_id, i_ek, i_ma, i_fk, i_agt, function(result){
         waip.reuckmeldung_verteilen(waip_id, result);
       });
     });
