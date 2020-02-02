@@ -4,7 +4,7 @@ app_cfg.global = {
 	http_port: 3000,
 	https_port: 3443,
 	udpport: 60233,
-	remoteapi: "http://localhost:8078/api",
+	remoteapi: 'http://localhost:8078/api',
 	database: './database.sqlite3',
 	soundpath: '/public/media/',
 	mediapath: '/media/',
@@ -18,6 +18,11 @@ app_cfg.global = {
 	sessionsecret: '0987654321abcdef#xyz',
 	app_id: process.pid,
 	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+};
+
+app_cfg.dev = {
+	app_name: 'Wachalarm IP-Web',
+	version: '1.2'
 };
 
 module.exports = app_cfg;

@@ -8,6 +8,8 @@
 - Buttons für Sounds werden fehlerhaft dargestellt
 - Uhrzeit in der Datenbank (und im Log) ist auf UTC, sollte aber lokale Zeit sein
 - Absturz bei unbekannter/falscher Wachennummer in Alarmmonitor-URL
+- openstreetmap credit
+- name, leitstelle, version immer mitgeben
 
 ## 2. Priorität (notwendige Anpassungen)
 

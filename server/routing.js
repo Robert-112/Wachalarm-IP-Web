@@ -95,6 +95,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   app.get('/test_tableau', function(req, res) {
     res.render('test_wachalarm', {
       title: 'Test Wachalarm',
+      map_tile: app_cfg.global.map_tile,
       user: req.user
     });
   });
@@ -103,6 +104,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   app.get('/test_rueckmeldung', function(req, res) {
     res.render('test_rueckmeldung', {
       title: 'Test Einsatz-Rückmeldung',
+      map_tile: app_cfg.global.map_tile,
       user: req.user
     });
   });

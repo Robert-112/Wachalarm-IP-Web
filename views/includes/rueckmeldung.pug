@@ -1,36 +1,40 @@
 .row.no-gutters
   .col-10
     #einsatz_art.align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-1
-      #einsatz_stichwort.ion-md-apps -Stichwort-
+      #einsatz_stichwort.ion-md-apps  -Stichwort-
   .col-2
     .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
       #sondersignal.ion-md-apps.text-center
-.row
-  .col-12.col-5_ls.h-35.h-70_ls.pt-3_pt.ptr-3_ls 
-    #map.h-100.rounded  
-  .col-12.col-7_ls.h-40.h-70_ls
-    .row.no-gutters.h-100.pt-3
-      .col-12.h-10.h-100.w-100
-        #rueckmeldung.list-group.list-group-horizontal.text-center.h-100.w-100
-          a.list-group-item.flex-fill.list-group-item-action.text-secondary.tf_singleline
-            .ion-md-paper-plane
-      .col-6.h-65.d-flex.align-items-end.justify-content-start.tf_multiline
-        #ortsdaten.flex-fill -Objekt-
-          br
-          | -Ort-
-          br
-          | -Ortsteil-
-          br
-          | -Straße Hsnr-
-      .col-6.h-65.d-flex.align-items-end.justify-content-end.tf_multiline
-          ul#em_alarmiert.list-group
-            li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 1-
-            li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 2-
-            li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel n-  
-          // TODO: Status mit anzeigen (als .badge.badge-pill)
-      .col-12.h-5.d-flex.align-items-end.justify-content-center.text-dark.tf_singleline
-        #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
-      .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
+  .col-12
+    //.pt-3_pt.ptr-3_ls.h-50
+    #map.rounded.my-1
+      br
+      br
+      br
+      br
+      br
+      br
+      br
+      br
+      br
+  
+  .col-6.h-65.d-flex.align-items-end.justify-content-start.tf_multiline
+  #ortsdaten.flex-fill -Objekt-
+    br
+    | -Ort-
+    br
+    | -Ortsteil-
+    br
+    | -Straße Hsnr-
+  .col-6.h-65.d-flex.align-items-end.justify-content-end.tf_multiline
+    ul#em_alarmiert.list-group
+    li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 1-
+    li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 2-
+    li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel n-  
+    // TODO: Status mit anzeigen (als .badge.badge-pill)
+  .col-12.h-5.d-flex.align-items-end.justify-content-center.text-dark.tf_singleline
+    #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
+  .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
         #besonderheiten -Besonderheiten-
   .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
     .progress(style='height: 100%;').flex-fill
