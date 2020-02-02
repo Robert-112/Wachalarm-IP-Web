@@ -7,7 +7,7 @@
       #sondersignal.ion-md-apps.text-center
   .col-12
     //.pt-3_pt.ptr-3_ls.h-50
-    #map.rounded.mt-1
+    #map.rounded.mt-2
       br
       br
       br
@@ -18,7 +18,7 @@
       br
       br
       br
-  .col-12.mt-1
+  .col-12.mt-2
     #ortsdaten.list-group
       a.list-group-item.py-2 -Objekt-
       a.list-group-item.py-2 -Ort-
@@ -30,19 +30,23 @@
     table.table.table-striped
       tbody
         tr 
-          th FL CB 00/00-00
-          th.badge.badge-pill.badge-success 2
-          th FL CB 12/00-00
-          th.badge.badge-pill.badge-warning 3
+          th
+            col-10 FL CB 00/00-00
+            col-2.badge.badge-pill.badge-success 2
+          th 
+            div FL CB 12/00-00
+            div.badge.badge-pill.badge-warning 3
         tr
-          th FL CB T-Dienst
-          th.badge.badge-pill.badge-danger 4
-          th KAT CB 00/00-00
-          th.badge.badge-pill.badge-success 2
+          th
+            div FL CB T-Dienst
+            div.badge.badge-pill.badge-danger 4
+          th 
+            div KAT CB 00/00-00
+            div.badge.badge-pill.badge-success 2
         tr
-          th FL SPN 00/00-00
-          th.badge.badge-pill.badge-info 1
-    
+          th 
+            div FL SPN 00/00-00
+            div.badge.badge-pill.badge-info 1
   .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
         #besonderheiten -Besonderheiten-
   .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
