@@ -7,16 +7,16 @@
       #sondersignal.ion-md-apps.text-center
   .col-12
     .card
-      .card-header
-        h5.text-center.text-danger.font-weight-bold Einsatzort
-      .card-body.p-0
+      .card-header.p-0
+        //h5.text-center.text-danger.font-weight-bold Einsatzort
         #map.rounded(style={height: '20em'})
-        #ortsdaten.d-flex.flex-column
-          div.list-group-item.py-2 -Objekt-
-          div.list-group-item.py-2 -Ort-
-          div.list-group-item.py-2 -Orststeil-
-          div.list-group-item.py-2 -Straße Hsnr-
-          div.list-group-item.py-2.text-warning -Besonderheiten-
+      //.card-body.p-0
+      ul#ortsdaten.list-group.list-group-flush
+        li.list-group-item -Objekt-
+        li.list-group-item -Ort-
+        li.list-group-item -Orststeil-
+        li.list-group-item -Straße Hsnr-
+        li.list-group-item.text-warning -Besonderheiten-
   .col-12.mt-2
     .card.bg-secondary
       .card-header
@@ -68,6 +68,6 @@
             div.d-flex.justify-content-between.align-items-center
               div FL SPN 00/00-00
               div.badge.badge-info 1
-  .col-12.mt-2
+  .col-12
     div.border-top.my-3
     button#rueckmeldung.btn.btn-danger.btn-lg.btn-block.ion-md-paper-plane(type='button')  Rückmeldung senden
