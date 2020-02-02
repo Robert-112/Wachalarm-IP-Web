@@ -42,12 +42,13 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
         var err = new Error('Wache ' + parmeter_id + ' nicht vorhanden!');
         err.status = 404;
         next(err);
-      }
+      };
     });
   });
 
   // get /rueckmeldung
-  app.get('/rueckmeldung', function(req, res) {
+  app.get('/rueckmeldung/:waip_uuid', function(req, res, next) {
+    var waip_uuid = req.params.waip_uuid;
     sql.db_get_userconfig(req.user.id, function(data) {
       res.render('config', {
         title: 'Einstellungen',
