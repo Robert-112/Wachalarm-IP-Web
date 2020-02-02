@@ -27,7 +27,23 @@
       div.list-group-item.py-2.text-warning -Besonderheiten-
   .col-12.mt-2
     h5.text-center.text-danger.font-weight-bold Alarmierte Einsatzmittel
-    table.table.table-striped
+    div.d-flex.flex-wrap.justify-content-around
+      div.d-flex.justify-content-betweenn.align-items-center
+        div.p-3 FL CB 00/00-00
+        div.badge.badge-success 2
+      div.d-flex.justify-content-between.align-items-center
+        div FL CB 12/00-00
+        div.badge.badge-warning 3
+      div.d-flex.justify-content-between.align-items-center
+        div FL CB T-Dienst
+        div.badge.badge-danger 4
+      div.d-flex.justify-content-between.align-items-center
+        div KAT CB 00/00-00
+        div.badge.badge-success 2
+      div.d-flex.justify-content-between.align-items-center
+        div FL SPN 00/00-00
+        div.badge.badge-info 1
+    //table.table.table-striped
       tbody
         tr 
           th
@@ -52,13 +68,6 @@
             div.d-flex.justify-content-between.align-items-center
               div FL SPN 00/00-00
               div.badge.badge-info 1
-  .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
-        #besonderheiten -Besonderheiten-
-  .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
-    .progress(style='height: 100%;').flex-fill
-      #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width: 0%')       
-  audio#audio(controls='')
-    source(src='', type='audio/mpeg')  
 
 
 //button einsatzmrückmeldung
