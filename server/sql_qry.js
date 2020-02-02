@@ -632,17 +632,38 @@ module.exports = function(db, async, app_cfg) {
   function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback) {
     db.all(`SELECT response_json FROM waip_response WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function (err, row) {
       if (err == null && rows) {
-        // Zeilen einzelnen durchgehen
+        // temporaere Variablen
+        var itemsProcessed = 0;
+        var response_wache = {};
+        response_wache.einsatzkraft = 0;
+        response_wache.maschinist = 0;
+        response_wache.fuehrungskraft = 0;
+        response_wache.atemschutz = 0;
+        // callback-function fuer absgeschlossene Schleife
         function loop_done(waip_id) {
           callback && callback(waip_id);
         };
-
-        var itemsProcessed = 0;
-        var response_wache = {};
-
+        // Zeilen einzelnen durchgehen
         rows.forEach(function (item, index, array) {
+          // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
           if (item.wachen_nr.startsWith(wachen_nr)) {
-            // hier jsonobjekt increment erstellen
+            // response_wache aufsummieren
+            response_wache.einsatzkraft
+
+
+            var x = {'key': 1};
+
+if ('key' in x) {
+    console.log('has');
+}
+
+
+            respo.einsatzkraft = $('#radios_res_ek').prop('checked');
+            respo.maschinist = $('#radios_res_ma').prop('checked');
+            respo.fuehrungskraft = $('#radios_res_fk').prop('checked');
+            respo.atemschutz = $('#cb_res_agt').prop('checked');
+
+
           };
 
           db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)

@@ -29,6 +29,7 @@
 - Maus auf Alarmmonitor nach Zeit x ausblenden
 - Datenbank nach bestimmter Zeit aufräumen
 - Client-IP bei Reverse-Proxy richtig ermitteln
+- eingehende JSON-Objekte auf plausibilität prüfen
 
 ## 3. Priorität (Neuerungen)
 
