@@ -51,9 +51,9 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     var waip_uuid = req.params.waip_uuid;
     sql.db_get_userconfig(req.user.id, function(data) {
       res.render('config', {
-        title: 'Einstellungen',
-        user: req.user,
-        reset_counter: data
+        //title: 'Einstellungen',
+        //user: req.user,
+        //reset_counter: data
       });
     });
   });
@@ -95,6 +95,14 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   app.get('/test_tableau', function(req, res) {
     res.render('test_wachalarm', {
       title: 'Test Wachalarm',
+      user: req.user
+    });
+  });
+
+  // get /test_rueckmeldung
+  app.get('/test_rueckmeldung', function(req, res) {
+    res.render('test_rueckmeldung', {
+      title: 'Test Einsatz-Rückmeldung',
       user: req.user
     });
   });

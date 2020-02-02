@@ -703,8 +703,10 @@ module.exports = function(db, async, app_cfg) {
     db_get_userconfig: db_get_userconfig,
     db_set_userconfig: db_set_userconfig,
     db_get_sockets_to_standby: db_get_sockets_to_standby,
-    db_update_response: db_update_response,
-    db_get_response:db_get_response
+    //db_update_response: db_update_response,
+    db_save_response: db_save_response,
+    db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
+    db_get_response_wache: db_get_response_wache
   };
 
 };
