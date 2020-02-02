@@ -19,34 +19,39 @@
       br
       br
   .col-12.mt-2
-    #ortsdaten.list-group
-      a.list-group-item.py-2 -Objekt-
-      a.list-group-item.py-2 -Ort-
-      a.list-group-item.py-2 -Orststeil-
-      a.list-group-item.py-2 -Straße Hsnr-
-      a.list-group-item.py-2.text-warning -Besonderheiten-
-  .col-12.mt-3
+    #ortsdaten.d-flex.flex-column
+      div.list-group-item.py-2 -Objekt-
+      div.list-group-item.py-2 -Ort-
+      div.list-group-item.py-2 -Orststeil-
+      div.list-group-item.py-2 -Straße Hsnr-
+      div.list-group-item.py-2.text-warning -Besonderheiten-
+  .col-12.mt-2
     h5.text-center.text-danger.font-weight-bold Alarmierte Einsatzmittel
     table.table.table-striped
       tbody
         tr 
           th
-            col-10 FL CB 00/00-00
-            col-2.badge.badge-pill.badge-success 2
-          th 
-            div FL CB 12/00-00
-            div.badge.badge-pill.badge-warning 3
+            div.d-flex.justify-content-between.align-items-center
+              div FL CB 00/00-00
+              div.badge.badge-success 2
+          th
+            div.d-flex.justify-content-between.align-items-center
+              div FL CB 12/00-00
+              div.badge.badge-warning 3
         tr
           th
-            div FL CB T-Dienst
-            div.badge.badge-pill.badge-danger 4
-          th 
-            div KAT CB 00/00-00
-            div.badge.badge-pill.badge-success 2
+            div.d-flex.justify-content-between.align-items-center
+              div FL CB T-Dienst
+              div.badge.badge-danger 4
+          th
+            div.d-flex.justify-content-between.align-items-center
+              div KAT CB 00/00-00
+              div.badge.badge-success 2
         tr
-          th 
-            div FL SPN 00/00-00
-            div.badge.badge-pill.badge-info 1
+          th
+            div.d-flex.justify-content-between.align-items-center
+              div FL SPN 00/00-00
+              div.badge.badge-info 1
   .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
         #besonderheiten -Besonderheiten-
   .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
