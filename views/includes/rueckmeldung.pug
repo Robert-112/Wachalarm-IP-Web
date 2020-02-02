@@ -7,7 +7,7 @@
       #sondersignal.ion-md-apps.text-center
   .col-12
     //.pt-3_pt.ptr-3_ls.h-50
-    #map.rounded.my-1
+    #map.rounded.mt-1
       br
       br
       br
@@ -17,23 +17,32 @@
       br
       br
       br
-  
-  .col-6.h-65.d-flex.align-items-end.justify-content-start.tf_multiline
-  #ortsdaten.flex-fill -Objekt-
-    br
-    | -Ort-
-    br
-    | -Ortsteil-
-    br
-    | -Straße Hsnr-
-  .col-6.h-65.d-flex.align-items-end.justify-content-end.tf_multiline
-    ul#em_alarmiert.list-group
-    li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 1-
-    li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 2-
-    li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel n-  
-    // TODO: Status mit anzeigen (als .badge.badge-pill)
-  .col-12.h-5.d-flex.align-items-end.justify-content-center.text-dark.tf_singleline
-    #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
+      br
+  .col-12.mt-1
+    #ortsdaten.list-group
+      a.list-group-item.py-2 -Objekt-
+      a.list-group-item.py-2 -Ort-
+      a.list-group-item.py-2 -Orststeil-
+      a.list-group-item.py-2 -Straße Hsnr-
+      a.list-group-item.py-2.text-warning -Besonderheiten-
+  .col-12.mt-3
+    h5.text-center.text-danger.font-weight-bold Alarmierte Einsatzmittel
+    table.table.table-striped
+      tbody
+        tr 
+          th FL CB 00/00-00
+          th.badge.badge-pill.badge-success 2
+          th FL CB 12/00-00
+          th.badge.badge-pill.badge-warning 3
+        tr
+          th FL CB T-Dienst
+          th.badge.badge-pill.badge-danger 4
+          th KAT CB 00/00-00
+          th.badge.badge-pill.badge-success 2
+        tr
+          th FL SPN 00/00-00
+          th.badge.badge-pill.badge-info 1
+    
   .col-12.h-20.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
         #besonderheiten -Besonderheiten-
   .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
@@ -41,3 +50,7 @@
       #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width: 0%')       
   audio#audio(controls='')
     source(src='', type='audio/mpeg')  
+
+
+//button einsatzmrückmeldung
+//dann modal mit der Rückmeldungsoption
