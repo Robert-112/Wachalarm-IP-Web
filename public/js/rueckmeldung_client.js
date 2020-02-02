@@ -28,3 +28,16 @@ var map = L.map('map', {
   var marker = L.marker(new L.LatLng(0, 0), {
     icon: redIcon
   }).addTo(map);
+
+  
+
+
+/* ########################### */
+/* ####### Rückmeldung ####### */
+/* ########################### */
+
+$('#rueckmeldung').each(function(index) {
+  $(this).on("click", function(){
+    $('#responseModal').modal('show');
+  });
+});
