@@ -1,23 +1,13 @@
 .row.no-gutters
-  .col-10
+  .col-10.mb-2
     #einsatz_art.align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-1
       #einsatz_stichwort.ion-md-apps  -Stichwort-
-  .col-2
+  .col-2.mb-2
     .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
       #sondersignal.ion-md-apps.text-center
   .col-12
     //.pt-3_pt.ptr-3_ls.h-50
-    #map.rounded.mt-2
-      br
-      br
-      br
-      br
-      br
-      br
-      br
-      br
-      br
-      br
+    #map.rounded(style={height: '20em'})
   .col-12.mt-2
     #ortsdaten.d-flex.flex-column
       div.list-group-item.py-2 -Objekt-
@@ -26,24 +16,7 @@
       div.list-group-item.py-2 -Straße Hsnr-
       div.list-group-item.py-2.text-warning -Besonderheiten-
   .col-12.mt-2
-    h5.text-center.text-danger.font-weight-bold Alarmierte Einsatzmittel
-    div.d-flex.flex-wrap.justify-content-around
-      div.d-flex.justify-content-betweenn.align-items-center
-        div.p-3 FL CB 00/00-00
-        div.badge.badge-success 2
-      div.d-flex.justify-content-between.align-items-center
-        div FL CB 12/00-00
-        div.badge.badge-warning 3
-      div.d-flex.justify-content-between.align-items-center
-        div FL CB T-Dienst
-        div.badge.badge-danger 4
-      div.d-flex.justify-content-between.align-items-center
-        div KAT CB 00/00-00
-        div.badge.badge-success 2
-      div.d-flex.justify-content-between.align-items-center
-        div FL SPN 00/00-00
-        div.badge.badge-info 1
-    //table.table.table-striped
+    table.table.table-striped
       tbody
         tr 
           th
@@ -68,7 +41,7 @@
             div.d-flex.justify-content-between.align-items-center
               div FL SPN 00/00-00
               div.badge.badge-info 1
-
-
+  .col-12.mt-2
+    button#rueckmeldung.btn.btn-danger.btn-lg.btn-block.ion-md-paper-plane(type='button')  Rückmeldung senden
 //button einsatzmrückmeldung
 //dann modal mit der Rückmeldungsoption
