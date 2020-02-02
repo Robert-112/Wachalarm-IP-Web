@@ -1,18 +1,11 @@
-#waiptableau.fullheight.row.no-gutters
-  .col-6.h-5.d-flex.align-items-center.py-1.text-dark 
-    button#replay.btn.btn-outline-dark.h-100.py-1.tf_singleline
-      .ion-md-play-circle
-    button#volume.btn.btn-outline-dark.h-100.mx-1.tf_singleline
-      .ion-md-volume-high
-    #date-time.
-      .tf_singleline -Datum- - -Uhrzeit-  
-  .col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-dark.tf_singleline
-    #wachenname.ion-md-business=data_wache || ' -Wachenname-'
-  .col-10.h-15.h-20_ls.pr-3
-    #einsatz_art.h-100.w-100.d-flex.align-items-center.font-weight-bold.p-3.rounded.bg-light.tf_singleline
-      #einsatz_stichwort.ion-md-apps  -Stichwort-
-  .col-2.h-15.h-20_ls.d-flex.align-items-center.justify-content-center.p-3.rounded.bg-light.text-info.tf_singleline
-    #sondersignal.ion-md-apps
+.row.no-gutters
+  .col-10
+    #einsatz_art.align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-1
+      #einsatz_stichwort.ion-md-apps -Stichwort-
+  .col-2
+    .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
+      #sondersignal.ion-md-apps.text-center
+.row
   .col-12.col-5_ls.h-35.h-70_ls.pt-3_pt.ptr-3_ls 
     #map.h-100.rounded  
   .col-12.col-7_ls.h-40.h-70_ls
