@@ -26,7 +26,6 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   });
 
   // get /waip/<wachennummer>
-  // TODO: Abstruz bei unbekannter/falscher Wachennummer
   app.get('/waip/:wachen_id', function(req, res, next) {
     var parmeter_id = req.params.wachen_id;
     sql.db_wache_vorhanden(parmeter_id, function(result) {
@@ -44,6 +43,17 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
         err.status = 404;
         next(err);
       }
+    });
+  });
+
+  // get /rueckmeldung
+  app.get('/rueckmeldung', function(req, res) {
+    sql.db_get_userconfig(req.user.id, function(data) {
+      res.render('config', {
+        title: 'Einstellungen',
+        user: req.user,
+        reset_counter: data
+      });
     });
   });
 

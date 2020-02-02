@@ -7,6 +7,7 @@
 - Darstellung in Safari-Mobil fehlerhaft (generell Mobil, ggf. extra Darstellung)
 - Buttons für Sounds werden fehlerhaft dargestellt
 - Uhrzeit in der Datenbank (und im Log) ist auf UTC, sollte aber lokale Zeit sein
+- Absturz bei unbekannter/falscher Wachennummer in Alarmmonitor-URL
 
 ## 2. Priorität (notwendige Anpassungen)
 

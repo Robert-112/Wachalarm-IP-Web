@@ -640,58 +640,38 @@ module.exports = function(db, async, app_cfg) {
         response_wache.fuehrungskraft = 0;
         response_wache.atemschutz = 0;
         // callback-function fuer absgeschlossene Schleife
-        function loop_done(waip_id) {
-          callback && callback(waip_id);
+        function loop_done(response_wache) {
+          callback && callback(response_wache);
         };
         // Zeilen einzelnen durchgehen
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
           if (item.wachen_nr.startsWith(wachen_nr)) {
             // response_wache aufsummieren
-            response_wache.einsatzkraft
-
-
-            var x = {'key': 1};
-
-if ('key' in x) {
-    console.log('has');
-}
-
-
-            respo.einsatzkraft = $('#radios_res_ek').prop('checked');
-            respo.maschinist = $('#radios_res_ma').prop('checked');
-            respo.fuehrungskraft = $('#radios_res_fk').prop('checked');
-            respo.atemschutz = $('#cb_res_agt').prop('checked');
-
-
+            if (Number.isInteger(item.einsatzkraft)) {
+              response_wache.einsatzkraft = response_wache.einsatzkraft + item.einsatzkraft;
+            };
+            if (Number.isInteger(item.maschinist)) {
+              response_wache.maschinist = response_wache.maschinist + item.maschinist;
+            };
+            if (Number.isInteger(item.fuehrungskraft)) {
+              response_wache.fuehrungskraft = response_wache.fuehrungskraft + item.fuehrungskraft;
+            };
+            if (Number.isInteger(item.atemschutz)) {
+              response_wache.atemschutz = response_wache.atemschutz + item.atemschutz;
+            };
           };
-
-          db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
-            VALUES (
-            (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
-            \'` + id + `\',
-            (select id from waip_wachen where name_wache like \'` + item.wachenname + `\'),
-            \'` + item.wachenname + `\',
-            \'` + item.einsatzmittel + `\',
-            \'` + item.zeit_a + `\')`,
-            function (err) {
-              if (err == null) {
-                itemsProcessed++;
-
-                if (itemsProcessed === array.length) {
-                  loop_done(id);
-                };
-              } else {
-                callback && callback(null);
-              };
-            });
-          });
-          //callback && callback(row);
-        } else {
-          callback && callback(null);
-        };
-      });
-    };
+          // Schleife ggf. beenden
+          itemsProcessed++;
+          if (itemsProcessed === array.length) {
+            loop_done(response_wache);
+          };
+        });
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
 
   return {
     db_einsatz_speichern: db_einsatz_speichern,
