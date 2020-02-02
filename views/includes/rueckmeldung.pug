@@ -6,32 +6,43 @@
     .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
       #sondersignal.ion-md-apps.text-center
   .col-12
-    #map.rounded(style={height: '20em'})
+    .card
+      .card-header
+        h5.text-center.text-danger.font-weight-bold Einsatzort
+      .card-body.p-0
+        #map.rounded(style={height: '20em'})
+        #ortsdaten.d-flex.flex-column
+          div.list-group-item.py-2 -Objekt-
+          div.list-group-item.py-2 -Ort-
+          div.list-group-item.py-2 -Orststeil-
+          div.list-group-item.py-2 -Straße Hsnr-
+          div.list-group-item.py-2.text-warning -Besonderheiten-
   .col-12.mt-2
-    #ortsdaten.d-flex.flex-column
-      div.list-group-item.py-2 -Objekt-
-      div.list-group-item.py-2 -Ort-
-      div.list-group-item.py-2 -Orststeil-
-      div.list-group-item.py-2 -Straße Hsnr-
-      div.list-group-item.py-2.text-warning -Besonderheiten-
-  .col-12.mt-2
-    h5.text-center.text-danger.font-weight-bold Alarmierte Einsatzmittel
-    div.d-flex.flex-wrap
-      div.d-flex.flex-fill.justify-content-between.align-items-center.rounded.bg-light.p-2.mb-2.mr-2
-        div.pr-2 FL CB 00/00-00
-        div.p-2.badge.badge-success 2
-      div.d-flex.flex-fill.justify-content-between.align-items-center.rounded.bg-light.p-2.mb-2.mr-2
-        div.pr-2 FL CB 12/00-00
-        div.p-2.badge.badge-warning 3
-      div.d-flex.flex-fill.justify-content-between.align-items-center.rounded.bg-light.p-2.mb-2.mr-2
-        div.pr-2 FL CB T-Dienst
-        div.p-2.badge.badge-danger 4
-      div.d-flex.flex-fill.justify-content-between.align-items-center.rounded.bg-light.p-2.mb-2.mr-2
-        div.pr-2 KAT CB 00/00-00
-        div.p-2.badge.badge-success 2
-      div.d-flex.flex-fill.justify-content-between.align-items-center.rounded.bg-light.p-2.mb-2.mr-2
-        div.pr-2 FL SPN 00/00-00
-        div.p-2.badge.badge-info 1
+    .card.bg-secondary
+      .card-header
+        h5.text-center.text-danger.font-weight-bold Alarmierte Einsatzmittel
+      .card-body.p-0
+        div.d-flex.flex-wrap.justify-content-between.align-items-center
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL CB 00/00-00
+              div.p-2.badge.badge-success 2
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL CB 12/00-00
+              div.p-2.badge.badge-warning 3
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL CB T-Dienst
+              div.p-2.badge.badge-danger 4
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between 
+              div.pr-2 KAT CB 00/00-00
+              div.p-2.badge.badge-success 2
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL SPN 00/00-00
+              div.p-2.badge.badge-info 1
     //table.table.table-striped
       tbody
         tr 
