@@ -7,8 +7,7 @@
       #sondersignal.ion-md-apps.text-center
   .col-12
     .card.mt-2
-      .card-header.p-0
-        //h5.text-center.text-danger.font-weight-bold Einsatzort
+      .card-body.p-0
         #map.rounded(style={height: '20em'})
       //.card-body.p-0
       ul#ortsdaten.list-group.list-group-flush
@@ -18,6 +17,37 @@
         li.list-group-item -Straße Hsnr-
         li.list-group-item.text-warning -Besonderheiten-
   .col-12
+    div.border-top.my-3
+    .card.bg-secondary.mt-2
+      .card-header.bg-light.p-2
+        h5.text-danger.text-center Alarmierte Einsatzmittel
+      .card-body.p-1
+        div.d-flex.flex-wrap.justify-content-between.align-items-center
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL CB 00/00-00
+              div.p-2.badge.badge-success 2
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL CB 01/00-00
+              div.p-2.badge.badge-warning 3
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL CB T-Dienst
+              div.p-2.badge.badge-danger 4
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between 
+              div.pr-2 FL CB 12/00-00
+              div.p-2.badge.badge-success 2
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between
+              div.pr-2 FL SPN 00/00-00
+              div.p-2.badge.badge-info 1
+          div.flex-fill.rounded.bg-light.p-2.m-1
+            div.d-flex.justify-content-between 
+              div.pr-2 KAT CB 00/00-00
+              div.p-2.badge.badge-success 2  
+  //.col-12
     div.border-top.my-3
     .card.bg-secondary.mt-2
       .card-header.bg-light.p-2
