@@ -10,18 +10,19 @@
         h4.text-info 
           | Aufgabenwahrnehmung
         p Ich komme als:
-        .form-check
-          input#radios_res_ek.form-check-input(type='radio', name='radios_res', value='1')
-          label.form-check-label(for='radios_res_ek')
-            | Einsatzkraft
-        .form-check
-          input#radios_res_ma.form-check-input(type='radio', name='radios_res', value='1')
-          label.form-check-label(for='radios_res_ma')
-            | Maschinist
-        .form-check
-          input#radios_res_fk.form-check-input(type='radio', name='radios_res', value='1')
-          label.form-check-label(for='radios_res_fk')
-            | Führungskraft
+        .form-group
+          .custom-control.custom-radio
+            input#radios_res_ek.custom-control-input(type='radio', name='radios_res', value='1')
+            label.custom-control-label(for='radios_res_ek')
+              | Einsatzkraft
+          .custom-control.custom-radio
+            input#radios_res_ma.custom-control-input(type='radio', name='radios_res', value='1')
+            label.custom-control-label(for='radios_res_ma')
+              | Maschinist
+          .custom-control.custom-radio
+            input#radios_res_fk.custom-control-input(type='radio', name='radios_res', value='1')
+            label.custom-control-label(for='radios_res_fk')
+              | Führungskraft
         br
         p zum Einsatz.
         hr
