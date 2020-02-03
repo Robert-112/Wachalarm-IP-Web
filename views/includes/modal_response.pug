@@ -7,30 +7,63 @@
         button.close(type='button', data-dismiss='modal', aria-label='Close')
           span(aria-hidden='true') ×
       #responseModalBody.modal-body
-        h4.text-info 
-          | Aufgabenwahrnehmung
-        p Ich komme als:
-        .form-group
-          .custom-control.custom-radio
-            input#radios_res_ek.custom-control-input(type='radio', name='radios_res', value='1')
-            label.custom-control-label(for='radios_res_ek')
-              | Einsatzkraft
-          .custom-control.custom-radio
-            input#radios_res_ma.custom-control-input(type='radio', name='radios_res', value='1')
-            label.custom-control-label(for='radios_res_ma')
-              | Maschinist
-          .custom-control.custom-radio
-            input#radios_res_fk.custom-control-input(type='radio', name='radios_res', value='1')
-            label.custom-control-label(for='radios_res_fk')
-              | Führungskraft
-        br
-        p zum Einsatz.
+        h4.text-info Aufgabenwahrnehmung
+        p.text-muted Ich komme als
+        .row
+          .col-1
+          .col-11
+            .form-group
+              .custom-control.custom-radio
+                input#radios_res_ek.custom-control-input(type='radio', name='radios_res', value='1')
+                label.custom-control-label(for='radios_res_ek')
+                  | Einsatzkraft
+              .custom-control.custom-radio
+                input#radios_res_ma.custom-control-input(type='radio', name='radios_res', value='1')
+                label.custom-control-label(for='radios_res_ma')
+                  | Maschinist
+              .custom-control.custom-radio
+                input#radios_res_fk.custom-control-input(type='radio', name='radios_res', value='1')
+                label.custom-control-label(for='radios_res_fk')
+                  | Führungskraft
+        hr
+        h4.text-info AGT
+        .row
+          .col-1
+          .col-11
+            .form-group
+              .custom-control.custom-checkbox
+                input#cb_res_agt.custom-control-input(type='checkbox', value='1')
+                label.custom-control-label.text-warning(for='cb_res_agt')
+                  | Außerdem bin ich Atemschutzgeräteträger!
         hr
         h4.text-info 
-          | AGT
-        .form-check
-          input#cb_res_agt.form-check-input(type='checkbox', value='1')
-          label.form-check-label(for='cb_res_agt')
-            | Außerdem bin ich Atemschutzgeräteträger!
+          | Wache
+        .row
+          .col-md-6
+            .card.bg-primary
+              .card-body
+                p.text-muted Ich bin in 
+                .form-group
+                  custom-select
+                    select.custom-select
+                      option() 5 Minuten
+                      option(value='1') 10 Minuten
+                      option(value='2') 15 Minuten
+                      option(value='3') 20 Minuten
+          .col-md-6
+            .card.bg-primary
+              .card-body
+                p.text-muted an der Wache
+                .form-group
+                  custom-select
+                    select.custom-select
+                      option(selected='') CB FW Cottbus 1
+                      option(value='1') CB FW Cottbus 3
+                      option(value='2') CB FW Madlow
+                      option(value='3') CB FW Kieckebusch
       .modal-footer
-        button#send_response.btn.btn-warning(type='button', data-dismiss='modal') Senden
+        .row
+          .col-6
+            button#send_deny.btn.btn-outline-danger(type='button', data-dismiss='modal') ablehnen
+          .col-6
+            button#send_response.btn.btn-warning(type='button', data-dismiss='modal') senden
