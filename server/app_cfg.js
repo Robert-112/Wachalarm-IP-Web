@@ -16,13 +16,14 @@ app_cfg.global = {
 	ip_auth_range: ['::ffff:172.16.5.0/24', '::ffff:192.168.2.0/24'],
 	saltRounds: 10,
 	sessionsecret: '0987654321abcdef#xyz',
-	app_id: process.pid,
-	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+	app_id: process.pid
 };
 
-app_cfg.dev = {
+app_cfg.public = {
 	app_name: 'Wachalarm IP-Web',
-	version: '1.2'
+	version: '1.2',
+	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+	map_attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 };
 
 module.exports = app_cfg;
