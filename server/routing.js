@@ -50,11 +50,17 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   app.get('/rueckmeldung/:waip_uuid', function(req, res, next) {
     var waip_uuid = req.params.waip_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
-      res.render('', {
-        //title: 'Einstellungen',
-        //user: req.user,
-        //reset_counter: data
-      });
+      if (einsatzdaten) {
+        res.render('test_rueckmeldung', {
+          title: 'Einsatz-Rückmeldung',
+          user: req.user,
+          einsatzdaten: einsatzdaten
+        });
+      } else {
+        var err = new Error('Der angefragte Einsatz ist nicht vorhanden!'+waip_uuid);
+        err.status = 404;
+        next(err);
+      };
     });
   });
 

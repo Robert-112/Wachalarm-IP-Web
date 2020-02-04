@@ -674,7 +674,7 @@ module.exports = function(db, async, app_cfg) {
   };
 
   function db_get_einsatzdaten_by_uuid(waip_uuid, callback){
-    db.get(`SELECT e.id, e.ZEITSTEMPEL e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
+    db.get(`SELECT e.id, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
       e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area FROM WAIP_EINSAETZE e 
       WHERE e.uuid like ?`, [waip_uuid], function(err, row) {
       if (err == null && row) {
@@ -682,7 +682,7 @@ module.exports = function(db, async, app_cfg) {
           WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, rows) {
           if (err == null && rows) {
             var einsatzdaten = row;
-            einsatzdaten.einsatzmittel = rows;   
+            einsatzdaten.einsatzmittel = rows;  
             callback && callback(einsatzdaten);
           } else {
             callback && callback(null);
