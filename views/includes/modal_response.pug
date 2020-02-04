@@ -8,10 +8,8 @@
           span(aria-hidden='true') ×
       #responseModalBody.modal-body
         h4.text-info Aufgabenwahrnehmung
-        p.text-muted Ich komme als
-        .row
-          .col-1
-          .col-11
+        p.text-muted Ich komme als ...
+          div
             .form-group
               .custom-control.custom-radio
                 input#radios_res_ek.custom-control-input(type='radio', name='radios_res', value='1')
@@ -26,23 +24,20 @@
                 label.custom-control-label(for='radios_res_fk')
                   | Führungskraft
         hr
-        h4.text-info AGT
-        .row
-          .col-1
-          .col-11
+          div
             .form-group
               .custom-control.custom-checkbox
                 input#cb_res_agt.custom-control-input(type='checkbox', value='1')
                 label.custom-control-label.text-warning(for='cb_res_agt')
                   | Außerdem bin ich Atemschutzgeräteträger!
         hr
-        h4.text-info 
+        //h4.text-info 
           | Wache
         .row
           .col-md-6
             .card.border-info
               .card-body
-                p.text-muted Ich bin in 
+                p.text-muted ... und bin in 
                 .form-group
                   custom-select
                     select.custom-select
