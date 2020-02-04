@@ -46,7 +46,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         wachenfolge INTEGER,
         wgs84_x TEXT,
         wgs84_y TEXT,
-        wgs84_area,
+        wgs84_area TEXT,
         UNIQUE (id, uuid))`);
       // Einsatzmittel-Tabelle erstellen
       // TODO: Erweitern um Status, Staerke, AGT

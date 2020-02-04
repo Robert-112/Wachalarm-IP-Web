@@ -49,8 +49,8 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   // get /rueckmeldung
   app.get('/rueckmeldung/:waip_uuid', function(req, res, next) {
     var waip_uuid = req.params.waip_uuid;
-    sql.db_get_userconfig(req.user.id, function(data) {
-      res.render('config', {
+    sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
+      res.render('', {
         //title: 'Einstellungen',
         //user: req.user,
         //reset_counter: data
