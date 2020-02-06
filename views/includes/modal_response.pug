@@ -12,27 +12,27 @@
           .form-group
             p.text-muted Ich komme als ...
             .custom-control.custom-radio.form-control-lg
-              input#radios_res_ek.custom-control-input(type='radio', name='radios_res', value='1')
+              input#radios_res_ek.custom-control-input(type='radio', name='radios_res_ek', value='1')
               label.custom-control-label(for='radios_res_ek')
                 | Einsatzkraft
             .custom-control.custom-radio.form-control-lg
-              input#radios_res_ma.custom-control-input(type='radio', name='radios_res', value='1')
+              input#radios_res_ma.custom-control-input(type='radio', name='radios_res_ma', value='1')
               label.custom-control-label(for='radios_res_ma')
                 | Maschinist
             .custom-control.custom-radio.form-control-lg
-              input#radios_res_fk.custom-control-input(type='radio', name='radios_res', value='1')
+              input#radios_res_fk.custom-control-input(type='radio', name='radios_res_fk', value='1')
               label.custom-control-label(for='radios_res_fk')
                 | Führungskraft
           div.border-top.my-3
           .form-group
             .custom-control.custom-switch
-              input#cb_res_agt.custom-control-input(type='checkbox')
+              input#cb_res_agt.custom-control-input(type='checkbox', name='cb_res_agt', value='1')
               label.custom-control-label.text-warning(for='cb_res_agt')
                 | und bin Atemschutzgeräteträger!
           div.border-top.my-3
           .form-group
             label(for='eintreffzeit').text-muted in ungefähr ...
-            select#eintreffzeit.form-control.form-control-lg
+            select#eintreffzeit.form-control.form-control-lg(name="eintreffzeit")
               option(value=null) bitte Eintreffzeit wählen
               option(value='5') 5 Minuten
               option(value='10') 10 Minuten
@@ -40,7 +40,7 @@
               option(value='20') 20 Minuten
           .form-group
             label(for='wachenauswahl').text-muted zur Wache ...
-            select#wachenauswahl.form-control.form-control-lg
+            select#wachenauswahl.form-control.form-control-lg(name="wachenauswahl")
               option(value=null) bitte Wache wählen
               each val in einsatzdaten.wachen
                 option(value='#{val.waip_wachen_ID}') #{val.wachenname}
