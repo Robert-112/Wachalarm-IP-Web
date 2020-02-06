@@ -7,8 +7,9 @@
         button.close(type='button', data-dismiss='modal', aria-label='Close')
           span(aria-hidden='true') ×
       #responseModalBody.modal-body
-        p.text-muted Ich komme als ...
+        form#send_response(action="/rueckmeldung", method="POST")
           .form-group
+            p.text-muted Ich komme als ...
             .custom-control.custom-radio.form-control-lg
               input#radios_res_ek.custom-control-input(type='radio', name='radios_res', value='1')
               label.custom-control-label(for='radios_res_ek')
@@ -21,29 +22,29 @@
               input#radios_res_fk.custom-control-input(type='radio', name='radios_res', value='1')
               label.custom-control-label(for='radios_res_fk')
                 | Führungskraft
-        div.border-top.my-3
-        .form-group
-          .custom-control.custom-switch
-            input#cb_res_agt.custom-control-input(type='checkbox')
-            label.custom-control-label.text-warning(for='cb_res_agt')
-              | und bin Atemschutzgeräteträger!
-        div.border-top.my-3
-        p.text-muted in ungefähr ...
+          div.border-top.my-3
           .form-group
+            .custom-control.custom-switch
+              input#cb_res_agt.custom-control-input(type='checkbox')
+              label.custom-control-label.text-warning(for='cb_res_agt')
+                | und bin Atemschutzgeräteträger!
+          div.border-top.my-3
+          .form-group
+            label(for='eintreffzeit').text-muted in ungefähr ...
             select#eintreffzeit.form-control.form-control-lg
               option(value=null) bitte Eintreffzeit wählen
               option(value='5') 5 Minuten
               option(value='10') 10 Minuten
               option(value='15') 15 Minuten
               option(value='20') 20 Minuten
-        p.text-muted zur Wache ...
           .form-group
+            label(for='wachenauswahl').text-muted zur Wache ...
             select#wachenauswahl.form-control.form-control-lg
               option(value=null) bitte Wache wählen
               each val in einsatzdaten.wachen
-                option(value='#{val.wachenname}') #{val.wachenname}
+                option(value='#{val.waip_wachen_ID}') #{val.wachenname}
                 //option(value='2') CB FW Cottbus 3
                 //option(value='3') CB FW Madlow
                 //option(value='4') CB FW Kieckebusch
       .modal-footer
-          button#send_response.btn.btn-lg.btn-block.btn-warning.btn-outline-primary.ion-md-paper-plane(type='button', data-dismiss='modal')  Rückmeldung absenden!
+          button.btn.btn-lg.btn-block.btn-warning.btn-outline-primary.p-3.ion-md-paper-plane(type='submit', form="send_response", value='submit')  Rückmeldung absenden!

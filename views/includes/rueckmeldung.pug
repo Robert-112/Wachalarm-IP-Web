@@ -68,13 +68,13 @@
                 div.pr-2 #{val.einsatzmittel}
                 unless val.status == null
                   case val.status
-                    when 1
+                    when '1'
                       div.p-2.badge.badge-info #{val.status}
-                    when 2
+                    when '2'
                       div.p-2.badge.badge-success #{val.status}
-                    when 3
+                    when '3'
                       div.p-2.badge.badge-warning #{val.status}
-                    when 4
+                    when '4'
                       div.p-2.badge.badge-danger #{val.status}
                     default
                       div.p-2.badge.badge-dark #{val.status}

@@ -611,7 +611,7 @@ module.exports = function(db, async, app_cfg) {
       \'` + waip_id + `\',
       \'` + responseobj + `\')`), function(err) {
       if (err == null) {
-        callback && callback();
+        callback && callback('OK');
       } else {
         callback && callback(null);
       };
@@ -685,7 +685,7 @@ module.exports = function(db, async, app_cfg) {
           if (err == null && rows) {
             var einsatzdaten = row;
             einsatzdaten.einsatzmittel = rows; 
-            db.all(`SELECT DISTINCT e.wachenname FROM waip_einsatzmittel e 
+            db.all(`SELECT DISTINCT e.waip_wachen_ID, e.wachenname FROM waip_einsatzmittel e 
               WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, wachen) {
               if (err == null && wachen) {
                 einsatzdaten.wachen = wachen;

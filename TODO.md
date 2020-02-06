@@ -10,6 +10,7 @@
 - Absturz bei unbekannter/falscher Wachennummer in Alarmmonitor-URL
 - openstreetmap credit
 - name, leitstelle, version immer mitgeben
+- Eingaben auf validität prüfen
 
 ## 2. Priorität (notwendige Anpassungen)
 

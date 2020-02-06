@@ -64,6 +64,19 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
+  app.post('/rueckmeldung/:waip_uuid', function(req, res) {
+    sql.db_save_response(waip_id, responseobj, function(result){
+      if (result) {
+        res.redirect('/rueckmeldung/' + req.params.waip_uuid);
+      } else {
+        var err = new Error('Fehler beim senden der Rückmeldung!');
+        err.status = 500;
+        next(err);
+      };
+    });
+	res.redirect('/rueckmeldung/:waip_uuid');
+  });
+
   // get /config
   app.get('/config', auth.ensureAuthenticated, function(req, res) {
     sql.db_get_userconfig(req.user.id, function(data) {
