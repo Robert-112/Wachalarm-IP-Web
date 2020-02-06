@@ -4,8 +4,25 @@
   .col-6
     p.text-muted.text-right 11:22:33
   .col-10
-    #einsatz_art.align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-2
-      #einsatz_stichwort.ion-md-apps  -Stichwort-
+    case einsatzdaten.einsatzart
+      when 'Brandeinsatz'
+        #einsatz_art.align-items-center.font-weight-bold.rounded.bg-danger.p-3.mr-2
+          #einsatz_stichwort.ion-md-flame #{' ' + einsatzdaten.stichwort}
+      when 'Hilfeleistungseinsatz'
+        #einsatz_art.align-items-center.font-weight-bold.rounded.bg-info.p-3.mr-2
+          #einsatz_stichwort.ion-md-construct #{' ' + einsatzdaten.stichwort}
+      when 'Rettungseinsatz'
+        #einsatz_art.align-items-center.font-weight-bold.rounded.bg-warning.p-3.mr-2
+          #einsatz_stichwort.ion-md-medkit #{' ' + einsatzdaten.stichwort}
+      when 'Krankentransport'
+        #einsatz_art.align-items-center.font-weight-bold.rounded.bg-success.p-3.mr-2
+          #einsatz_stichwort.ion-md-medical #{' ' + einsatzdaten.stichwort}
+      when 'Sonstiges'
+        #einsatz_art.align-items-center.font-weight-bold.rounded.bg-secondary.p-3.mr-2
+          #einsatz_stichwort.ion-md-information-circle #{' ' + einsatzdaten.stichwort}
+      default
+        #einsatz_art.align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-2
+          #einsatz_stichwort.ion-md-apps  -Stichwort-
   .col-2
     .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
       #sondersignal.ion-md-apps.text-center
