@@ -12,21 +12,25 @@
           .form-group
             p.text-muted Ich komme als ...
             .custom-control.custom-radio.form-control-lg
-              input#radios_res_ek.custom-control-input(type='radio', name='radio_efunction', value='ek', required='')
+              input(type='hidden' name='radio_ek' value='0')
+              input#radios_res_ek.custom-control-input(type='radio', name='radio_ek', value='1', required='')
               label.custom-control-label(for='radios_res_ek')
                 | Einsatzkraft
             .custom-control.custom-radio.form-control-lg
-              input#radios_res_ma.custom-control-input(type='radio', name='radio_efunction', value='ma', required='')
+              input(type='hidden' name='radio_ma' value='0')
+              input#radios_res_ma.custom-control-input(type='radio', name='radio_ma', value='1', required='')
               label.custom-control-label(for='radios_res_ma')
                 | Maschinist
             .custom-control.custom-radio.form-control-lg
-              input#radios_res_fk.custom-control-input(type='radio', name='radio_efunction', value='fk', required='')
+              input(type='hidden' name='radio_fk' value='0')
+              input#radios_res_fk.custom-control-input(type='radio', name='radio_fk', value='1', required='')
               label.custom-control-label(for='radios_res_fk')
                 | Führungskraft
               .invalid-feedback wählen Sie eine Einsatzfunktion!
           div.border-top.my-3
           .form-group
             .custom-control.custom-switch.form-control-lg
+              input(type='hidden' name='cb_agt' value='0')
               input#cb_res_agt.custom-control-input(type='checkbox', name='cb_agt', value='1')
               label.custom-control-label.text-warning(for='cb_res_agt')
                 | und bin Atemschutzgeräteträger!
