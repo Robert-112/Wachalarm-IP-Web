@@ -3,14 +3,11 @@ extends layout
 append head
   link(rel='stylesheet', href='/css/ionicons.min.css')
   link(rel='stylesheet', href='/css/leaflet.css')
-  // link(rel='stylesheet', href='/css/waip.css')
 
 block content
   include includes/modal_response
   .container-fluid
     include includes/rueckmeldung
-  a= JSON.stringify(einsatzdaten)
   script(src='/js/leaflet.js')
-  // script(src='/js/textFit.min.js')
   script(src='/js/rueckmeldung_client.js')
   

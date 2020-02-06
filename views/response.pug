@@ -1,0 +1,47 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/ionicons.min.css')
+  link(rel='stylesheet', href='/css/leaflet.css')
+
+block content
+  include includes/modal_response
+  .container-fluid
+    include includes/rueckmeldung
+  script(src='/js/leaflet.js')
+  script(src='/js/rueckmeldung_client.js')
+  
+  
+  
+  a= JSON.stringify(einsatzdaten)
+
+
+
+
+
+
+
+  extends layout
+
+append head
+  link(rel='stylesheet', href='/css/leaflet.css')
+
+block content
+  include includes/modal
+  include includes/modal_response
+  .container-fluid
+    #waipclock.d-none
+      include includes/clock
+    #waiptableau.d-none
+      include includes/wachalarm
+
+  script.
+    var map_tile = !{JSON.stringify(map_tile).replace(/<\//g, '<\\/')}
+    var client_id = !{JSON.stringify(app_id).replace(/<\//g, '<\\/')}
+  script(src='/js/leaflet.js')
+  script(src='/js/textFit.min.js')
+  script(src='/socket.io/socket.io.js') 
+  script.
+    wachen_id="#{wachen_id}"
+    waip_id=null
+  script(src='/js/waip_client.js')
