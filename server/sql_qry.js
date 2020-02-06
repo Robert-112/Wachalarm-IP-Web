@@ -680,12 +680,20 @@ module.exports = function(db, async, app_cfg) {
       if (err == null && row) {
         console.log(row.uuid);
         console.log(row.id);
-        db.all(`SELECT e.wachenname, e.einsatzmittel, e.status FROM waip_einsatzmittel e 
+        db.all(`SELECT e.einsatzmittel, e.status FROM waip_einsatzmittel e 
           WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, rows) {
           if (err == null && rows) {
             var einsatzdaten = row;
-            einsatzdaten.einsatzmittel = rows;  
-            callback && callback(einsatzdaten);
+            einsatzdaten.einsatzmittel = rows; 
+            db.all(`SELECT DISTINCT e.wachenname FROM waip_einsatzmittel e 
+              WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, wachen) {
+              if (err == null && wachen) {
+                einsatzdaten.wachen = wachen;
+                callback && callback(einsatzdaten);
+              } else {
+                callback && callback(null);
+              };
+            });        
           } else {
             callback && callback(null);
           };
