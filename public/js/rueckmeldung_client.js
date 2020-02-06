@@ -41,5 +41,3 @@ $('#rueckmeldung').each(function(index) {
     $('#responseModal').modal('show');
   });
 });
-
-console.log(einsatzdaten);

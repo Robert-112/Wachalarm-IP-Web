@@ -468,7 +468,7 @@ module.exports = function(db, async, app_cfg) {
   };
 
   function db_get_active_waips(callback) {
-    db.all(`select we.einsatzart, we.stichwort, we.ort, we.ortsteil,
+    db.all(`select we.uuid, we.einsatzart, we.stichwort, we.ort, we.ortsteil,
     GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
     GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
     GROUP_concat(DISTINCT wa.nr_wache) c
@@ -674,11 +674,13 @@ module.exports = function(db, async, app_cfg) {
   };
 
   function db_get_einsatzdaten_by_uuid(waip_uuid, callback){
-    db.get(`SELECT e.id, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
+    db.get(`SELECT e.id, e.uuid, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
       e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area FROM WAIP_EINSAETZE e 
       WHERE e.uuid like ?`, [waip_uuid], function(err, row) {
       if (err == null && row) {
-        db.all(`SELECT e.wachenname, e.einsatzmittel, e.status FROM waip_einsaztmittel e 
+        console.log(row.uuid);
+        console.log(row.id);
+        db.all(`SELECT e.wachenname, e.einsatzmittel, e.status FROM waip_einsatzmittel e 
           WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, rows) {
           if (err == null && rows) {
             var einsatzdaten = row;
