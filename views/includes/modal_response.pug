@@ -7,7 +7,8 @@
         button.close(type='button', data-dismiss='modal', aria-label='Close')
           span(aria-hidden='true') ×
       #responseModalBody.modal-body
-        form#send_response(action="/rueckmeldung", method="POST")
+        form#send_response(action=einsatzdaten.uuid, method="POST")
+          input(type="hidden" name="waip_id" value=einsatzdaten.id)
           .form-group
             p.text-muted Ich komme als ...
             .custom-control.custom-radio.form-control-lg
