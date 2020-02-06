@@ -1,13 +1,14 @@
 extends layout
 
 append head
-  //link(rel='stylesheet', href='/css/ionicons.min.css')
   link(rel='stylesheet', href='/css/leaflet.css')
 
 block content
-  include includes/modal_global
+  include includes/modal_info
   include includes/modal_response
   .container-fluid
     include includes/rueckmeldung
+  script.
+    var einsatzdaten_obj = !{JSON.stringify(einsatzdaten).replace(/<\//g, '<\\/')}
   script(src='/js/leaflet.js')
   script(src='/js/rueckmeldung_client.js')

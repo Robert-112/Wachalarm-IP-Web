@@ -51,7 +51,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     var waip_uuid = req.params.waip_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
       if (einsatzdaten) {
-        res.render('test_rueckmeldung', {
+        res.render('response', {
           title: 'Einsatz-Rückmeldung',
           user: req.user,
           einsatzdaten: einsatzdaten

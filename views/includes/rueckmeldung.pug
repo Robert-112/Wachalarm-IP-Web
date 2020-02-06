@@ -1,10 +1,8 @@
 .row.no-gutters
   .col-6
-
-  a #{' ' + start}
-    p.text-muted 01.01.2020 
+    p#einsatz_datum.text-muted 01.01.2020 
   .col-6
-    p.text-muted.text-right 11:22:33
+    p#einsatz_uhrzeit.text-muted.text-right 11:22:33
   .col-10
     case einsatzdaten.einsatzart
       when 'Brandeinsatz'
@@ -69,36 +67,17 @@
               div.d-flex.justify-content-between
                 div.pr-2 #{val.einsatzmittel}
                 unless val.status == null
-                  div.p-2.badge.badge-success 2
-
-
-
-
-
-          div.flex-fill.rounded.bg-light.p-2.m-1
-            div.d-flex.justify-content-between
-              div.pr-2 FL CB 00/00-00
-              div.p-2.badge.badge-success 2
-          div.flex-fill.rounded.bg-light.p-2.m-1
-            div.d-flex.justify-content-between
-              div.pr-2 FL CB 01/00-00
-              div.p-2.badge.badge-warning 3
-          div.flex-fill.rounded.bg-light.p-2.m-1
-            div.d-flex.justify-content-between
-              div.pr-2 FL CB T-Dienst
-              div.p-2.badge.badge-danger 4
-          div.flex-fill.rounded.bg-light.p-2.m-1
-            div.d-flex.justify-content-between 
-              div.pr-2 FL CB 12/00-00
-              div.p-2.badge.badge-success 2
-          div.flex-fill.rounded.bg-light.p-2.m-1
-            div.d-flex.justify-content-between
-              div.pr-2 FL SPN 00/00-00
-              div.p-2.badge.badge-info 1
-          div.flex-fill.rounded.bg-light.p-2.m-1
-            div.d-flex.justify-content-between 
-              div.pr-2 KAT CB 00/00-00
-              div.p-2.badge.badge-success 2  
+                  case val.status
+                    when 1
+                      div.p-2.badge.badge-info #{val.status}
+                    when 2
+                      div.p-2.badge.badge-success #{val.status}
+                    when 3
+                      div.p-2.badge.badge-warning #{val.status}
+                    when 4
+                      div.p-2.badge.badge-danger #{val.status}
+                    default
+                      div.p-2.badge.badge-dark #{val.status}
   //.col-12
     div.border-top.my-3
     .card.bg-secondary.mt-2
