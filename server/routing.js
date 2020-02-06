@@ -65,7 +65,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   });
 
   app.post('/rueckmeldung/:waip_uuid', function(req, res) {
-    console.log('post_rueckmeldung '+req.body.waip_id);
+    console.log('post_rueckmeldung '+JSON.stringify(req.body));
     sql.db_save_response(req.body.waip_id, req.body, function(result){
       if (result) {
         res.redirect('/rueckmeldung/' + req.params.waip_uuid);
