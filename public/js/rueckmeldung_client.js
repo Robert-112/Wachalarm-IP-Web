@@ -29,7 +29,19 @@ var map = L.map('map', {
     icon: redIcon
   }).addTo(map);
 
-  
+
+/* ########################### */
+/* ####### Funktionen ######## */
+/* ########################### */
+
+
+  // Split timestamp into [ Y, M, D, h, m, s ]
+  console.log(einsatzdaten);
+  var t1 = eisnatzdaten.zeitstempel.split(/[- :]/);
+
+  var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]);
+
+
 
 
 /* ########################### */
