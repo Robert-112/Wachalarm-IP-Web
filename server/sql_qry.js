@@ -605,12 +605,11 @@ module.exports = function(db, async, app_cfg) {
   };*/
 
   function db_save_response(waip_id, responseobj, callback) {
-    //console.log(waip_id,responseobj);
     db.run((`INSERT INTO waip_response
       (waip_einsaetze_id, response_json)
       VALUES (
       \'` + waip_id + `\',
-      \'` + 'responseobj' + `\')`), function(err) {
+      \'` + JSON.stringify(responseobj) + `\')`), function(err) {
         console.log(err);
       if (err == null) {
         callback && callback('OK');
