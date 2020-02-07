@@ -604,12 +604,58 @@ module.exports = function(db, async, app_cfg) {
     });
   };*/
 
-  function db_save_response(waip_id, responseobj, callback) {
+  function db_save_response(responseobj, callback) {
+
+
+    // Rueckmeldung aufarbeiten
+    var reuckmeldung = {};
+    reuckmeldung.waip_uuid = responseobj.waip_uuid;
+    // Typ der Einsatzfunktion festlegen
+    switch (responseobj.radio_efunction) {
+      case 'ek':
+        reuckmeldung.einsatzkraft = 1;
+        reuckmeldung.maschinist = 0;
+        reuckmeldung.fuehrungskraft = 0;
+        break;
+      case 'ma':
+        reuckmeldung.einsatzkraft = 0;
+        reuckmeldung.maschinist = 1;
+        reuckmeldung.fuehrungskraft = 0;
+        break;
+      case 'fk':
+        reuckmeldung.einsatzkraft = 0;
+        reuckmeldung.maschinist = 0;
+        reuckmeldung.fuehrungskraft = 1;
+        break;
+      default:
+        reuckmeldung.einsatzkraft = 0;
+        reuckmeldung.maschinist = 0;
+        reuckmeldung.fuehrungskraft = 0;
+    };
+    // ist AGT ja / nein
+    if (responseobj.cb_agt) {
+      reuckmeldung.agt = 1;
+    } else {
+      reuckmeldung.agt = 0;
+    };
+    // Zeitpunkt der Rueckmeldung festlegen
+    reuckmeldung.set_time = new Date();
+    // Zeitpunkt der geplanten Ankunft festlegen
+    var resp_time = new Date(); 
+    resp_time.setMinutes(resp_time.getMinutes() + parseInt(responseobj.eintreffzeit));
+    reuckmeldung.arrival_time = resp_time;
+    // Wache zuordnen
+    if (!isNaN(responseobj.wachenauswahl)) {
+      reuckmeldung.wache = responseobj.wachenauswahl;
+    } else {
+      reuckmeldung.wache =  null;
+    };
+    console.log(JSON.stringify(reuckmeldung));
     db.run((`INSERT INTO waip_response
       (waip_einsaetze_id, response_json)
       VALUES (
-      \'` + waip_id + `\',
-      \'` + JSON.stringify(responseobj) + `\')`), function(err) {
+      \'` + reuckmeldung.waip_uuid + `\',
+      \'` + JSON.stringify(reuckmeldung) + `\')`), function(err) {
         console.log(err);
       if (err == null) {
         callback && callback('OK');
