@@ -4,8 +4,11 @@ block content
   main(role='main')
     .jumbotron
        .container
-         h1.text-danger.display-3 Wachalarm-IP-Web
-         p Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
+         h1.text-danger.display-3= public.app_name
+         h5.text-muted &copy; #{public.company}
+         hr
+         a Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
+         p Zusätzlich besteht für Einsatzkräfte die Möglichkeit zur einfachen Rückmeldung.
          p Nachfolgend können Sie aus einer der aufgef&uuml;hrten Wachen ausw&auml;hlen. Entsprechend Ihrer Berechtigungen werden Ihnen auf dem Alarmmonitor alle oder nur ausgew&auml;hlte Einsatzdaten angezeigt.
     .container
       .row

@@ -7,28 +7,26 @@ header
     #navbarCollapse.collapse.navbar-collapse
       ul.navbar-nav.mr-auto
         li.nav-item(class=(title == 'Startseite') ? 'active' : null)
-          a.nav-link.ion-md-home(href='/')  Startseite
+          a.nav-link.ion-md-home(href='/') &nbsp;Startseite
         li.nav-item(class=(title == 'Alarmmonitor') ? 'active' : null)
-          a.nav-link.ion-md-desktop(href='/waip')  Alarmmonitor
-        a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-          | Weiteres
-        .dropdown-menu(aria-labelledby='navbarDropdown')
-          a.dropdown-item.ion-md-contacts(href='/edit_users')  Benutzer und Rechte verwalten
-          .dropdown-divider
+          a.nav-link.ion-md-desktop(href='/waip') &nbsp;Alarmmonitor
+        li.nav-item(class=(title == 'Alarmmonitor') ? 'active' : null)
+          a.nav-link.ion-md-paper-plane(href='/waip') &nbsp;Einsatzrückmeldung
+        a#navbarWeiteresDropdown.nav-link.dropdown-toggle.ion-md-information-circle-outline(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+          | &nbsp;Weiteres
+        .dropdown-menu(aria-labelledby='navbarWeiteresDropdown')
           a.dropdown-item(href='/show_active_user') Verbundene PCs/Benutzer
           a.dropdown-item(href='/show_active_waip') laufende Einsätze  
-          .dropdown-divider
-          a.dropdown-item.text-danger.ion-md-warning(href='/test_alert')  Test-Alarm 
-          a.dropdown-item.ion-md-document(href='/show_log')  Log-Datei        
-        li.nav-item(class=(title == 'Hilfe') ? 'active' : null)
-          a.nav-link.ion-md-help-buoy(href='/help')  Weiteres    
+          //.dropdown-divider
+          //li.nav-item(class=(title == 'Hilfe') ? 'active' : null)
+            a.nav-link(href='/help')  Weiteres         
       ul.navbar-nav.ml-auto
         if user
           if user.permissions == 'admin'
             li.nav-item.dropdown
-              a#navbarDropdown.nav-link.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+              a#navbarAdminDropdown.nav-link.dropdown-toggle.ion-md-server(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                 | Administration
-              .dropdown-menu(aria-labelledby='navbarDropdown')
+              .dropdown-menu(aria-labelledby='navbarAdminDropdown')
                 a.dropdown-item.ion-md-contacts(href='/edit_users')  Benutzer und Rechte verwalten
                 .dropdown-divider
                 a.dropdown-item(href='/show_active_user') Verbundene PCs/Benutzer
