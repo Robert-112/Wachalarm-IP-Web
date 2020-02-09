@@ -16,9 +16,11 @@ block content
           .card
             if !user
               .card-header
-                h4.card-title.text-warning Sie sind nicht eingeloggt! 
+                h4.card-title.text-warning Sie sind nicht angemeldet! 
               .card-body
-                p.card-text.text-muted Bitte melden Sie sich #[a(href="/login") hier] an.
+                .card-text 
+                  p Ohne Anmeldung haben Sie nur Zugriff auf einen eingeschr&auml;nkten Funktionsumfang.
+                  p.text-muted Bitte melden Sie sich #[a(href="/login") hier] an.
             else
               .card-header
                 h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet.'
@@ -28,7 +30,7 @@ block content
                   each val in user.permissions.split(',')
                     li
                       if user.permissions == 'admin'
-                        a.text-muted Sie sind Administrator und haben somit vollständigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
+                        a.text-muted Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
                       else
                         a(href="/waip/" + val)= val  
         .col-md-4.p-3
