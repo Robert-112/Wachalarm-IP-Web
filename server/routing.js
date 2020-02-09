@@ -82,6 +82,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   app.get('/config', auth.ensureAuthenticated, function(req, res) {
     sql.db_get_userconfig(req.user.id, function(data) {
       res.render('config', {
+        public: app_cfg.public,
         title: 'Einstellungen',
         user: req.user,
         reset_counter: data
@@ -98,6 +99,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   // get /help
   app.get('/help', function(req, res) {
     res.render('help', {
+      public: app_cfg.public,
       title: 'Hilfe',
       user: req.user
     });
@@ -209,6 +211,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   // get /login
   app.get('/login', function(req, res) {
     res.render('login', {
+      public: app_cfg.public,
       title: 'Login',
       user: req.user
     });
