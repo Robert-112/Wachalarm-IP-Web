@@ -27,13 +27,13 @@ header
               a#navbarAdminDropdown.text-nowrap.nav-link.dropdown-toggle.ion-md-build(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                 | &nbsp;Administration
               .dropdown-menu(aria-labelledby='navbarAdminDropdown')
-                a.text-nowrap.dropdown-item.ion-md-contacts(href='/edit_users') &nbsp;Benutzer und Rechte verwalten
+                a.text-nowrap.dropdown-item.ion-md-contacts(href='/adm_edit_users') &nbsp;Benutzer und Rechte verwalten
                 .dropdown-divider
-                a.text-nowrap.dropdown-item.ion-md-globe(href='/show_active_user') &nbsp;Verbundene PCs und Benutzer anzeigen
-                a.text-nowrap.dropdown-item.ion-md-paper(href='/show_active_waip') &nbsp;laufende Einsätze anzeigen
+                a.text-nowrap.dropdown-item.ion-md-globe(href='/adm_show_clients') &nbsp;Verbundene PCs und Benutzer anzeigen
+                a.text-nowrap.dropdown-item.ion-md-list(href='/adm_show_missions') &nbsp;laufende Eins&auml;tze anzeigen
                 .dropdown-divider
-                a.text-nowrap.dropdown-item.text-danger.ion-md-warning(href='/test_alert') &nbsp;Test-Alarm versenden
-                a.text-nowrap.dropdown-item.ion-md-book(href='/show_log') &nbsp;Log-Datei einsehen
+                a.text-nowrap.dropdown-item.text-danger.ion-md-warning(href='/adm_run_alert') &nbsp;Test-Alarm versenden
+                a.text-nowrap.dropdown-item.ion-md-book(href='/adm_show_log') &nbsp;Log-Datei einsehen
           li.nav-item.pr-3(class=(title == 'Einstellungen') ? 'active' : null)
             a.text-nowrap.ion-md-settings.nav-link(href='/config') &nbsp;Einstellungen                 
           li.nav-item
