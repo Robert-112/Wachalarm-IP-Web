@@ -9,6 +9,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
         sql.db_list_kreis(function(data) {
           var data_kreis = data
           res.render('home', {
+            public: app_cfg.public,
             title: 'Startseite',
             list_wache: data_wachen,
             list_traeger: data_traeger,
@@ -252,6 +253,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     // render the error page
     res.status(err.status || 500);
     res.render('error', {
+      public: app_cfg.public,
       user: req.user
     });
   });
