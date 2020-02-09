@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col
+          .jumbotron.text-center
+            h1.display-1.text-danger.font-weight-bold.d-none.d-lg-block= public.app_name
+            h1.text-danger.font-weight-bold.d-lg-none= public.app_name
+            hr.my-4
+            .lead
+              h4.text-info Entwickelt von Robert Richter
+              p Alle Rechte vorbehalten
+              br
+              p.text-muted
+                | mehr Informationen unter 
+                a(href="https://github.com/Robert-112/Wachalarm-IP-Web") https://github.com/Robert-112/Wachalarm-IP-Web
+            .display-4.text-muted.ion-logo-github

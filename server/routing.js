@@ -96,11 +96,11 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
-  // get /help
-  app.get('/help', function(req, res) {
-    res.render('help', {
+  // get /about
+  app.get('/about', function(req, res) {
+    res.render('about', {
       public: app_cfg.public,
-      title: 'Hilfe',
+      title: 'Über',
       user: req.user
     });
   });
