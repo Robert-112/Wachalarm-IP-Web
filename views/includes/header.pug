@@ -38,7 +38,7 @@ header
             a.text-nowrap.ion-md-settings.nav-link(href='/config') &nbsp;Einstellungen                 
           li.nav-item
             form(action='/logout', method='POST')
-              button.btn.btn-outline-warning.text-nowrap.ion-md-log-out(type='submit')=' \''+user.user +'\' abmelden'         
+              button.btn.btn-dark.text-nowrap.ion-md-log-out(type='submit')=' \''+user.user +'\' abmelden'         
         else 
           li.nav-item(class=(title == 'Login') ? 'active' : null)
             a.text-nowrap.nav-link.ion-md-log-in(href='/login')  Anmelden

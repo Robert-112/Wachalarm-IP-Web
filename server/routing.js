@@ -48,11 +48,11 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   });
 
   // get /rueckmeldung
-  app.get('/rueckmeldung/:waip_uuid', function(req, res, next) {
+  app.get('/rmld/:waip_uuid', function(req, res, next) {
     var waip_uuid = req.params.waip_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
       if (einsatzdaten) {
-        res.render('response', {
+        res.render('rmld', {
           title: 'Einsatz-Rückmeldung',
           user: req.user,
           einsatzdaten: einsatzdaten
@@ -142,10 +142,10 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
-  // get /show_active_waip
-  app.get('/show_active_waip', auth.ensureAdmin, function(req, res) {
+  // get /adm_show_missions
+  app.get('/adm_show_missions', auth.ensureAdmin, function(req, res) {
     sql.db_get_active_waips(function(data) {
-      res.render('show_active_waip', {
+      res.render('admin/adm_show_missions', {
         title: 'Akutelle Einsätze',
         user: req.user,
         dataSet: data

@@ -5,9 +5,9 @@ append head
 
 block content
   include includes/modal_info
-  include includes/modal_response
+  include includes/modal_rmld
   .container-fluid
-    include includes/rueckmeldung
+    include includes/master_rueckmeldung
   script.
     var einsatzdaten_obj = !{JSON.stringify(einsatzdaten).replace(/<\//g, '<\\/')}
   script(src='/js/leaflet.js')
