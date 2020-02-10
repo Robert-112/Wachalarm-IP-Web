@@ -53,6 +53,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
       if (einsatzdaten) {
         res.render('rmld', {
+          public: app_cfg.public,
           title: 'Einsatz-Rückmeldung',
           user: req.user,
           einsatzdaten: einsatzdaten
@@ -65,11 +66,11 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
-  app.post('/rueckmeldung/:waip_uuid', function(req, res) {
+  app.post('/rmld/:waip_uuid', function(req, res) {
     console.log('post_rueckmeldung '+JSON.stringify(req.body));
     sql.db_save_response(req.body, function(result){
       if (result) {
-        res.redirect('/rueckmeldung/' + req.params.waip_uuid);
+        res.redirect('/rmld/' + req.params.waip_uuid);
       } else {
         var err = new Error('Fehler beim senden der Rückmeldung!');
         err.status = 501;
@@ -146,6 +147,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   app.get('/adm_show_missions', auth.ensureAdmin, function(req, res) {
     sql.db_get_active_waips(function(data) {
       res.render('admin/adm_show_missions', {
+        public: app_cfg.public,
         title: 'Akutelle Einsätze',
         user: req.user,
         dataSet: data

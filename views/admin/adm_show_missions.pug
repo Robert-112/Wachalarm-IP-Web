@@ -10,7 +10,7 @@ block content
           ol
             each val in dataSet
               li= val.einsatzart + ', ' + val.stichwort + ', ' + val.ort + ' ' + val.ortsteil 
-              a(href="/rueckmeldung/" + val.uuid)= val.uuid
+              a(href="/rmld/" + val.uuid)= val.uuid
                 ul
                   if val.a
                     each val_a in (val.a).split(",")
