@@ -41,7 +41,7 @@ socket_api.emit('CH01', 'me', 'test msg');
                 waip.einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
                 sql.db_update_client_status(socket, result_einsatz[0].waip_einsaetze_ID);
                 //vorhanden Rückmeldungen verteilen
-                sql.db_get_response(result_einsatz[0].waip_einsaetze_ID, function(result){
+                sql.db_get_response_wache(result_einsatz[0].waip_einsaetze_ID, function(result){
                   if (result) {
                     waip.reuckmeldung_verteilen(result_einsatz[0].waip_einsaetze_ID, result);
                   };

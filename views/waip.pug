@@ -5,7 +5,7 @@ append head
 
 block content
   include includes/modal_info
-  //include includes/modal_rmld
+  include includes/modal_rmld
   .container-fluid
     #waipclock.d-none
       include includes/master_clock
@@ -13,7 +13,7 @@ block content
       include includes/master_wachalarm
 
   script.
-    var map_tile = !{JSON.stringify(map_tile).replace(/<\//g, '<\\/')}
+    var map_tile = !{JSON.stringify(public.map_tile).replace(/<\//g, '<\\/')}
     var client_id = !{JSON.stringify(app_id).replace(/<\//g, '<\\/')}
   script(src='/js/leaflet.js')
   script(src='/js/textFit.min.js')
@@ -21,4 +21,4 @@ block content
   script.
     wachen_id="#{wachen_id}"
     waip_id=null
-  script(src='/js/waip_client.js')
+  script(src='/js/client_waip.js')

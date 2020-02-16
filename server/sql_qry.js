@@ -677,7 +677,7 @@ module.exports = function(db, async, app_cfg) {
   };
   
   function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback) {
-    db.all(`SELECT response_json FROM waip_response WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function (err, row) {
+    db.all(`SELECT response_json FROM waip_response WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
         // temporaere Variablen
         var itemsProcessed = 0;
@@ -693,21 +693,23 @@ module.exports = function(db, async, app_cfg) {
         // Zeilen einzelnen durchgehen
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
-          if (item.wachen_nr.startsWith(wachen_nr)) {
-            // response_wache aufsummieren
-            if (Number.isInteger(item.einsatzkraft)) {
-              response_wache.einsatzkraft = response_wache.einsatzkraft + item.einsatzkraft;
+          if (item.wachen_nr) {
+            if (item.wachen_nr.startsWith(wachen_nr)) {
+              // response_wache aufsummieren
+              if (Number.isInteger(item.einsatzkraft)) {
+                response_wache.einsatzkraft = response_wache.einsatzkraft + item.einsatzkraft;
+              };
+              if (Number.isInteger(item.maschinist)) {
+                response_wache.maschinist = response_wache.maschinist + item.maschinist;
+              };
+              if (Number.isInteger(item.fuehrungskraft)) {
+                response_wache.fuehrungskraft = response_wache.fuehrungskraft + item.fuehrungskraft;
+              };
+              if (Number.isInteger(item.atemschutz)) {
+                response_wache.atemschutz = response_wache.atemschutz + item.atemschutz;
+              };
             };
-            if (Number.isInteger(item.maschinist)) {
-              response_wache.maschinist = response_wache.maschinist + item.maschinist;
-            };
-            if (Number.isInteger(item.fuehrungskraft)) {
-              response_wache.fuehrungskraft = response_wache.fuehrungskraft + item.fuehrungskraft;
-            };
-            if (Number.isInteger(item.atemschutz)) {
-              response_wache.atemschutz = response_wache.atemschutz + item.atemschutz;
-            };
-          };
+          };  
           // Schleife ggf. beenden
           itemsProcessed++;
           if (itemsProcessed === array.length) {
