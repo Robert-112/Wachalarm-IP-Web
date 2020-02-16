@@ -87,3 +87,16 @@ $('#rueckmeldung').each(function(index) {
     $('#responseModal').modal('show');
   });
 });
+
+/* ########################### */
+/* ######## SOCKET.IO ######## */
+/* ########################### */
+
+// Websocket
+var socket = io.connect();
+
+// Wachen-ID bei Connect an Server senden
+/*socket.on('connect', function() {
+  socket.emit('dbrd_uuid', wachen_id);
+  $('#waipModal').modal('hide');
+});*/

@@ -115,8 +115,8 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
-  // get /test_tableau
-  app.get('/test_tableau', function(req, res) {
+  // get /test_wachalarm
+  app.get('/test_wachalarm', function(req, res) {
     res.render('tests/test_wachalarm', {
       public: app_cfg.public,
       title: 'Test Wachalarm',
@@ -129,6 +129,15 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     res.render('tests/test_rueckmeldung', {
       public: app_cfg.public,
       title: 'Test Einsatz-Rückmeldung',
+      user: req.user
+    });
+  });
+
+  // get /test_dashboard
+  app.get('/test_dashboard', function(req, res) {
+    res.render('tests/test_dashboard', {
+      public: app_cfg.public,
+      title: 'Test Dashboard',
       user: req.user
     });
   });

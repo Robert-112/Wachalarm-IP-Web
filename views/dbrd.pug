@@ -1,0 +1,15 @@
+extends layout
+
+append head
+  link(rel='stylesheet', href='/css/leaflet.css')
+
+block content
+  //include includes/modal_info
+  //include includes/modal_rmld
+  .container-fluid
+    include includes/master_dashboard
+  //script.
+    var einsatzdaten_obj = !{JSON.stringify(einsatzdaten).replace(/<\//g, '<\\/')}
+  script(src='/socket.io/socket.io.js') 
+  script(src='/js/leaflet.js')
+  script(src='/js/client_dbrd.js')
