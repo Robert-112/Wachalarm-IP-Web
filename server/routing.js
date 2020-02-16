@@ -32,11 +32,11 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     sql.db_wache_vorhanden(parmeter_id, function(result) {
       if (result) {
         res.render('waip', {
+          public: app_cfg.public,
           title: 'Alarmmonitor',
           wachen_id: parmeter_id,
           data_wache: ' ' + result.name,
           app_id: app_cfg.global.app_id,
-          map_tile: app_cfg.global.map_tile,
           user: req.user
         });
       } else {
@@ -82,7 +82,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   // get /config
   app.get('/config', auth.ensureAuthenticated, function(req, res) {
     sql.db_get_userconfig(req.user.id, function(data) {
-      res.render('config', {
+      res.render('user/user_config', {
         public: app_cfg.public,
         title: 'Einstellungen',
         user: req.user,
@@ -108,7 +108,8 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
 
   // get /uhr
   app.get('/test_clock', function(req, res) {
-    res.render('test_clock', {
+    res.render('tests/test_clock', {
+      public: app_cfg.public,
       title: 'Test Uhr',
       user: req.user
     });
@@ -116,26 +117,27 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
 
   // get /test_tableau
   app.get('/test_tableau', function(req, res) {
-    res.render('test_wachalarm', {
+    res.render('tests/test_wachalarm', {
+      public: app_cfg.public,
       title: 'Test Wachalarm',
-      map_tile: app_cfg.global.map_tile,
       user: req.user
     });
   });
 
   // get /test_rueckmeldung
   app.get('/test_rueckmeldung', function(req, res) {
-    res.render('test_rueckmeldung', {
+    res.render('tests/test_rueckmeldung', {
+      public: app_cfg.public,
       title: 'Test Einsatz-Rückmeldung',
-      map_tile: app_cfg.global.map_tile,
       user: req.user
     });
   });
 
   // get /show_active_user
-  app.get('/show_active_user', auth.ensureAdmin, function(req, res) {
+  app.get('/adm_show_clients', auth.ensureAdmin, function(req, res) {
     sql.db_get_active_clients(function(data) {
-      res.render('show_active_user', {
+      res.render('admin/adm_show_clients', {
+        public: app_cfg.public,
         title: 'Verbundene PCs/Benutzer',
         user: req.user,
         dataSet: data
@@ -156,9 +158,10 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   });
 
   // get /show_log
-  app.get('/show_log', auth.ensureAdmin, function(req, res) {
+  app.get('/adm_show_log', auth.ensureAdmin, function(req, res) {
     sql.db_get_log(function(data) {
-      res.render('show_log', {
+      res.render('admin/adm_show_log', {
+        public: app_cfg.public,
         title: 'Log-Datei',
         user: req.user,
         dataSet: data
@@ -167,22 +170,24 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
   });
 
   // get /test_alert
-  app.get('/test_alert', auth.ensureAdmin, function(req, res) {
-    res.render('test_alert', {
+  app.get('/adm_run_alert', auth.ensureAdmin, function(req, res) {
+    res.render('admin/adm_run_alert', {
+      public: app_cfg.public,
       title: 'Test-Alarm',
       user: req.user,
     });
   });
 
-  app.post('/test_alert', auth.ensureAdmin, function(req, res) {
+  app.post('/adm_run_alert', auth.ensureAdmin, function(req, res) {
     udp.send_message(req.body.test_alert);
-	res.redirect('/test_alert');
+	res.redirect('/adm_run_alert');
   });
 
   // get /edit_users
-  app.get('/edit_users', auth.ensureAdmin, function(req, res) {
+  app.get('/adm_edit_users', auth.ensureAdmin, function(req, res) {
     sql.db_get_users(function(data) {
-      res.render('edit_users', {
+      res.render('admin/adm_edit_users', {
+        public: app_cfg.public,
         title: 'Benutzer und Rechte verwalten',
         user: req.user,
         users: data,
@@ -192,7 +197,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
-  app.post('/edit_users', auth.ensureAdmin, function(req, res) {
+  app.post('/adm_edit_users', auth.ensureAdmin, function(req, res) {
     if (req.user && req.user.permissions == "admin") {
       switch (req.body["modal_method"]) {
         case "DELETE":
@@ -206,7 +211,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
           break;
       }
     } else {
-      res.redirect('/edit_users');
+      res.redirect('/adm_edit_users');
     }
   });
 
