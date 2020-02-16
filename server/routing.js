@@ -219,6 +219,24 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     });
   });
 
+  // get /impressum
+  app.get('/impressum', function(req, res) {
+    res.render('imprint', {
+      public: app_cfg.public,
+      title: 'Impressum',
+      user: req.user
+    });
+  });
+
+  // get /datenschutz
+  app.get('/datenschutz', function(req, res) {
+    res.render('privacy', {
+      public: app_cfg.public,
+      title: 'Datenschutzerklärung',
+      user: req.user
+    });
+  });
+
   app.post('/login', passport.authenticate('local', {
     failureRedirect: '/login'
   }), function(req, res) {
