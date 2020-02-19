@@ -2,25 +2,25 @@ script(type='text/javascript', src='//unpkg.com/vis-timeline@latest/standalone/u
 link(href='//unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css', rel='stylesheet', type='text/css')
 style(type='text/css').
   #visualization {
-  width: 600px;
-  height: 400px;
-  border: 1px solid lightgray;
+  width: 100%;
+  height: 100%;
+  /*border: 1px solid lightgray;*/
   }
 
 
 .row
   .col-12.text-center.p-3
-    h1.rounded.bg-light Einsatzübersicht
+    h1.rounded.bg-secondary Einsatzübersicht
   .col-4
     .row.no-gutters
       .col-12.d-flex.justify-content-between
         p#einsatz_datum.text-muted Einsatznummer: 
         p#einsatz_uhrzeit.text-muted.text-right 420123456
       .col-10.mt-2
-        .align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-2
+        .align-items-center.font-weight-bold.rounded.bg-secondary.p-3.mr-2
           .ion-md-apps  -Stichwort-
       .col-2.mt-2
-        .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
+        .align-items-center.justify-content-center.rounded.bg-secondary.text-info.p-3
           .ion-md-apps.text-center
       .col-12
         div.border-top.m-3
@@ -111,29 +111,30 @@ style(type='text/css').
         p#einsatz_datum.text-muted &nbsp;-&nbsp;
         p#einsatz_uhrzeit.text-muted.text-right 11:22:33
       .col-12
-        .card.bg-secondary.mt-2
-          .card-header.bg-light.p-2
+        .card.bg-dark.mt-2
+          .card-header.bg-secondary.p-2
             h5.text-danger.text-center CB FW Cottbus 1
           .card-body.p-1
             div.d-flex.flex-wrap.justify-content-between.align-items-center
-              div.flex-fill.rounded.bg-light.p-2.m-1
+              div.flex-fill.rounded.bg-secondary.p-2.m-1
                 div.d-flex.justify-content-between
                   div.pr-2 FL CB 01/42-01
                   div.p-2.badge.badge-success 2
-              div.flex-fill.rounded.bg-light.p-2.m-1
+              div.flex-fill.rounded.bg-secondary.p-2.m-1
                 div.d-flex.justify-content-between
                   div.pr-2 FL CB 01/82-01
                   div.p-2.badge.badge-warning 3
-              div.flex-fill.rounded.bg-light.p-2.m-1
+              div.flex-fill.rounded.bg-secondary.p-2.m-1
                 div.d-flex.justify-content-between
                   div.pr-2 FL CB 01/71-01
                   div.p-2.badge.badge-danger 4
-              div.flex-fill.rounded.bg-light.p-2.m-1
+              div.flex-fill.rounded.bg-secondary.p-2.m-1
                 div.d-flex.justify-content-between
                   div.pr-2 FL CB 01/85-01
-                  div.p-2.badge.badge-info 1
-          .card-body.p-1
-            #visualization
+                  div.p-2.badge.badge-info 1 
+          .card-body.p-2
+            #visualization.border.rounded(style='background-color:white')
+          .card-body.p-2
     
       .col-12
         div.border-top.m-3
@@ -144,12 +145,10 @@ script(type='text/javascript').
       var container = document.getElementById('visualization');
       // Create a DataSet (allows two way data-binding)
       var items = new vis.DataSet([
-      {id: 1, content: 'item 1', start: '2014-04-20'},
-      {id: 2, content: 'item 2', start: '2014-04-14'},
-      {id: 3, content: 'item 3', start: '2014-04-18'},
-      {id: 4, content: 'item 4', start: '2014-04-16', end: '2014-04-19'},
-      {id: 5, content: 'item 5', start: '2014-04-25'},
-      {id: 6, content: 'item 6', start: '2014-04-27', type: 'point'}
+      {id: 1, content: '', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
+      {id: 2, content: 'item 2', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
+      {id: 3, content: 'item 3', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
+      {id: 4, content: 'item 4', start: '2020-02-19T16:7:00', end: '2020-02-19T16:09:00'},
       ]);
       // Configuration for the Timeline
       var options = {};
