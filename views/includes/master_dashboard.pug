@@ -1,17 +1,25 @@
-script.
-  var einsatz_rmld = {};
+script(type='text/javascript', src='//unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js')
+link(href='//unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css', rel='stylesheet', type='text/css')
+style(type='text/css').
+  #visualization {
+  width: 600px;
+  height: 400px;
+  border: 1px solid lightgray;
+  }
 
 
 .row
+  .col-12.text-center.p-3
+    h1.rounded.bg-light Einsatzübersicht
   .col-4
     .row.no-gutters
       .col-12.d-flex.justify-content-between
-        p#einsatz_datum.text-muted 01.01.2020 
-        p#einsatz_uhrzeit.text-muted.text-right 11:22:33
-      .col-10
+        p#einsatz_datum.text-muted Einsatznummer: 
+        p#einsatz_uhrzeit.text-muted.text-right 420123456
+      .col-10.mt-2
         .align-items-center.font-weight-bold.rounded.bg-light.p-3.mr-2
           .ion-md-apps  -Stichwort-
-      .col-2
+      .col-2.mt-2
         .align-items-center.justify-content-center.rounded.bg-light.text-info.p-3
           .ion-md-apps.text-center
       .col-12
@@ -19,6 +27,8 @@ script.
         .card.mt-2
           .card-body.p-0
             #map.rounded(style={height: '20em'})
+        div.border-top.m-3
+        .card.mt-2
           .card-body.p-0
             ul.list-group.list-group-flush
               li.list-group-item -Objekt-
@@ -96,19 +106,53 @@ script.
               div.badge.badge-info 1
   .col-8
     .row.no-gutters
-      .col-12.d-flex.justify-content-between
-        h1 Einsatzrückmeldung
+      .col-12.d-flex.justify-content-end
         p#einsatz_datum.text-muted 01.01.2020 
+        p#einsatz_datum.text-muted &nbsp;-&nbsp;
         p#einsatz_uhrzeit.text-muted.text-right 11:22:33
       .col-12
-        div.border-top.m-3
         .card.bg-secondary.mt-2
           .card-header.bg-light.p-2
-            h5.text-danger.text-center Alarmierte Einsatzmittel
+            h5.text-danger.text-center CB FW Cottbus 1
           .card-body.p-1
             div.d-flex.flex-wrap.justify-content-between.align-items-center
               div.flex-fill.rounded.bg-light.p-2.m-1
                 div.d-flex.justify-content-between
+                  div.pr-2 FL CB 01/42-01
+                  div.p-2.badge.badge-success 2
+              div.flex-fill.rounded.bg-light.p-2.m-1
+                div.d-flex.justify-content-between
+                  div.pr-2 FL CB 01/82-01
+                  div.p-2.badge.badge-warning 3
+              div.flex-fill.rounded.bg-light.p-2.m-1
+                div.d-flex.justify-content-between
+                  div.pr-2 FL CB 01/71-01
+                  div.p-2.badge.badge-danger 4
+              div.flex-fill.rounded.bg-light.p-2.m-1
+                div.d-flex.justify-content-between
+                  div.pr-2 FL CB 01/85-01
+                  div.p-2.badge.badge-info 1
+          .card-body.p-1
+            #visualization
+    
       .col-12
         div.border-top.m-3
-        button#rueckmeldung.btn.btn-danger.btn-lg.btn-block.ion-md-paper-plane(type='button')  Rückmeldung senden
+        //button#rueckmeldung.btn.btn-danger.btn-lg.btn-block.ion-md-paper-plane(type='button')  Rückmeldung senden
+
+script(type='text/javascript').
+      // DOM element where the Timeline will be attached
+      var container = document.getElementById('visualization');
+      // Create a DataSet (allows two way data-binding)
+      var items = new vis.DataSet([
+      {id: 1, content: 'item 1', start: '2014-04-20'},
+      {id: 2, content: 'item 2', start: '2014-04-14'},
+      {id: 3, content: 'item 3', start: '2014-04-18'},
+      {id: 4, content: 'item 4', start: '2014-04-16', end: '2014-04-19'},
+      {id: 5, content: 'item 5', start: '2014-04-25'},
+      {id: 6, content: 'item 6', start: '2014-04-27', type: 'point'}
+      ]);
+      // Configuration for the Timeline
+      var options = {};
+      // Create a Timeline
+      var timeline = new vis.Timeline(container, items, options);
+
