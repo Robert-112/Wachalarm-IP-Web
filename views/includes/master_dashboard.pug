@@ -14,7 +14,7 @@ style(type='text/css').
 
 .row
   .col-12.text-center.p-3
-    h1.rounded.bg-danger.display-3 Einsatzübersicht
+    h2.rounded.bg-danger Einsatzübersicht
   .col-4
     .row.no-gutters
       .col-12.d-flex.justify-content-between
@@ -120,7 +120,6 @@ style(type='text/css').
           .card-header.bg-secondary.p-2
             h5.text-danger.text-center CB FW Cottbus 1
           .card-body.p-1
-            h5.text-muted.p-1 Alarmierte Einsatzmittel
             div.d-flex.flex-wrap.justify-content-between.align-items-center
               div.flex-fill.rounded.bg-secondary.p-2.m-1
                 div.d-flex.justify-content-between
@@ -142,13 +141,43 @@ style(type='text/css').
             #visualization.border.rounded(style='background-color:white')
           .card-body.p-2
             #rueckmeldung.list-group.list-group-horizontal.text-center
-              a.list-group-item.flex-fill.text-info 2 EK
+              a.list-group-item.flex-fill.text-info 4 EK
               a.list-group-item.flex-fill.text-danger 1 MA
               a.list-group-item.flex-fill 0 FK
               a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
-    
+        div.border-top.m-3
+        .card.bg-dark.mt-2
+          .card-header.bg-secondary.p-2
+            h5.text-danger.text-center CB FW Madlow
+          .card-body.p-1
+            div.d-flex.flex-wrap.justify-content-between.align-items-center
+              div.flex-fill.rounded.bg-secondary.p-2.m-1
+                div.d-flex.justify-content-between
+                  div.pr-2 FL CB 11/23-01
+                  div.p-2.badge.badge-success 2
+              div.flex-fill.rounded.bg-secondary.p-2.m-1
+                div.d-flex.justify-content-between
+                  div.pr-2 FL CB 12/46-01
+                  div.p-2.badge.badge-warning 3
+          .card-body.p-2
+            #visualization2.border.rounded(style='background-color:white')
+          .card-body.p-2
+            #rueckmeldung.list-group.list-group-horizontal.text-center
+              a.list-group-item.flex-fill.text-info 1 EK
+              a.list-group-item.flex-fill.text-danger 1 MA
+              a.list-group-item.flex-fill 0 FK
+              a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
       .col-12
         div.border-top.m-3
+        .card.bg-dark.mt-2
+          .card-header.bg-secondary.p-2
+            h5.text-center.text-warning Zusammenfassung
+          .card-body.p-1
+            #rueckmeldung.list-group.list-group-horizontal.text-center.font-weight-bold
+              h3.list-group-item.flex-fill.text-info 5 EK
+              h3.list-group-item.flex-fill.text-danger 2 MA
+              h3.list-group-item.flex-fill 0 FK
+              h3.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
         //button#rueckmeldung.btn.btn-danger.btn-lg.btn-block.ion-md-paper-plane(type='button')  Rückmeldung senden
 
 script(type='text/javascript').
@@ -159,10 +188,20 @@ script(type='text/javascript').
       {id: 1, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
       {id: 2, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
       {id: 3, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
-      {id: 4, content: 'Meyer', start: '2020-02-19T16:7:00', end: '2020-02-19T16:09:00'},
+      {id: 4, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
       ]);
       // Configuration for the Timeline
       var options = {};
       // Create a Timeline
       var timeline = new vis.Timeline(container, items, options);
-
+      // DOM element where the Timeline will be attached
+      var container2 = document.getElementById('visualization2');
+      // Create a DataSet (allows two way data-binding)
+      var items2 = new vis.DataSet([
+      {id: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
+      {id: 3, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},
+      ]);
+      // Configuration for the Timeline
+      var options2 = {};
+      // Create a Timeline
+      var timeline2 = new vis.Timeline(container2, items2, options2);
