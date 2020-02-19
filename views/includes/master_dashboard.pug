@@ -6,6 +6,10 @@ style(type='text/css').
   height: 100%;
   /*border: 1px solid lightgray;*/
   }
+  .vis-item.red {
+    background-color: red;
+    border-color: darkred;
+  }
 
 
 .row
@@ -145,10 +149,10 @@ script(type='text/javascript').
       var container = document.getElementById('visualization');
       // Create a DataSet (allows two way data-binding)
       var items = new vis.DataSet([
-      {id: 1, content: '', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
-      {id: 2, content: 'item 2', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
-      {id: 3, content: 'item 3', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
-      {id: 4, content: 'item 4', start: '2020-02-19T16:7:00', end: '2020-02-19T16:09:00'},
+      {id: 1, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
+      {id: 2, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
+      {id: 3, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
+      {id: 4, content: 'Meyer', start: '2020-02-19T16:7:00', end: '2020-02-19T16:09:00'},
       ]);
       // Configuration for the Timeline
       var options = {};
