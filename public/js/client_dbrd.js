@@ -29,53 +29,9 @@ var map = L.map('map', {
     icon: redIcon
   }).addTo(map);
   
-  // Karte setzen
-  map.removeLayer(marker);
-  marker = L.marker(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), {
-    icon: redIcon
-  }).addTo(map);
-  map.setView(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), 13);
+
   
   
-  /* ########################### */
-  /* ####### Funktionen ######## */
-  /* ########################### */
-  
-  
-  // Split timestamp into [ Y, M, D, h, m, s ]
-  var t1 = einsatzdaten_obj.zeitstempel.split(/[- :]/);
-  var d = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]);
-  
-  // Zeitwerte
-  var curr_day = d.getDay();
-  var curr_date = d.getDate();
-  var curr_month_id = d.getMonth();
-  curr_month_id = curr_month_id + 1;
-  var curr_year = d.getFullYear();
-  var curr_hour = d.getHours();
-  var curr_min = d.getMinutes();
-  var curr_sek = d.getSeconds();
-  // Tag und Monat Anpassen
-  if ((String(curr_date)).length == 1)
-    curr_date = '0' + curr_date;
-  if ((String(curr_month_id)).length == 1)
-    curr_month_id = '0' + curr_month_id;
-  // Uhrzeit anpassen
-  if (curr_min <= 9) {
-    curr_min = '0' + curr_min;
-  };
-  if (curr_hour <= 9) {
-    curr_hour = '0' + curr_hour;
-  };
-  if (curr_sek <= 9) {
-    curr_sek = '0' + curr_sek;
-  };
-  var curr_month = d.getMonth();
-  var curr_year = d.getFullYear();
-  
-  // Datum und Uhrzeit setzen
-  $("#einsatz_datum").text(curr_date + '.' + curr_month_id + '.' + curr_year);
-  $("#einsatz_uhrzeit").text(curr_hour + ':' + curr_min + ':' + curr_sek);
 
 /* ########################### */
 /* ####### Timeline ######## */
@@ -84,24 +40,34 @@ var map = L.map('map', {
     // DOM element where the Timeline will be attached
     var container = document.getElementById('visualization');
     // Create a DataSet (allows two way data-binding)
+    var names = ["CB FW Cottbus 1", "CB FW Madlow", "Lee", "Grant"];
+    var groupCount = 2;
+    var groups = new vis.DataSet();
+    for (var g = 0; g < groupCount; g++) {
+      groups.add({ id: g, content: names[g] });
+    };
+
     var items = new vis.DataSet([
-    {id: 1, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
-    {id: 2, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
-    {id: 3, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
-    {id: 4, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
+    {id: 1, group: 0, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
+    {id: 2, group: 0, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
+    {id: 3, group: 1, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
+    {id: 4, group: 1, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
+    {id: 5, group: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
+    {id: 6, group: 1, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},
     ]);
     // Configuration for the Timeline
     var options = {};
     // Create a Timeline
     var timeline = new vis.Timeline(container, items, options);
+    timeline.setGroups(groups);
     // DOM element where the Timeline will be attached
     var container2 = document.getElementById('visualization2');
     // Create a DataSet (allows two way data-binding)
     var items2 = new vis.DataSet([
-    {id: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
-    {id: 3, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},
+
     ]);
     // Configuration for the Timeline
     var options2 = {};
     // Create a Timeline
     var timeline2 = new vis.Timeline(container2, items2, options2);
+
