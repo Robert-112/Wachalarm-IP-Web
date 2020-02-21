@@ -76,3 +76,32 @@ var map = L.map('map', {
   // Datum und Uhrzeit setzen
   $("#einsatz_datum").text(curr_date + '.' + curr_month_id + '.' + curr_year);
   $("#einsatz_uhrzeit").text(curr_hour + ':' + curr_min + ':' + curr_sek);
+
+/* ########################### */
+/* ####### Timeline ######## */
+/* ########################### */
+
+    // DOM element where the Timeline will be attached
+    var container = document.getElementById('visualization');
+    // Create a DataSet (allows two way data-binding)
+    var items = new vis.DataSet([
+    {id: 1, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
+    {id: 2, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
+    {id: 3, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
+    {id: 4, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
+    ]);
+    // Configuration for the Timeline
+    var options = {};
+    // Create a Timeline
+    var timeline = new vis.Timeline(container, items, options);
+    // DOM element where the Timeline will be attached
+    var container2 = document.getElementById('visualization2');
+    // Create a DataSet (allows two way data-binding)
+    var items2 = new vis.DataSet([
+    {id: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
+    {id: 3, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},
+    ]);
+    // Configuration for the Timeline
+    var options2 = {};
+    // Create a Timeline
+    var timeline2 = new vis.Timeline(container2, items2, options2);

@@ -1,5 +1,5 @@
-script(type='text/javascript', src='//unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js')
-link(href='//unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css', rel='stylesheet', type='text/css')
+script(type='text/javascript', src='/public/js/vis-timeline.min.js')
+link(href='/public/css/vis-timeline.css', rel='stylesheet', type='text/css')
 style(type='text/css').
   #visualization {
   width: 100%;
@@ -180,28 +180,4 @@ style(type='text/css').
               h3.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
         //button#rueckmeldung.btn.btn-danger.btn-lg.btn-block.ion-md-paper-plane(type='button')  Rückmeldung senden
 
-script(type='text/javascript').
-      // DOM element where the Timeline will be attached
-      var container = document.getElementById('visualization');
-      // Create a DataSet (allows two way data-binding)
-      var items = new vis.DataSet([
-      {id: 1, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
-      {id: 2, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
-      {id: 3, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
-      {id: 4, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
-      ]);
-      // Configuration for the Timeline
-      var options = {};
-      // Create a Timeline
-      var timeline = new vis.Timeline(container, items, options);
-      // DOM element where the Timeline will be attached
-      var container2 = document.getElementById('visualization2');
-      // Create a DataSet (allows two way data-binding)
-      var items2 = new vis.DataSet([
-      {id: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
-      {id: 3, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},
-      ]);
-      // Configuration for the Timeline
-      var options2 = {};
-      // Create a Timeline
-      var timeline2 = new vis.Timeline(container2, items2, options2);
+
