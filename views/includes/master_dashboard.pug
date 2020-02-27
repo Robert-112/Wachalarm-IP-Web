@@ -118,25 +118,47 @@ style(type='text/css').
       .col-12
         .card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
-            h5.text-danger.text-center CB FW Cottbus 1
+            h5.text-danger.text-center Alarmierte Einsatzmittel
           .card-body.p-1
-            div.d-flex.flex-wrap.justify-content-between.align-items-center
-              div.flex-fill.rounded.bg-secondary.p-2.m-1
-                div.d-flex.justify-content-between
-                  div.pr-2 FL CB 01/42-01
-                  div.p-2.badge.badge-success 2
-              div.flex-fill.rounded.bg-secondary.p-2.m-1
-                div.d-flex.justify-content-between
-                  div.pr-2 FL CB 01/82-01
-                  div.p-2.badge.badge-warning 3
-              div.flex-fill.rounded.bg-secondary.p-2.m-1
-                div.d-flex.justify-content-between
-                  div.pr-2 FL CB 01/71-01
-                  div.p-2.badge.badge-danger 4
-              div.flex-fill.rounded.bg-secondary.p-2.m-1
-                div.d-flex.justify-content-between
-                  div.pr-2 FL CB 01/85-01
-                  div.p-2.badge.badge-info 1 
+            .row
+              .col-3
+                CB FW Cottbus 1
+              .col-9
+                div.d-flex.flex-wrap.justify-content-between.align-items-center
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
+                    div.d-flex.justify-content-between
+                      div.pr-2 FL CB 01/42-01
+                      div.p-2.badge.badge-success 2
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
+                    div.d-flex.justify-content-between
+                      div.pr-2 FL CB 01/82-01
+                      div.p-2.badge.badge-warning 3
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
+                    div.d-flex.justify-content-between
+                      div.pr-2 FL CB 01/71-01
+                      div.p-2.badge.badge-danger 4
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
+                    div.d-flex.justify-content-between
+                      div.pr-2 FL CB 01/85-01
+                      div.p-2.badge.badge-info 1
+          .card-body.p-1
+            .row
+              .col-3
+                CB FW Madlow
+              .col-9 
+                div.d-flex.flex-wrap.justify-content-between.align-items-center
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
+                    div.d-flex.justify-content-between
+                      div.pr-2 FL CB 11/23-01
+                      div.p-2.badge.badge-success 2
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
+                    div.d-flex.justify-content-between
+                      div.pr-2 FL CB 12/46-01
+                      div.p-2.badge.badge-warning 3 
+        div.border-top.m-3
+        .card.bg-dark.mt-2
+          .card-header.bg-secondary.p-2
+            h5.text-danger.text-center Einsatzrückmeldungen                      
           .card-body.p-2
             #visualization.border.rounded(style='background-color:white')
           .card-body.p-2
@@ -146,27 +168,18 @@ style(type='text/css').
               a.list-group-item.flex-fill 0 FK
               a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
         div.border-top.m-3
-        .card.bg-dark.mt-2
+        //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
             h5.text-danger.text-center CB FW Madlow
-          .card-body.p-1
-            div.d-flex.flex-wrap.justify-content-between.align-items-center
-              div.flex-fill.rounded.bg-secondary.p-2.m-1
-                div.d-flex.justify-content-between
-                  div.pr-2 FL CB 11/23-01
-                  div.p-2.badge.badge-success 2
-              div.flex-fill.rounded.bg-secondary.p-2.m-1
-                div.d-flex.justify-content-between
-                  div.pr-2 FL CB 12/46-01
-                  div.p-2.badge.badge-warning 3
-          .card-body.p-2
-            #visualization2.border.rounded(style='background-color:white')
-          .card-body.p-2
-            #rueckmeldung.list-group.list-group-horizontal.text-center
-              a.list-group-item.flex-fill.text-info 1 EK
-              a.list-group-item.flex-fill.text-danger 1 MA
-              a.list-group-item.flex-fill 0 FK
-              a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
+          
+        .card-body.p-2
+          #visualization2.border.rounded(style='background-color:white')
+        .card-body.p-2
+          #rueckmeldung.list-group.list-group-horizontal.text-center
+            a.list-group-item.flex-fill.text-info 1 EK
+            a.list-group-item.flex-fill.text-danger 1 MA
+            a.list-group-item.flex-fill 0 FK
+            a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
       .col-12
         div.border-top.m-3
         .card.bg-dark.mt-2
