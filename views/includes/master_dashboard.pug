@@ -46,7 +46,8 @@ style(type='text/css').
     div.border-top.my-3
     .card.bg-secondary.mt-2
       .card-header.bg-light.p-2
-        h5.text-info.font-weight-bold CB FW Cottbus 1
+        //h5.text-info.font-weight-bold CB FW Cottbus 1
+        div.border-top.my-3.border-warning
       .card-body.p-1
         div.d-flex.flex-wrap.justify-content-between.align-items-center
           div.flex-fill.rounded.bg-light.p-2.m-1
@@ -120,9 +121,9 @@ style(type='text/css').
           .card-header.bg-secondary.p-2
             h5.text-danger.text-center Alarmierte Einsatzmittel
           .card-body.p-1
-            .row
+            .row              
               .col-3
-                CB FW Cottbus 1
+                div.border-rightCB FW Cottbus 1
               .col-9
                 div.d-flex.flex-wrap.justify-content-between.align-items-center
                   div.flex-fill.rounded.bg-secondary.p-2.m-1
@@ -160,6 +161,9 @@ style(type='text/css').
           .card-header.bg-secondary.p-2
             h5.text-danger.text-center Einsatzrückmeldungen                      
           .card-body.p-2
+            .form
+            .button 
+          .card-body.p-2
             #visualization.border.rounded(style='background-color:white')
           .card-body.p-2
             #rueckmeldung.list-group.list-group-horizontal.text-center
@@ -167,20 +171,20 @@ style(type='text/css').
               a.list-group-item.flex-fill.text-danger 1 MA
               a.list-group-item.flex-fill 0 FK
               a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
-        div.border-top.m-3
+        //div.border-top.m-3
         //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
             h5.text-danger.text-center CB FW Madlow
           
-        .card-body.p-2
+        //.card-body.p-2
           #visualization2.border.rounded(style='background-color:white')
-        .card-body.p-2
+        //.card-body.p-2
           #rueckmeldung.list-group.list-group-horizontal.text-center
             a.list-group-item.flex-fill.text-info 1 EK
             a.list-group-item.flex-fill.text-danger 1 MA
             a.list-group-item.flex-fill 0 FK
             a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
-      .col-12
+      //.col-12
         div.border-top.m-3
         .card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
