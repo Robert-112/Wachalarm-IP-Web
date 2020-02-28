@@ -50,30 +50,30 @@ var map = L.map('map', {
 
 
     var date = new Date();
-    date.setMinutes(date.getMinutes() + 4 );
+    date.setMinutes(date.getMinutes() - 0,1 );
     var start = new Date(date);
-    date.setMinutes(date.getMinutes() + 5 );
+    date.setMinutes(date.getMinutes() +4,9 );
     var end = new Date(date);
 
     var date2 = new Date();
-    var start2 = new Date(date2.setMinutes(date2.getMinutes() - 2));
-    var end2 = new Date(date2.setMinutes(date2.getMinutes() + 10 ));
+    var start2 = new Date(date2.setMinutes(date2.getMinutes() - 1));
+    var end2 = new Date(date2.setMinutes(date2.getMinutes() + 9 ));
 
     var date3 = new Date();
-    var start3 = new Date(date3.setMinutes(date3.getMinutes() - 1));
-    var end3 = new Date(date3.setMinutes(date3.getMinutes() + 5 ));
+    var start3 = new Date(date3.setMinutes(date3.getMinutes() - 1,5));
+    var end3 = new Date(date3.setMinutes(date3.getMinutes() + 4,5 ));
 
     var date4 = new Date();
-    var start4 = new Date(date4.setMinutes(date4.getMinutes() +2 ));
-    var end4 = new Date(date4.setMinutes(date4.getMinutes() + 10 ));
+    var start4 = new Date(date4.setMinutes(date4.getMinutes() + 0,8 ));
+    var end4 = new Date(date4.setMinutes(date4.getMinutes() + 10,8 ));
 
     var date5 = new Date();
-    var start5 = new Date(date5.setMinutes(date5.getMinutes() + 5));
-    var end5 = new Date(date5.setMinutes(date5.getMinutes() + 10 ));
+    var start5 = new Date(date5.setMinutes(date5.getMinutes() - 0,2));
+    var end5 = new Date(date5.setMinutes(date5.getMinutes() + 9,8 ));
 
     var date6 = new Date();
-    var start6 = new Date(date6.setMinutes(date6.getMinutes() - 0));
-    var end6 = new Date(date6.setMinutes(date6.getMinutes() + 15 ));
+    var start6 = new Date(date6.setMinutes(date6.getMinutes() - 0,1));
+    var end6 = new Date(date6.setMinutes(date6.getMinutes() + 15,1 ));
 
     var item5 = document.createElement('div');
     item5.className = 'ion-md-star';
@@ -96,7 +96,7 @@ var map = L.map('map', {
     var id2 = "id2";
     var customDate = new Date();
     var alert_start = new Date(customDate.setMinutes(customDate.getMinutes() - 2));
-    var timeline_end = new Date(customDate.setMinutes(customDate.getMinutes() + 18));
+    var timeline_end = new Date(customDate.setMinutes(customDate.getMinutes() + 13));
   
 
 

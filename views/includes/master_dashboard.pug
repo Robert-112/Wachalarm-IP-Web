@@ -148,8 +148,8 @@ style(type='text/css').
           table.table.table-hover  
             thead.table-borderless 
               tr
-                th(scope='col') Wache
-                th(scope='col') Alarmierte Einsatzmittel
+                th(scope='col').text-info Wache
+                th(scope='col').text-info Einsatzmittel
             tbody
               tr
                 th(scope='row') CB FW Cottbus 1
@@ -224,19 +224,16 @@ style(type='text/css').
                       div.p-2.badge.badge-warning 3 
         div.border-top.m-3
         .card.mt-2
-          .card-header.bg-secondary.p-2
-            h5.text-danger.text-center Einsatzrückmeldungen                      
-          .card-body.p-2
-            .form
-            .button 
+          .card-header.bg-dark.px-3
+            .text-info.font-weight-bold Einsatzrückmeldungen                      
           .card-body.p-2
             #visualization.border.rounded(style='background-color:white')
           .card-body.p-2
-            #rueckmeldung.list-group.list-group-horizontal.text-center
-              a.list-group-item.flex-fill.text-info 4 EK
-              a.list-group-item.flex-fill.text-danger 1 MA
-              a.list-group-item.flex-fill 0 FK
-              a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
+            #rueckmeldung.list-group.list-group-horizontal.text-center.d-flex
+              .list-group-item.flex-fill.text-info 4 EK
+              .list-group-item.flex-fill.text-danger 1 MA
+              .list-group-item.flex-fill 0 FK
+              .flex-fill 0 AGT
         //div.border-top.m-3
         //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
