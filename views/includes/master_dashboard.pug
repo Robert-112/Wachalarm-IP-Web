@@ -117,13 +117,56 @@ style(type='text/css').
         p#einsatz_datum.text-muted &nbsp;-&nbsp;
         p#einsatz_uhrzeit.text-muted.text-right 11:22:33
       .col-12
-        .card.bg-dark.mt-2
+        //.card.bg-dark.mt-2
+          .card-header.bg-secondary.p-2
+            h5.text-danger.text-center Alarmierte Einsatzmittel
+          .card-body.p-1
+        .card.mt-2
+          table.table.table-hover  
+            thead.table-borderless 
+              tr
+                th(scope='col') Wache
+                th(scope='col') Alarmierte Einsatzmittel
+            tbody
+              tr
+                th(scope='row') CB FW Cottbus 1
+                td
+                  div.d-flex.flex-wrap.justify-content-between.align-items-center
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 01/42-01
+                        div.p-2.badge.badge-success 2
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 01/82-01
+                        div.p-2.badge.badge-warning 3
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 01/71-01
+                        div.p-2.badge.badge-danger 4
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 01/85-01
+                        div.p-2.badge.badge-info 2
+              tr
+                th(scope='row') CB FW Madlow
+                td 
+                  div.d-flex.flex-wrap.justify-content-between.align-items-center
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 11/23-01
+                        div.p-2.badge.badge-success 2
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 12/46-01
+                        div.p-2.badge.badge-warning 3 
+        //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
             h5.text-danger.text-center Alarmierte Einsatzmittel
           .card-body.p-1
             .row              
               .col-3
-                div.border-rightCB FW Cottbus 1
+                div.border-right CB FW Cottbus 1
               .col-9
                 div.d-flex.flex-wrap.justify-content-between.align-items-center
                   div.flex-fill.rounded.bg-secondary.p-2.m-1
@@ -138,10 +181,10 @@ style(type='text/css').
                     div.d-flex.justify-content-between
                       div.pr-2 FL CB 01/71-01
                       div.p-2.badge.badge-danger 4
-                  div.flex-fi	ll.rounded.bg-secondary.p-2.m-1
+                  div.flex-fill.rounded.bg-secondary.p-2.m-1
                     div.d-flex.justify-content-between
                       div.pr-2 FL CB 01/85-01
-                      div.p-2.badge.badge-info 1
+                      div.p-2.badge.badge-info 2
           .card-body.p-1
             .row
               .col-3
