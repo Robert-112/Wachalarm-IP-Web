@@ -47,13 +47,23 @@ var map = L.map('map', {
       groups.add({ id: g, content: names[g] });
     };
 
+
+
+    var date = new Date();
+    date.setMinutes(date.getMinutes() + 4 * (Math.random() < 0.2));
+    var start = new Date(date);
+    date.setMinutes(date.getMinutes() + 6 + Math.floor(Math.random() * 4));
+    var end = new Date(date);
+
+
+
     var items = new vis.DataSet([
-    {id: 1, group: 0, className: 'red', content: 'Hans', start: '2020-02-19T16:00:00', end: '2020-02-19T16:10:00'},
-    {id: 2, group: 0, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
+    {id: 1, group: 0, className: 'red', content: 'Hans', start: start, end: end},
+    /*{id: 2, group: 0, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
     {id: 3, group: 1, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
     {id: 4, group: 1, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
     {id: 5, group: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
-    {id: 6, group: 1, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},
+    {id: 6, group: 1, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},*/
     ]);
     // Configuration for the Timeline
     var options = {};
@@ -71,3 +81,10 @@ var map = L.map('map', {
     // Create a Timeline
     var timeline2 = new vis.Timeline(container2, items2, options2);
 
+    var mark = new Date();
+    var durationInMinutes = 20;
+    mark.setMinutes(mark.getMinutes() - durationInMinutes);
+    var markerText = 'Alarmierung';
+
+    timeline.addCustomTime(start, 9);
+    timeline.setCustomTimeMarker(markerText, 9);
