@@ -22,7 +22,7 @@ app_cfg.global = {
 app_cfg.public = {
 	app_name: 'Wachalarm IP-Web',
 	company: 'Leitstelle Lausitz',
-	version: '1.2',
+	version: 'Version 1.2',
 	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	map_attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 };
