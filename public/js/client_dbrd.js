@@ -91,12 +91,23 @@ var map = L.map('map', {
     {id: 5, group: 1, className: 'ma', content: 'Jürgen', start: start5, end: end5},
     {id: 6, group: 1, className: 'ek', content: 'Florian', start: start6, end: end6},
     ]);
+
+    var markerText = 'Alarmierung';
+    var id2 = "id2";
+    var customDate = new Date();
+    var alert_start = new Date(customDate.setMinutes(customDate.getMinutes() - 2));
+    var timeline_end = new Date(customDate.setMinutes(customDate.getMinutes() + 18));
+  
+
+
     // Configuration for the Timeline
     var options = {
       rollingMode: {
         follow: true,
         offset: 0.25
-      }
+      },
+      start: alert_start,
+      end: timeline_end
     };
     // Create a Timeline
     var timeline = new vis.Timeline(container, items, options);
@@ -107,24 +118,18 @@ var map = L.map('map', {
     var items2 = new vis.DataSet([
 
     ]);
+
+    timeline.addCustomTime(
+      alert_start,
+      id2
+    );
+    timeline.setCustomTimeMarker(markerText, id2, false);
+
     // Configuration for the Timeline
     //var options2 = {};
     // Create a Timeline
     //var timeline2 = new vis.Timeline(container2, items2, options2);
 
  
-    var markerText = 'Alarmierung';
-    var id2 = "id2";
-    var customDate = new Date();
-    timeline.addCustomTime(
-      new Date(
-        customDate.getFullYear(),
-        customDate.getMonth(),
-        customDate.getDate(),
-        customDate.getHours(),
-        customDate.getMinutes() - 2
-      ),
-      id2
-    );
-    timeline.setCustomTimeMarker(markerText, id2, false);
+
 
