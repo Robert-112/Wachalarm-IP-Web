@@ -229,11 +229,15 @@ style(type='text/css').
           .card-body.p-2
             #visualization.border.rounded(style='background-color:white')
           .card-body.p-2
-            #rueckmeldung.list-group.list-group-horizontal.text-center.d-flex
-              .list-group-item.flex-fill.text-info 4 EK
-              .list-group-item.flex-fill.text-danger 1 MA
-              .list-group-item.flex-fill 0 FK
-              .list-group-item.flex-fill.bg-warning.ion-md-star  0 AGT
+            .row.font-weight-bold
+              .col-10
+                #rueckmeldung.list-group.list-group-horizontal.text-center
+                  a.list-group-item.bg-secondary.flex-fill.text-info 1 EK
+                  a.list-group-item.bg-secondary.flex-fill.text-danger 1 MA
+                  a.list-group-item.bg-secondary.flex-fill 0 FK
+              .col-2
+                #rueckmeldung.list-group.list-group-horizontal.text-center
+                  a.list-group-item.list-group-item-warning.flex-fill.text-dark 1 AGT
         //div.border-top.m-3
         //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
@@ -242,11 +246,14 @@ style(type='text/css').
         //.card-body.p-2
           #visualization2.border.rounded(style='background-color:white')
         //.card-body.p-2
-          #rueckmeldung.list-group.list-group-horizontal.text-center
-            a.list-group-item.flex-fill.text-info 1 EK
-            a.list-group-item.flex-fill.text-danger 1 MA
-            a.list-group-item.flex-fill 0 FK
-            a.list-group-item.list-group-item-light.flex-fill.text-dark 0 AGT
+          .row
+            .col-10
+              #rueckmeldung.list-group.list-group-horizontal.text-center
+                a.list-group-item.list-group-item-warning.flex-fill.text-info 1 EK
+                a.list-group-item.list-group-item-light.flex-fill.text-danger 1 MA
+                a.list-group-item.list-group-item-light.flex-fill 0 FK
+            .col-2
+              a.bg-warning.rounded.text-dark 0 AGT
       //.col-12
         div.border-top.m-3
         .card.bg-dark.mt-2
