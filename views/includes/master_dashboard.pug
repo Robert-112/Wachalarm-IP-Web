@@ -41,8 +41,8 @@ style(type='text/css').
   .col-4
     .row.no-gutters
       .col-12.d-flex.justify-content-start
-        p#einsatz_datum.text-muted Einsatznummer:
-        p#einsatz_uhrzeit.text-muted.text-right &nbsp; 420123456
+        #einsatz_datum.text-muted Einsatznummer:
+        #einsatz_uhrzeit.text-muted.text-right &nbsp; 420123456
       .col-10.mt-2
         .align-items-center.font-weight-bold.rounded.bg-secondary.p-3.mr-2
           .ion-md-apps  -Stichwort-
@@ -136,9 +136,9 @@ style(type='text/css').
   .col-8
     .row.no-gutters
       .col-12.d-flex.justify-content-end
-        p#einsatz_datum.text-muted 01.01.2020 
-        p#einsatz_datum.text-muted &nbsp;-&nbsp;
-        p#einsatz_uhrzeit.text-muted.text-right 11:22:33
+        #einsatz_datum.text-muted 01.01.2020 
+        #einsatz_datum.text-muted &nbsp;-&nbsp;
+        #einsatz_uhrzeit.text-muted.text-right 11:22:33
       .col-12
         //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
@@ -224,7 +224,7 @@ style(type='text/css').
                       div.p-2.badge.badge-warning 3 
         div.border-top.m-3
         .card.mt-2
-          .card-header.bg-dark.px-3
+          .card-header.bg-dark.px-2
             .text-info.font-weight-bold Einsatzrückmeldungen                      
           .card-body.p-2
             #visualization.border.rounded(style='background-color:white')
@@ -233,7 +233,7 @@ style(type='text/css').
               .list-group-item.flex-fill.text-info 4 EK
               .list-group-item.flex-fill.text-danger 1 MA
               .list-group-item.flex-fill 0 FK
-              .flex-fill 0 AGT
+              .list-group-item.flex-fill.bg-warning.ion-md-star  0 AGT
         //div.border-top.m-3
         //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
