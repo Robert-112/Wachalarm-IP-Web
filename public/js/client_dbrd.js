@@ -75,11 +75,15 @@ var map = L.map('map', {
     var start6 = new Date(date6.setMinutes(date6.getMinutes() - 0));
     var end6 = new Date(date6.setMinutes(date6.getMinutes() + 15 ));
 
+    var item5 = document.createElement('div');
+    item5.className = 'ion-md-home';
+    item5.innerHTML = '<a>Klaus (AGT)</a>';
+
     var items = new vis.DataSet([
     {id: 1, group: 0, className: 'ma', content: 'Hans', start: start, end: end},
     {id: 2, group: 0, className: 'fk', content: 'Günter', start: start2, end: end2},
     {id: 3, group: 1, className: 'ek', content: 'Rudi', start: start3, end: end3},
-    {id: 4, group: 1, className: 'ek', content: 'Klaus', start: start4, end: end4},
+    {id: 4, group: 1, className: 'ek', content: item5, start: start4, end: end4},
     {id: 5, group: 1, className: 'ma', content: 'Jürgen', start: start5, end: end5},
     {id: 6, group: 1, className: 'ek', content: 'Florian', start: start6, end: end6},
     ]);
