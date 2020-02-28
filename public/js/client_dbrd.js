@@ -56,19 +56,33 @@ var map = L.map('map', {
     var end = new Date(date);
 
     var date2 = new Date();
-    date2.setMinutes(date2.getMinutes() - 2);
-    var start2 = new Date(date2);
-    date2.setMinutes(date2.getMinutes() + 10 );
-    var end2 = new Date(date2);
+    var start2 = new Date(date2.setMinutes(date2.getMinutes() - 2));
+    var end2 = new Date(date2.setMinutes(date2.getMinutes() + 10 ));
+
+    var date3 = new Date();
+    var start3 = new Date(date3.setMinutes(date3.getMinutes() - 1));
+    var end3 = new Date(date3.setMinutes(date3.getMinutes() + 5 ));
+
+    var date4 = new Date();
+    var start4 = new Date(date4.setMinutes(date4.getMinutes() +2 ));
+    var end4 = new Date(date4.setMinutes(date4.getMinutes() + 10 ));
+
+    var date5 = new Date();
+    var start5 = new Date(date5.setMinutes(date5.getMinutes() + 5));
+    var end5 = new Date(date5.setMinutes(date5.getMinutes() + 10 ));
+
+    var date6 = new Date();
+    var start6 = new Date(date6.setMinutes(date6.getMinutes() - 0));
+    var end6 = new Date(date6.setMinutes(date6.getMinutes() + 15 ));
 
     var items = new vis.DataSet([
     {id: 1, group: 0, className: 'ma', content: 'Hans', start: start, end: end},
     {id: 2, group: 0, className: 'fk', content: 'Günter', start: start2, end: end2},
-    /*{id: 3, group: 1, className: 'ek', content: 'Ilse', start: '2020-02-28T16:15:00', end: '2020-02-28T16:20:00'},
-    {id: 4, group: 1, className: 'ek', content: 'Meyer', start: '2020-02-28T16:37:00', end: '2020-02-28T16:47:00'},
-    {id: 5, group: 1, className: 'ma', content: 'Jürgen', start: '2020-02-28T18:34:00', end: '2020-02-28T18:49:00'},
-    {id: 6, group: 1, className: 'ek', content: 'Florian', start: '2020-02-28T18:45:00', end: '2020-02-28T18:55:00'},
-    */]);
+    {id: 3, group: 1, className: 'ek', content: 'Rudi', start: start3, end: end3},
+    {id: 4, group: 1, className: 'ek', content: 'Klaus', start: start4, end: end4},
+    {id: 5, group: 1, className: 'ma', content: 'Jürgen', start: start5, end: end5},
+    {id: 6, group: 1, className: 'ek', content: 'Florian', start: start6, end: end6},
+    ]);
     // Configuration for the Timeline
     var options = {};
     // Create a Timeline
@@ -81,14 +95,22 @@ var map = L.map('map', {
 
     ]);
     // Configuration for the Timeline
-    var options2 = {};
+    //var options2 = {};
     // Create a Timeline
-    var timeline2 = new vis.Timeline(container2, items2, options2);
+    //var timeline2 = new vis.Timeline(container2, items2, options2);
 
-    var mark = new Date();
-    var durationInMinutes = 20;
-    mark.setMinutes(mark.getMinutes() - durationInMinutes);
+ 
     var markerText = 'Alarmierung';
-
-    timeline.addCustomTime(start, 9);
-    timeline.setCustomTimeMarker(markerText, 9);
+    var id2 = "id2";
+    var customDate = new Date();
+    timeline.addCustomTime(
+      new Date(
+        customDate.getFullYear(),
+        customDate.getMonth(),
+        customDate.getDate(),
+        customDate.getHours(),
+        customDate.getMinutes() - 2
+      ),
+      id2
+    );
+    timeline.setCustomTimeMarker(markerText, id2, false);
