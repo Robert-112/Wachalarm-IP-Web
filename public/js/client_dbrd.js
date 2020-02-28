@@ -50,21 +50,25 @@ var map = L.map('map', {
 
 
     var date = new Date();
-    date.setMinutes(date.getMinutes() + 4 * (Math.random() < 0.2));
+    date.setMinutes(date.getMinutes() + 4 );
     var start = new Date(date);
-    date.setMinutes(date.getMinutes() + 6 + Math.floor(Math.random() * 4));
+    date.setMinutes(date.getMinutes() + 5 );
     var end = new Date(date);
 
-
+    var date2 = new Date();
+    date2.setMinutes(date2.getMinutes() - 2);
+    var start2 = new Date(date2);
+    date2.setMinutes(date2.getMinutes() + 10 );
+    var end2 = new Date(date2);
 
     var items = new vis.DataSet([
-    {id: 1, group: 0, className: 'red', content: 'Hans', start: start, end: end},
-    /*{id: 2, group: 0, content: 'Günter', start: '2020-02-19T16:05:00', end: '2020-02-19T16:10:00'},
-    {id: 3, group: 1, content: 'Ilse', start: '2020-02-19T16:15:00', end: '2020-02-19T16:20:00'},
-    {id: 4, group: 1, content: 'Meyer', start: '2020-02-19T16:37:00', end: '2020-02-19T16:47:00'},
-    {id: 5, group: 1, content: 'Jürgen', start: '2020-02-19T18:34:00', end: '2020-02-19T18:49:00'},
-    {id: 6, group: 1, className: 'red', content: 'Florian', start: '2020-02-19T18:45:00', end: '2020-02-19T18:55:00'},*/
-    ]);
+    {id: 1, group: 0, className: 'ma', content: 'Hans', start: start, end: end},
+    {id: 2, group: 0, className: 'fk', content: 'Günter', start: start2, end: end2},
+    /*{id: 3, group: 1, className: 'ek', content: 'Ilse', start: '2020-02-28T16:15:00', end: '2020-02-28T16:20:00'},
+    {id: 4, group: 1, className: 'ek', content: 'Meyer', start: '2020-02-28T16:37:00', end: '2020-02-28T16:47:00'},
+    {id: 5, group: 1, className: 'ma', content: 'Jürgen', start: '2020-02-28T18:34:00', end: '2020-02-28T18:49:00'},
+    {id: 6, group: 1, className: 'ek', content: 'Florian', start: '2020-02-28T18:45:00', end: '2020-02-28T18:55:00'},
+    */]);
     // Configuration for the Timeline
     var options = {};
     // Create a Timeline
