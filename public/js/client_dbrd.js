@@ -211,7 +211,7 @@ var arr_resp =  [
 
       var new_item = {
         id: Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100),
-        group: 0,
+        group: arrayItem.wache,
         className: "ma",
         start: new Date(arrayItem.set_time),
         end: new Date(arrayItem.arrival_time),
@@ -219,7 +219,7 @@ var arr_resp =  [
         //className: 'New Item'
       };
       items.add(new_item);
-      
+      groups.update({ id: arrayItem.wache, content: arrayItem.wache });
   });
 
   console.log(items.get());
