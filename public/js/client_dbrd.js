@@ -47,81 +47,6 @@ var map = L.map('map', {
       groups.add({ id: g, content: names[g] });
     };
 
-var arr_resp =  [
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 1,
-        "maschinist": 0,
-        "fuehrungskraft": 0,
-        "agt": 0,
-        "set_time": "2020-02-07T08:59:20.066Z",
-        "arrival_time": "2020-03-07T09:04:20.066Z",
-        "wache": "117"
-      },
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 1,
-        "set_time": "2020-02-07T16:37:26.875Z",
-        "arrival_time": "2020-02-07T16:47:26.875Z",
-        "wache": "568"
-      },
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 1,
-        "maschinist": 0,
-        "fuehrungskraft": 0,
-        "agt": 0,
-        "set_time": "2020-02-10T19:34:51.794Z",
-        "arrival_time": "2020-02-10T19:39:51.794Z",
-        "wache": "253"
-      },
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 1,
-        "maschinist": 0,
-        "fuehrungskraft": 0,
-        "agt": 1,
-        "set_time": "2020-02-10T21:01:01.470Z",
-        "arrival_time": "2020-02-10T21:11:01.470Z",
-        "wache": "252"
-      },
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 0,
-        "set_time": "2020-02-20T09:20:35.221Z",
-        "arrival_time": "2020-02-20T09:30:35.221Z",
-        "wache": "252"
-      },
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 1,
-        "set_time": "2020-02-20T12:10:13.373Z",
-        "arrival_time": "2020-02-20T12:20:13.373Z",
-        "wache": "568"
-      },
-      {
-        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 1,
-        "set_time": "2020-02-21T11:36:46.921Z",
-        "arrival_time": "2020-02-21T11:51:46.921Z",
-        "wache": "568"
-      }
-    ];
-
-
-
     var date = new Date();
     date.setMinutes(date.getMinutes() - 0,1 );
     var start = new Date(date);
@@ -147,6 +72,87 @@ var arr_resp =  [
     var date6 = new Date();
     var start6 = new Date(date6.setMinutes(date6.getMinutes() - 0,1));
     var end6 = new Date(date6.setMinutes(date6.getMinutes() + 15,1 ));
+
+    var date7 = new Date();
+    var start7 = new Date(date7.setMinutes(date7.getMinutes() - 0,1));
+    var end7 = new Date(date7.setMinutes(date7.getMinutes() + 15,1 ));
+
+var arr_resp =  [
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 1,
+        "maschinist": 0,
+        "fuehrungskraft": 0,
+        "agt": 0,
+        "set_time": start,
+        "arrival_time": end,
+        "wache": "117"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 0,
+        "set_time": start2,
+        "arrival_time": end2,
+        "wache": "568"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 1,
+        "maschinist": 0,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": start3,
+        "arrival_time": end3,
+        "wache": "253"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 0,
+        "fuehrungskraft": 1,
+        "agt": 1,
+        "set_time": start4,
+        "arrival_time": end4,
+        "wache": "252"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 0,
+        "fuehrungskraft": 1,
+        "agt": 0,
+        "set_time": start5,
+        "arrival_time": end5,
+        "wache": "252"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": start6,
+        "arrival_time": end6,
+        "wache": "568"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": start7,
+        "arrival_time": end7,
+        "wache": "568"
+      }
+    ];
+
+
+
+
 
     var item5 = document.createElement('div');
     item5.className = 'ion-md-star';
@@ -208,15 +214,32 @@ var arr_resp =  [
     arr_resp.forEach(function (arrayItem) {
       //var x = arrayItem.prop1 + 2;
       //console.log(x);
+      var item_content = '';
+      var item_classname = '';
+if (arrayItem.einsatzkraft == 1){
+  item_content = 'Einsatzkraft';
+  item_classname = 'ek'
+};
+if (arrayItem.maschinist == 1){
+  item_content = 'Maschinist';
+  item_classname = 'ma'
+};
+if (arrayItem.fuehrungskraft == 1){
+  item_content = 'Führungskraft';
+  item_classname = 'fk'
+};
+if (arrayItem.agt == 1){
+  item_content = item_content + (' (AGT)');
+  item_classname = item_classname + ('-agt');
+};
 
       var new_item = {
         id: Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100),
         group: arrayItem.wache,
-        className: "ma",
+        className: item_classname,
         start: new Date(arrayItem.set_time),
         end: new Date(arrayItem.arrival_time),
-        content: 'avhtlktlkj'//,
-        //className: 'New Item'
+        content: item_content
       };
       items.add(new_item);
       groups.update({ id: arrayItem.wache, content: arrayItem.wache });
