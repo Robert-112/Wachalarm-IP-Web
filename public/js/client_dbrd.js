@@ -47,6 +47,79 @@ var map = L.map('map', {
       groups.add({ id: g, content: names[g] });
     };
 
+var arr_resp =  [
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 1,
+        "maschinist": 0,
+        "fuehrungskraft": 0,
+        "agt": 0,
+        "set_time": "2020-02-07T08:59:20.066Z",
+        "arrival_time": "2020-03-07T09:04:20.066Z",
+        "wache": "117"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": "2020-02-07T16:37:26.875Z",
+        "arrival_time": "2020-02-07T16:47:26.875Z",
+        "wache": "568"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 1,
+        "maschinist": 0,
+        "fuehrungskraft": 0,
+        "agt": 0,
+        "set_time": "2020-02-10T19:34:51.794Z",
+        "arrival_time": "2020-02-10T19:39:51.794Z",
+        "wache": "253"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 1,
+        "maschinist": 0,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": "2020-02-10T21:01:01.470Z",
+        "arrival_time": "2020-02-10T21:11:01.470Z",
+        "wache": "252"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 0,
+        "set_time": "2020-02-20T09:20:35.221Z",
+        "arrival_time": "2020-02-20T09:30:35.221Z",
+        "wache": "252"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": "2020-02-20T12:10:13.373Z",
+        "arrival_time": "2020-02-20T12:20:13.373Z",
+        "wache": "568"
+      },
+      {
+        "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
+        "einsatzkraft": 0,
+        "maschinist": 1,
+        "fuehrungskraft": 0,
+        "agt": 1,
+        "set_time": "2020-02-21T11:36:46.921Z",
+        "arrival_time": "2020-02-21T11:51:46.921Z",
+        "wache": "568"
+      }
+    ];
+
 
 
     var date = new Date();
@@ -100,6 +173,7 @@ var map = L.map('map', {
   
 
 
+
     // Configuration for the Timeline
     var options = {
       rollingMode: {
@@ -131,5 +205,20 @@ var map = L.map('map', {
     //var timeline2 = new vis.Timeline(container2, items2, options2);
 
  
+    arr_resp.forEach(function (arrayItem) {
+      //var x = arrayItem.prop1 + 2;
+      //console.log(x);
 
+      var new_item = {
+        id: Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100),
+        //groupe: 'background',
+        start: arrayItem.set_time,
+        end: arrayItem.arrival_time,
+        content: toString(arrayItem.einsatzkraft)+'avhtlktlkj'//,
+        //className: 'New Item'
+      };
+      items.add(new_item);
+      
+  });
 
+  console.log(items);
