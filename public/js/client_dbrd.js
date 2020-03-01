@@ -157,13 +157,13 @@ var arr_resp =  [
     item2.innerHTML = '<a>&nbsp;Günter (AGT)</a>';
 
     var items = new vis.DataSet([
-    {id: 1, group: 0, className: 'ma', content: 'Hans', start: start, end: end},
+   /* {id: 1, group: 0, className: 'ma', content: 'Hans', start: start, end: end},
     {id: 2, group: 0, className: 'fk-agt', content: item2, start: start2, end: end2},
     {id: 3, group: 1, className: 'ek', content: 'Rudi', start: start3, end: end3},
     {id: 4, group: 1, className: 'ek-agt', content: item5, start: start4, end: end4},
     {id: 5, group: 1, className: 'ma', content: 'Jürgen', start: start5, end: end5},
     {id: 6, group: 1, className: 'ek', content: 'Florian', start: start6, end: end6},
-    ]);
+    */]);
 
     var markerText = 'Alarmierung';
     var id2 = "id2";
@@ -211,14 +211,15 @@ var arr_resp =  [
 
       var new_item = {
         id: Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100),
-        //groupe: 'background',
-        start: arrayItem.set_time,
-        end: arrayItem.arrival_time,
-        content: toString(arrayItem.einsatzkraft)+'avhtlktlkj'//,
+        group: 0,
+        className: "ma",
+        start: new Date(arrayItem.set_time),
+        end: new Date(arrayItem.arrival_time),
+        content: 'avhtlktlkj'//,
         //className: 'New Item'
       };
       items.add(new_item);
       
   });
 
-  console.log(items);
+  console.log(items.get());
