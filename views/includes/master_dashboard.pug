@@ -228,30 +228,38 @@ style(type='text/css').
             .text-info.font-weight-bold Einsatzrückmeldungen   
           .card-body.p-2
             .d-flex.fustify-content-between.font-weight-bold
-              #rueckmeldung.list-group.list-group-horizontal.text-center.w-100
-                a.list-group-item.bg-secondary.flex-fill.text-success 3 EK
-                a.list-group-item.bg-secondary.flex-fill.text-info 2 MA
-                a.list-group-item.bg-secondary.flex-fill.text-light 1 FK
-              #rueckmeldung.list-group.list-group-horizontal.text-center
-                a.list-group-item.bg-warning.flex-fill.text-dark 2&nbsp;AGT
+              .list-group.list-group-horizontal.text-center.w-100
+                .list-group-item.flex-fill.text-success 
+                  a#ek-counter 0
+                  a &nbsp;EK
+                .list-group-item.flex-fill.text-info 
+                  a#ma-counter 0
+                  a &nbsp;MA
+                .list-group-item.flex-fill.text-light 
+                  a#fk-counter 0 
+                  a &nbsp;FK
+              .list-group.text-center
+                .list-group-item.border.border-warning.flex-fill.text-warning 
+                  a#agt-counter 0
+                  a &nbsp;AGT
                 //a.badge.badge-warning 2&nbsp;AGT
             .row
               .col-4#pg-ek
-                .progress.mt-1
+                //.progress.mt-1
                    .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 
                      a(style='') 2min
-                .progress.mt-1.border.border-warning(style='height: 20px;')
+                //.progress.mt-1.border.border-warning(style='height: 20px;')
                    .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 
                      h 2min
-                .progress.mt-1
+                //.progress.mt-1
                    .progress-bar.progress-bar-striped.bg-success.ion-md-checkmark-circle(role='progressbar', style='width: 100%', aria-valuenow='100', aria-valuemin='0', aria-valuemax='100')
               .col-4#pg-ma
-                .progress.mt-1
+                //.progress.mt-1
                    .progress-bar.progress-bar-striped.bg-info(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 3min
-                .progress.mt-1
+                //.progress.mt-1
                    .progress-bar.progress-bar-striped.bg-info(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 1min     
               .col-4#pg-fk
-                .progress.mt-1.border.border-warning
+                //.progress.mt-1.border.border-warning
                    .progress-bar.progress-bar-striped.bg-light(role='progressbar', style='width: 50%', aria-valuenow='50', aria-valuemin='0', aria-valuemax='100') 10min        
           .card-body.p-2
             #visualization.border.rounded(style='background-color:white')

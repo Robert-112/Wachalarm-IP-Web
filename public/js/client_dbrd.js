@@ -68,10 +68,10 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
       break;
   };
 
-  $( '#pg-' + p_type ).append( '<div class="progress mt-1 '+bar_border+'" id="pg-' + p_id + '" style="height: 0.9375rem; font-size: 0.9375rem;"></div>'); //+ ' ></div>' );
+  $( '#pg-' + p_type ).append( '<div class="progress mt-1 position-relative '+bar_border+'" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>'); //+ ' ></div>' );
 
   $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped '+ bar_background +'" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
-
+  $( '#pg-bar'+ p_id ).append('<small id="pg-text'+ p_id +'" class="justify-content-center d-flex position-absolute w-100"></small>');
   
   
   
@@ -107,14 +107,14 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
       $("#pg-bar"+p_id)
         .css("width", "100%")
         .attr("aria-valuenow", 100)
-        .text("")
         .addClass("ion-md-checkmark-circle");
+        $("#pg-text"+p_id).text("");
       clearInterval(counter_ID[p_id]);
     } else {
       $("#pg-bar"+p_id)
         .css("width", current_progress + "%")
-        .attr("aria-valuenow", current_progress)
-        .text(minutes + " min");
+        .attr("aria-valuenow", current_progress);
+      $("#pg-text"+p_id).text(minutes);
     };
   };
 
@@ -131,9 +131,9 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
     var names = ["CB FW Cottbus 1", "CB FW Madlow", "Lee", "Grant"];
     var groupCount = 2;
     var groups = new vis.DataSet();
-    for (var g = 0; g < groupCount; g++) {
-      groups.add({ id: g, content: names[g] });
-    };
+    //for (var g = 0; g < groupCount; g++) {
+    //  groups.add({ id: g, content: names[g] });
+    //};
 
     var date = new Date();
     date.setMinutes(date.getMinutes() - 0,1 );
@@ -351,6 +351,8 @@ if (arrayItem.agt){
       add_resp_progressbar(arrayItem.resp_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
        items.update(new_item);
       groups.update({ id: arrayItem.wache_id, content: arrayItem.wache_name });
+      $( '#'+item_type+'-counter' ).text('x')
+      
   });
 
   console.log(items.get());
