@@ -33,27 +33,39 @@ var map = L.map('map', {
 
 
 
-  var counter_ID = 0;
+  var counter_ID = [];
 
 function add_resp_progressbar(p_id, p_type, p_start, p_end) {
   // Split timestamp into [ Y, M, D, h, m, s ]
-  var t1 = zeitstempel.split(/[- :]/),
-    t2 = ablaufzeit.split(/[- :]/);
+  //var t1 = zeitstempel.split(/[- :]/),
+    //t2 = ablaufzeit.split(/[- :]/);
 
-  var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
-    end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
+  //var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
+    //end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
 
-  clearInterval(counter_ID);
-  counter_ID = setInterval(function() {
-    do_progressbar(start, end);
+  // Progressbar erstellen falls nicht existiert
+
+    // 
+    //<div class="progress mt-1">
+  //<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">2min</div></div>
+  $( '#pg-fk' ).append( '<div class="progress mt-1" id="pg-' + p_id + '"></div>' );
+  $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
+
+  
+  counter_ID[p_id] = 0;
+
+  clearInterval(counter_ID[p_id]);
+  counter_ID[p_id] = setInterval(function() {
+    do_progressbar('pg-bar'+ p_id, p_start, p_end);
   }, 1000);
 };
 
 
-  function do_progressbar(start, end) {
+  function do_progressbar(div_id, start, end) {
     today = new Date();
     // restliche Zeit ermitteln
-    var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
+    //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
+    var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
   
     var diff = Math.abs(end - today);
     var minutesDifference = Math.floor(diff / 1000 / 60);
@@ -63,8 +75,10 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
       secondsDifference = '0' + secondsDifference;
     };
     var minutes = minutesDifference + ':' + secondsDifference;
+   
+    
     // Progressbar anpassen
-    $("#hilfsfrist")
+    $("#"+div_id)
       .css("width", current_progress + "%")
       .attr("aria-valuenow", current_progress)
       .text(minutes + " min");
@@ -107,7 +121,7 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
 
     var date5 = new Date();
     var start5 = new Date(date5.setMinutes(date5.getMinutes() - 0,2));
-    var end5 = new Date(date5.setMinutes(date5.getMinutes() + 9,8 ));
+    var end5 = new Date(date5.setMinutes(date5.getMinutes() + 1,8 ));
 
     var date6 = new Date();
     var start6 = new Date(date6.setMinutes(date6.getMinutes() - 0,1));
@@ -282,8 +296,10 @@ var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
         end: new Date(arrayItem.arrival_time),
         content: item_content
       };
-      add_resp_progressbar(item_id, item_classname, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
-      items.add(new_item);
+      if (arrayItem.fuehrungskraft == 1){
+        add_resp_progressbar(item_id, item_classname, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
+      };
+       items.add(new_item);
       groups.update({ id: arrayItem.wache, content: arrayItem.wache });
   });
 
