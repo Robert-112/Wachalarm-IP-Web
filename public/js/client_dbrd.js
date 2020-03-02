@@ -35,7 +35,7 @@ var map = L.map('map', {
 
   var counter_ID = [];
 
-function add_resp_progressbar(p_id, p_type, p_start, p_end) {
+function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
   // Split timestamp into [ Y, M, D, h, m, s ]
   //var t1 = zeitstempel.split(/[- :]/),
     //t2 = ablaufzeit.split(/[- :]/);
@@ -48,13 +48,37 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
     // 
     //<div class="progress mt-1">
   //<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">2min</div></div>
-  $( '#pg-fk' ).append( '<div class="progress mt-1" id="pg-' + p_id + ' style="height: 0.9375rem; font-size: 0.9375rem;"></div>' );
-  $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
+  var bar_background = '';
+  var bar_border = '';
+  if (p_agt) {
+    bar_border = 'border border-warning';
+  };
+  switch (p_type) {
+    case 'ek':
+      bar_background = 'bg-success';
+      break;
+    case 'ma':
+      bar_background = 'bg-info';
+      break;
+    case 'fk':
+      bar_background = 'bg-light';
+      break;
+    default:
+      bar_background = '';
+      break;
+  };
+
+  $( '#pg-' + p_type ).append( '<div class="progress mt-1 '+bar_border+'" id="pg-' + p_id + '" style="height: 0.9375rem; font-size: 0.9375rem;"></div>'); //+ ' ></div>' );
+
+  $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped '+ bar_background +'" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
 
   
-  counter_ID[p_id] = 0;
+  
+  
 
   clearInterval(counter_ID[p_id]);
+  counter_ID[p_id] = 0;
+  
   counter_ID[p_id] = setInterval(function() {
     do_progressbar(p_id, p_start, p_end);
   }, 1000);
@@ -62,6 +86,7 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
 
 
   function do_progressbar(p_id, start, end) {
+    //console.log(p_id);
     today = new Date();
     // restliche Zeit ermitteln
     //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
@@ -142,74 +167,88 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
 
 var arr_resp =  [
       {
+        "resp_uuid": "102bfe08-e414-40de-ae54-a00d1238dd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 1,
-        "maschinist": 0,
-        "fuehrungskraft": 0,
-        "agt": 0,
+        "einsatzkraft": true,
+        "maschinist": false,
+        "fuehrungskraft": false,
+        "agt": false,
         "set_time": start,
         "arrival_time": end,
-        "wache": "117"
+        "wache_id": "117",
+        "wache_name": "LDS FW Pretschen"
       },
       {
+        "resp_uuid": "102bfe08-e414-40de-ae54-a00ds238dd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 0,
+        "einsatzkraft": false,
+        "maschinist": true,
+        "fuehrungskraft": false,
+        "agt": false,
         "set_time": start2,
         "arrival_time": end2,
-        "wache": "568"
+        "wache_id": "568",
+        "wache_name": "SPN FW Döbern"
       },
       {
+        "resp_uuid": "102bfe08-e414-40de-ae54-a00s1238fd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 1,
-        "maschinist": 0,
-        "fuehrungskraft": 0,
-        "agt": 1,
+        "einsatzkraft": true,
+        "maschinist": false,
+        "fuehrungskraft": false,
+        "agt": true,
         "set_time": start3,
         "arrival_time": end3,
-        "wache": "253"
+        "wache_id": "253",
+        "wache_name": "EE FW Rehfeld"
       },
       {
+        "resp_uuid": "102bfec8-e414-40de-ae54-a00d1238dd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 0,
-        "fuehrungskraft": 1,
-        "agt": 1,
+        "einsatzkraft": false,
+        "maschinist": false,
+        "fuehrungskraft": true,
+        "agt": true,
         "set_time": start4,
         "arrival_time": end4,
-        "wache": "252"
+        "wache_id": "252",
+        "wache_name": "EE FW Kölsa"
       },
       {
+        "resp_uuid": "10wbfe08-e414-40de-ae54-a00d1238dd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 0,
-        "fuehrungskraft": 1,
-        "agt": 0,
+        "einsatzkraft": false,
+        "maschinist": false,
+        "fuehrungskraft": true,
+        "agt": false,
         "set_time": start5,
         "arrival_time": end5,
-        "wache": "252"
+        "wache_id": "252",
+        "wache_name": "EE FW Kölsa"
       },
       {
+        "resp_uuid": "102bfe08-e414-4xde-ae54-a00d1238dd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 1,
+        "einsatzkraft": false,
+        "maschinist": true,
+        "fuehrungskraft": false,
+        "agt": true,
         "set_time": start6,
         "arrival_time": end6,
-        "wache": "568"
+        "wache_id": "568",
+        "wache_name": "SPN FW Döbern"
       },
       {
+        "resp_uuid": "102bce08-e414-40de-ae54-a00d1238dd71",
         "waip_uuid": "102bfe08-e414-40de-ae54-a00d9378dd71",
-        "einsatzkraft": 0,
-        "maschinist": 1,
-        "fuehrungskraft": 0,
-        "agt": 1,
+        "einsatzkraft": false,
+        "maschinist": true,
+        "fuehrungskraft": false,
+        "agt": true,
         "set_time": start7,
         "arrival_time": end7,
-        "wache": "568"
+        "wache_id": "568",
+        "wache_name": "SPN FW Döbern"
       }
     ];
 
@@ -279,35 +318,39 @@ var arr_resp =  [
       //console.log(x);
       var item_content = '';
       var item_classname = '';
-if (arrayItem.einsatzkraft == 1){
+      var item_type = "";
+if (arrayItem.einsatzkraft){
   item_content = 'Einsatzkraft';
-  item_classname = 'ek'
+  item_classname = 'ek';
+  item_type = 'ek';
 };
-if (arrayItem.maschinist == 1){
+if (arrayItem.maschinist){
   item_content = 'Maschinist';
-  item_classname = 'ma'
+  item_classname = 'ma';
+  item_type = 'ma';
 };
-if (arrayItem.fuehrungskraft == 1){
+if (arrayItem.fuehrungskraft){
   item_content = 'Führungskraft';
   item_classname = 'fk'
+  item_type = 'fk';
 };
-if (arrayItem.agt == 1){
+if (arrayItem.agt){
   item_content = item_content + (' (AGT)');
   item_classname = item_classname + ('-agt');
 };
-var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
+//var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
 
       var new_item = {
-        id: item_id,
-        group: arrayItem.wache,
+        id: arrayItem.resp_uuid,
+        group: arrayItem.wache_id,
         className: item_classname,
         start: new Date(arrayItem.set_time),
         end: new Date(arrayItem.arrival_time),
         content: item_content
       };
-      add_resp_progressbar(item_id, item_classname, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
-       items.add(new_item);
-      groups.update({ id: arrayItem.wache, content: arrayItem.wache });
+      add_resp_progressbar(arrayItem.resp_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
+       items.update(new_item);
+      groups.update({ id: arrayItem.wache_id, content: arrayItem.wache_name });
   });
 
   console.log(items.get());
