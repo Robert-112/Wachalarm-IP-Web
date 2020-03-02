@@ -48,7 +48,7 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
     // 
     //<div class="progress mt-1">
   //<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">2min</div></div>
-  $( '#pg-fk' ).append( '<div class="progress mt-1" id="pg-' + p_id + '"></div>' );
+  $( '#pg-fk' ).append( '<div class="progress mt-1" id="pg-' + p_id + ' style="height: 0.9375rem; font-size: 0.9375rem;"></div>' );
   $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
 
   
@@ -56,12 +56,12 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
 
   clearInterval(counter_ID[p_id]);
   counter_ID[p_id] = setInterval(function() {
-    do_progressbar('pg-bar'+ p_id, p_start, p_end);
+    do_progressbar(p_id, p_start, p_end);
   }, 1000);
 };
 
 
-  function do_progressbar(div_id, start, end) {
+  function do_progressbar(p_id, start, end) {
     today = new Date();
     // restliche Zeit ermitteln
     //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
@@ -78,10 +78,19 @@ function add_resp_progressbar(p_id, p_type, p_start, p_end) {
    
     
     // Progressbar anpassen
-    $("#"+div_id)
-      .css("width", current_progress + "%")
-      .attr("aria-valuenow", current_progress)
-      .text(minutes + " min");
+    if (current_progress >= 100) {
+      $("#pg-bar"+p_id)
+        .css("width", "100%")
+        .attr("aria-valuenow", 100)
+        .text("")
+        .addClass("ion-md-checkmark-circle");
+      clearInterval(counter_ID[p_id]);
+    } else {
+      $("#pg-bar"+p_id)
+        .css("width", current_progress + "%")
+        .attr("aria-valuenow", current_progress)
+        .text(minutes + " min");
+    };
   };
 
   
@@ -296,9 +305,7 @@ var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
         end: new Date(arrayItem.arrival_time),
         content: item_content
       };
-      if (arrayItem.fuehrungskraft == 1){
-        add_resp_progressbar(item_id, item_classname, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
-      };
+      add_resp_progressbar(item_id, item_classname, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
        items.add(new_item);
       groups.update({ id: arrayItem.wache, content: arrayItem.wache });
   });
