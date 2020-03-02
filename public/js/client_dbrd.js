@@ -30,6 +30,46 @@ var map = L.map('map', {
   }).addTo(map);
   
 
+
+
+
+  var counter_ID = 0;
+
+function add_resp_progressbar(p_id, p_type, p_start, p_end) {
+  // Split timestamp into [ Y, M, D, h, m, s ]
+  var t1 = zeitstempel.split(/[- :]/),
+    t2 = ablaufzeit.split(/[- :]/);
+
+  var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
+    end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
+
+  clearInterval(counter_ID);
+  counter_ID = setInterval(function() {
+    do_progressbar(start, end);
+  }, 1000);
+};
+
+
+  function do_progressbar(start, end) {
+    today = new Date();
+    // restliche Zeit ermitteln
+    var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
+  
+    var diff = Math.abs(end - today);
+    var minutesDifference = Math.floor(diff / 1000 / 60);
+    diff -= minutesDifference * 1000 * 60;
+    var secondsDifference = Math.floor(diff / 1000);
+    if (secondsDifference <= 9) {
+      secondsDifference = '0' + secondsDifference;
+    };
+    var minutes = minutesDifference + ':' + secondsDifference;
+    // Progressbar anpassen
+    $("#hilfsfrist")
+      .css("width", current_progress + "%")
+      .attr("aria-valuenow", current_progress)
+      .text(minutes + " min");
+  };
+
   
   
 
@@ -232,15 +272,17 @@ if (arrayItem.agt == 1){
   item_content = item_content + (' (AGT)');
   item_classname = item_classname + ('-agt');
 };
+var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
 
       var new_item = {
-        id: Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100),
+        id: item_id,
         group: arrayItem.wache,
         className: item_classname,
         start: new Date(arrayItem.set_time),
         end: new Date(arrayItem.arrival_time),
         content: item_content
       };
+      add_resp_progressbar(item_id, item_classname, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
       items.add(new_item);
       groups.update({ id: arrayItem.wache, content: arrayItem.wache });
   });
