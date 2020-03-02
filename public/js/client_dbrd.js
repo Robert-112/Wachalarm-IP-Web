@@ -351,7 +351,13 @@ if (arrayItem.agt){
       add_resp_progressbar(arrayItem.resp_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
        items.update(new_item);
       groups.update({ id: arrayItem.wache_id, content: arrayItem.wache_name });
-      $( '#'+item_type+'-counter' ).text('x')
+      var tmp_count = parseInt( $( '#'+item_type+'-counter' ).text() );
+      $( '#'+item_type+'-counter' ).text(tmp_count + 1 );
+
+      if (arrayItem.agt){
+        var tmp_agt = parseInt( $( '#agt-counter' ).text() );
+        $( '#agt-counter' ).text(tmp_agt + 1 );
+      };
       
   });
 
