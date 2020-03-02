@@ -93,7 +93,7 @@ $('#rueckmeldung').each(function(index) {
 /* ########################### */
 
 // Websocket
-var socket = io.connect();
+//var socket = io.connect();
 
 // Wachen-ID bei Connect an Server senden
 /*socket.on('connect', function() {
