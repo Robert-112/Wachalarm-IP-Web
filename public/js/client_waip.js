@@ -483,6 +483,93 @@ $('#send_response').on('click', function() {
   socket.emit('response',waip_id,respo);
 });
 
+
+
+var counter_tmld = [];
+
+function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
+  // Split timestamp into [ Y, M, D, h, m, s ]
+  //var t1 = zeitstempel.split(/[- :]/),
+    //t2 = ablaufzeit.split(/[- :]/);
+
+  //var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
+    //end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
+
+  // Progressbar erstellen falls nicht existiert
+
+    // 
+    //<div class="progress mt-1">
+  //<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">2min</div></div>
+  var bar_background = '';
+  var bar_border = '';
+  if (p_agt) {
+    bar_border = 'border border-warning';
+  };
+  switch (p_type) {
+    case 'ek':
+      bar_background = 'bg-success';
+      break;
+    case 'ma':
+      bar_background = 'bg-info';
+      break;
+    case 'fk':
+      bar_background = 'bg-light';
+      break;
+    default:
+      bar_background = '';
+      break;
+  };
+
+  $( '#pg-' + p_type ).append( '<div class="progress mt-1 position-relative '+bar_border+'" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>'); //+ ' ></div>' );
+
+  $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped '+ bar_background +'" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
+  $( '#pg-bar'+ p_id ).append('<small id="pg-text'+ p_id +'" class="justify-content-center d-flex position-absolute w-100"></small>');
+  
+  
+  
+
+  clearInterval(counter_tmld[p_id]);
+  counter_tmld[p_id] = 0;
+  
+  counter_tmld[p_id] = setInterval(function() {
+    do_rmld_bar(p_id, p_start, p_end);
+  }, 1000);
+};
+
+
+  function do_rmld_bar(p_id, start, end) {
+    //console.log(p_id);
+    today = new Date();
+    // restliche Zeit ermitteln
+    //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
+    var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
+  
+    var diff = Math.abs(end - today);
+    var minutesDifference = Math.floor(diff / 1000 / 60);
+    diff -= minutesDifference * 1000 * 60;
+    var secondsDifference = Math.floor(diff / 1000);
+    if (secondsDifference <= 9) {
+      secondsDifference = '0' + secondsDifference;
+    };
+    var minutes = minutesDifference + ':' + secondsDifference;
+   
+    
+    // Progressbar anpassen
+    if (current_progress >= 100) {
+      $("#pg-bar"+p_id)
+        .css("width", "100%")
+        .attr("aria-valuenow", 100)
+        .addClass("ion-md-checkmark-circle");
+        $("#pg-text"+p_id).text("");
+      clearInterval(counter_ID[p_id]);
+    } else {
+      $("#pg-bar"+p_id)
+        .css("width", current_progress + "%")
+        .attr("aria-valuenow", current_progress);
+      $("#pg-text"+p_id).text(minutes);
+    };
+  };
+
 socket.on('io.response', function(data) {
   console.log(data);
   // neue Rückmeldungen hinterlegen
@@ -502,5 +589,48 @@ socket.on('io.response', function(data) {
     };
     $('#rueckmeldung').append('<a class="' + item_class + '">' + data[i] + ' ' + i + '</a>');
   };*/
+
+
+  data.forEach(function (arrayItem) {
+    //var x = arrayItem.prop1 + 2;
+    //console.log(x);
+    var item_content = '';
+    var item_classname = '';
+    var item_type = "";
+if (arrayItem.einsatzkraft){
+item_content = 'Einsatzkraft';
+item_classname = 'ek';
+item_type = 'ek';
+};
+if (arrayItem.maschinist){
+item_content = 'Maschinist';
+item_classname = 'ma';
+item_type = 'ma';
+};
+if (arrayItem.fuehrungskraft){
+item_content = 'Führungskraft';
+item_classname = 'fk'
+item_type = 'fk';
+};
+if (arrayItem.agt){
+item_content = item_content + (' (AGT)');
+item_classname = item_classname + ('-agt');
+};
+//var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
+
+    
+    add_resp_progressbar(arrayItem.rmld_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
+    
+    var tmp_count = parseInt( $( '#'+item_type+'-counter' ).text() );
+    $( '#'+item_type+'-counter' ).text(tmp_count + 1 );
+
+    if (arrayItem.agt){
+      var tmp_agt = parseInt( $( '#agt-counter' ).text() );
+      $( '#agt-counter' ).text(tmp_agt + 1 );
+    };
+    
+});
+
+
   resize_text();
 });

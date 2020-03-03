@@ -723,22 +723,22 @@ module.exports = function(db, async, app_cfg) {
                 if (item.einsatzkraft == 1) {
                   item.einsatzkraft = true;
                 } else {
-                  item.einsatzkraft = true;
+                  item.einsatzkraft = false;
                 };
                 if (item.maschinist == 1) {
                   item.maschinist = true;
                 } else {
-                  item.maschinist = true;
+                  item.maschinist = false;
                 };
                 if (item.fuehrungskraft == 1) {
                   item.fuehrungskraft = true;
                 } else {
-                  item.fuehrungskraft = true;
+                  item.fuehrungskraft = false;
                 };
                 if (item.agt == 1) {
                   item.agt = true;
                 } else {
-                  item.agt = true;
+                  item.agt = false;
                 };
                 // response_wache aufsummieren
                 all_responses.push(item)
