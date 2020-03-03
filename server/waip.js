@@ -78,9 +78,9 @@ module.exports = function(io, sql, async, app_cfg) {
           
           data.forEach(function(row) {
             sql.db_get_response_wache(waip_id, row.room, function(result){
-              console.log('response_wache: ' + row.room); 
+              console.log('response_wache: ' + result); 
               if (row.room) {
-                reuckmeldung_verteilen(waip_id, row.room);
+                reuckmeldung_verteilen(waip_id, result);
               };
             });  
           
