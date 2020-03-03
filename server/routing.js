@@ -1,6 +1,6 @@
-module.exports = function(app, sql, app_cfg, passport, auth, waip, udp) {
+module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) {
 
-  // get index
+  // Startseite
   app.get('/', function(req, res) {
     sql.db_list_wachen(function(data) {
       var data_wachen = data
@@ -21,21 +21,21 @@ module.exports = function(app, sql, app_cfg, passport, auth, waip, udp) {
     });
   });
 
-  // get /waip
+  // /waip nach /waip/0 umleiten
   app.get('/waip', function(req, res) {
     res.redirect('/waip/0');
   });
 
-  // get /waip/<wachennummer>
+  // Alarmmonitor aufloesen /waip/<wachennummer>
   app.get('/waip/:wachen_id', function(req, res, next) {
     var parmeter_id = req.params.wachen_id;
-    sql.db_wache_vorhanden(parmeter_id, function(result) {
+    sql.db_wache_vorhanden(parmeter_id, function(wache) {
       if (result) {
         res.render('waip', {
           public: app_cfg.public,
           title: 'Alarmmonitor',
           wachen_id: parmeter_id,
-          data_wache: ' ' + result.name,
+          data_wache: wache.name,
           app_id: app_cfg.global.app_id,
           user: req.user
         });
@@ -47,8 +47,20 @@ module.exports = function(app, sql, app_cfg, passport, auth, waip, udp) {
     });
   });
 
-  // get /rueckmeldung
+  // Rueckmeldungs-Aufruf ohne waip_uuid eblehnen
+  app.get('/rmld', function(req, res, next) {
+    var err = new Error('Rückmeldungen sind nur mit gültiger Einsatz-ID erlaubt!');
+    err.status = 404;
+    next(err);
+  });
+
+  // Rueckmeldungs-Aufruf mit waip_uuid aber ohne rmld_uuid an zufällige rmld_uuid weiterleiten
   app.get('/rmld/:waip_uuid', function(req, res, next) {
+    res.redirect('/rmld/' + req.params.waip_uuid + '/' + uuidv4());
+  });
+
+  // Rueckmeldung anzeigen /rueckmeldung/waip_uuid/rmld_uuid
+  app.get('/rmld/:waip_uuid/:rmld_uuid', function(req, res, next) {
     var waip_uuid = req.params.waip_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
       if (einsatzdaten) {
@@ -56,22 +68,26 @@ module.exports = function(app, sql, app_cfg, passport, auth, waip, udp) {
           public: app_cfg.public,
           title: 'Einsatz-Rückmeldung',
           user: req.user,
-          einsatzdaten: einsatzdaten
+          einsatzdaten: einsatzdaten,
+          modaldata: req.query.modal
         });
       } else {
-        var err = new Error('Der angefragte Einsatz ist nicht vorhanden!'+waip_uuid);
+        var err = new Error('Der angefragte Einsatz ist nicht - oder nicht mehr - vorhanden!');
         err.status = 404;
         next(err);
       };
     });
   });
 
-  app.post('/rmld/:waip_uuid', function(req, res) {
-    console.log('post_rueckmeldung '+JSON.stringify(req.body));
-    sql.db_save_response(req.body, function(result){
+  // Rueckmeldung entgegennehmen
+  app.post('/rmld/:waip_uuid/:rmld_uuid', function(req, res) {
+    var waip_uuid = req.params.waip_uuid;
+    var rmld_uuid = req.params.rmld_uuid;
+    sql.db_save_rmld(req.body, function(result){
       if (result) {
-        res.redirect('/rmld/' + req.params.waip_uuid);
-        waip.reuckmeldung_verteilen_by_uuid(req.params.waip_uuid);
+        var string = encodeURIComponent(result);
+        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid + '/?modal=' + string);
+        waip.reuckmeldung_verteilen_by_uuid(req.params.rmld_uuid);
       } else {
         var err = new Error('Fehler beim senden der Rückmeldung!');
         err.status = 501;

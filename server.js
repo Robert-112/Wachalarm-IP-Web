@@ -1,20 +1,21 @@
 // Module laden
-var fs = require('fs');
-var express = require('express');
-var app = express();
-var http = require('http') //.Server(app);
-var https = require('https'); //.Server(app);
-var webserver = https.createServer({
+const fs = require('fs');
+const express = require('express');
+const app = express();
+const http = require('http') //.Server(app);
+const https = require('https'); //.Server(app);
+const webserver = https.createServer({
   key: fs.readFileSync('./misc/server.key', 'utf8'),
   cert: fs.readFileSync('./misc/server.cert', 'utf8')
 }, app);
-var io = require('socket.io').listen(webserver);
-var async = require('async');
-var path = require('path');
-var favicon = require('serve-favicon');
-var bodyParser = require('body-parser');
-var bcrypt = require('bcrypt');
-var passport = require('passport');
+const io = require('socket.io').listen(webserver);
+const async = require('async');
+const path = require('path');
+const favicon = require('serve-favicon');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const passport = require('passport');
+const uuidv4 = require('uuid/v4');
 
 // Express-Einstellungen
 app.set('views', path.join(__dirname, 'views'));
@@ -30,12 +31,12 @@ app.use(bodyParser.urlencoded({
 // Scripte einbinden
 var app_cfg = require('./server/app_cfg.js');
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
-var sql = require('./server/sql_qry')(sql_cfg, async, app_cfg);
+var sql = require('./server/sql_qry')(sql_cfg, uuidv4, app_cfg);
 var waip = require('./server/waip')(io, sql, async, app_cfg);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
-var routes = require('./server/routing')(app, sql, app_cfg, passport, auth, waip, udp);
+var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp);
 
 // Server starten
 webserver.listen(app_cfg.global.https_port, function() {

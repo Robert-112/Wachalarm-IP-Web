@@ -1,7 +1,4 @@
-module.exports = function(db, async, app_cfg) {
-
-  // Module laden
-  const uuidv4 = require('uuid/v4');
+module.exports = function(db, uuidv4, app_cfg) {
 
   // ermittelt den letzten vorhanden Einsatz zu einer Wache
   function db_einsatz_vorhanden(wachen_id, user_id, callback) {
@@ -604,7 +601,7 @@ module.exports = function(db, async, app_cfg) {
     });
   };*/
 
-  function db_save_response(responseobj, callback) {
+  function db_save_rmld(responseobj, callback) {
 
 
     // Rueckmeldung aufarbeiten
@@ -674,6 +671,7 @@ module.exports = function(db, async, app_cfg) {
         \'` + reuckmeldung.wache_name + `\')`), function(err) {
           //console.log(err);
         if (err == null) {
+          // TODO: Rueckmeldung-UUID zurückgeben
           callback && callback('OK');
         } else {
           callback && callback(null);
@@ -831,7 +829,7 @@ module.exports = function(db, async, app_cfg) {
     db_set_userconfig: db_set_userconfig,
     db_get_sockets_to_standby: db_get_sockets_to_standby,
     //db_update_response: db_update_response,
-    db_save_response: db_save_response,
+    db_save_rmld: db_save_rmld,
     db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
     db_get_response_wache: db_get_response_wache,
     db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
