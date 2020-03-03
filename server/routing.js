@@ -1,4 +1,4 @@
-module.exports = function(app, sql, app_cfg, passport, auth, udp) {
+module.exports = function(app, sql, app_cfg, passport, auth, waip, udp) {
 
   // get index
   app.get('/', function(req, res) {
@@ -71,6 +71,7 @@ module.exports = function(app, sql, app_cfg, passport, auth, udp) {
     sql.db_save_response(req.body, function(result){
       if (result) {
         res.redirect('/rmld/' + req.params.waip_uuid);
+        waip.reuckmeldung_verteilen_by_uuid(req.params.waip_uuid);
       } else {
         var err = new Error('Fehler beim senden der Rückmeldung!');
         err.status = 501;

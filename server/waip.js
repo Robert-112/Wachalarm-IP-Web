@@ -69,7 +69,32 @@ module.exports = function(io, sql, async, app_cfg) {
     });
   };
 
+  function reuckmeldung_verteilen_by_uuid(waip_uuid) {
+    sql.db_get_waipid_by_uuid(waip_uuid, function(waip_id) {
+      console.log('rueckmeldung waip_id: '+waip_id);
+      sql.db_get_einsatzwachen(waip_id, function(data) {
+        console.log(data);
+        if (data) {
+          
+          data.forEach(function(row) {
+            // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
+            var room_stockets = io.sockets.adapter.rooms[row.room];
+            if (typeof room_stockets !== 'undefined') {
+              Object.keys(room_stockets.sockets).forEach(function(socket_id) {
+                io.sockets.to(socket_id).emit('io.response', result)
+                sql.db_log('WAIP', 'Rückmeldung ' + result + ' an Socket ' + socket_id + ' gesendet');
+              });
+            };
+          });
+        } else {
+          sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden, Rückmeldung konnte nicht verteilt werden!');
+        };
+      });
+    });
+  };
+
   function reuckmeldung_verteilen(waip_id, result) {
+    console.log('rueckmeldung alt: '+waip_id + ' ' + result);
     sql.db_get_einsatzwachen(waip_id, function(data) {
       if (data) {
         data.forEach(function(row) {
@@ -267,6 +292,7 @@ module.exports = function(io, sql, async, app_cfg) {
   return {
     einsatz_speichern: einsatz_speichern,
 	einsatz_verteilen: einsatz_verteilen,
-	reuckmeldung_verteilen: reuckmeldung_verteilen
+  reuckmeldung_verteilen: reuckmeldung_verteilen,
+  reuckmeldung_verteilen_by_uuid: reuckmeldung_verteilen_by_uuid
   };
 };

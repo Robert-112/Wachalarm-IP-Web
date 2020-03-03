@@ -693,15 +693,15 @@ module.exports = function(db, async, app_cfg) {
   };
   
   function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback) {
-    db.all(`SELECT response_json FROM waip_response WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function (err, rows) {
+    db.all(`SELECT response_json FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
         // temporaere Variablen
         var itemsProcessed = 0;
         var response_wache = {};
-        response_wache.einsatzkraft = 0;
-        response_wache.maschinist = 0;
-        response_wache.fuehrungskraft = 0;
-        response_wache.atemschutz = 0;
+        response_wache.einsatzkraft = false;
+        response_wache.maschinist = false;
+        response_wache.fuehrungskraft = false;
+        response_wache.atemschutz = false;
         // callback-function fuer absgeschlossene Schleife
         function loop_done(response_wache) {
           callback && callback(response_wache);
@@ -769,6 +769,16 @@ module.exports = function(db, async, app_cfg) {
     });
   };
 
+  function db_get_waipid_by_uuid(waip_uuid, callback){
+    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE e.uuid like ?`, [waip_uuid], function(err, row) {
+      if (err == null && row) {
+        callback && callback(row.id);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
@@ -803,7 +813,8 @@ module.exports = function(db, async, app_cfg) {
     db_save_response: db_save_response,
     db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
     db_get_response_wache: db_get_response_wache,
-    db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid
+    db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
+    db_get_waipid_by_uuid:db_get_waipid_by_uuid
   };
 
 };

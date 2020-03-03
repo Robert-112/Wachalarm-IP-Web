@@ -35,7 +35,7 @@ var waip = require('./server/waip')(io, sql, async, app_cfg);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
-var routes = require('./server/routing')(app, sql, app_cfg, passport, auth, udp);
+var routes = require('./server/routing')(app, sql, app_cfg, passport, auth, waip, udp);
 
 // Server starten
 webserver.listen(app_cfg.global.https_port, function() {

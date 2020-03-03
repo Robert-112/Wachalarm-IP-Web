@@ -484,6 +484,7 @@ $('#send_response').on('click', function() {
 });
 
 socket.on('io.response', function(data) {
+  console.log(data);
   // neue Rückmeldungen hinterlegen
   $('#rueckmeldung').empty();
   //{einsatzkraft: "0", maschinist: "0", fuehrungskraft: "0", atemschutz: "0"}
