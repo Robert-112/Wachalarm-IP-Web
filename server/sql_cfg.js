@@ -90,7 +90,15 @@ module.exports = function (fs, bcrypt, app_cfg) {
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_uuid TEXT,
         rmld_uuid TEXT,
-        response_json TEXT)`);
+        einsatzkraft INTEGER,
+        maschinist INTEGER,
+        fuehrungskraft INTEGER,
+        agt INTEGER,
+        set_time DATETIME,
+        arrival_time DATETIME,
+        wache_id INTEGER,
+        wache_nr INTEGER,
+        wache_name TEXT)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

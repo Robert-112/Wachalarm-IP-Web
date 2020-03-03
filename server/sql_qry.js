@@ -614,30 +614,30 @@ module.exports = function(db, async, app_cfg) {
     // Typ der Einsatzfunktion festlegen
     switch (responseobj.radio_efunction) {
       case 'ek':
-        reuckmeldung.einsatzkraft = true;
-        reuckmeldung.maschinist = false;
-        reuckmeldung.fuehrungskraft = false;
+        reuckmeldung.einsatzkraft = 1;
+        reuckmeldung.maschinist = 0;
+        reuckmeldung.fuehrungskraft = 0;
         break;
       case 'ma':
-        reuckmeldung.einsatzkraft = false;
-        reuckmeldung.maschinist = true;
-        reuckmeldung.fuehrungskraft = false;
+        reuckmeldung.einsatzkraft = 0;
+        reuckmeldung.maschinist = 1;
+        reuckmeldung.fuehrungskraft = 0;
         break;
       case 'fk':
-        reuckmeldung.einsatzkraft = false;
-        reuckmeldung.maschinist = false;
-        reuckmeldung.fuehrungskraft = true;
+        reuckmeldung.einsatzkraft = 0;
+        reuckmeldung.maschinist = 0;
+        reuckmeldung.fuehrungskraft = 1;
         break;
       default:
-        reuckmeldung.einsatzkraft = false;
-        reuckmeldung.maschinist = false;
-        reuckmeldung.fuehrungskraft = false;
+        reuckmeldung.einsatzkraft = 0;
+        reuckmeldung.maschinist = 0;
+        reuckmeldung.fuehrungskraft = 0;
     };
     // ist AGT ja / nein
     if (responseobj.cb_agt) {
-      reuckmeldung.agt = true;
+      reuckmeldung.agt = 1;
     } else {
-      reuckmeldung.agt = false;
+      reuckmeldung.agt = 0;
     };
     // Zeitpunkt der Rueckmeldung festlegen
     reuckmeldung.set_time = new Date();
@@ -653,16 +653,25 @@ module.exports = function(db, async, app_cfg) {
     };
     //console.log(JSON.stringify(reuckmeldung));
 
-    db.get(`select name_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
+    db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
       if (err == null && row) {
         reuckmeldung.wache_name = row.name_wache;
+        reuckmeldung.wache_nr = row.nr_wache;
 
-        db.run((`insert or replace into waip_response (id, waip_uuid, rmld_uuid, response_json) 
+        db.run((`insert or replace into waip_response (id, waip_uuid, rmld_uuid, einsatzkraft, maschinist, fuehrungskraft, agt, set_time, arrival_time, wache_id, wache_nr, wache_name) 
         values
         ((select id from waip_response where rmld_uuid =  \'` + reuckmeldung.rmld_uuid + `\'), 
         \'` + reuckmeldung.waip_uuid + `\', 
         \'` + reuckmeldung.rmld_uuid + `\', 
-        \'` + JSON.stringify(reuckmeldung) + `\')`), function(err) {
+        \'` + reuckmeldung.einsatzkraft + `\', 
+        \'` + reuckmeldung.maschinist + `\', 
+        \'` + reuckmeldung.fuehrungskraft + `\', 
+        \'` + reuckmeldung.agt + `\', 
+        \'` + reuckmeldung.set_time + `\', 
+        \'` + reuckmeldung.arrival_time + `\', 
+        \'` + reuckmeldung.wache_id + `\', 
+        \'` + reuckmeldung.wache_nr + `\', 
+        \'` + reuckmeldung.wache_name + `\')`), function(err) {
           //console.log(err);
         if (err == null) {
           callback && callback('OK');
@@ -693,7 +702,7 @@ module.exports = function(db, async, app_cfg) {
   };
   
   function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback) {
-    db.all(`SELECT response_json FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
+    db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
         
         // temporaere Variablen
@@ -707,13 +716,15 @@ module.exports = function(db, async, app_cfg) {
         console.log('rows: '+JSON.stringify(rows));
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
-          console.log('item.response_json.wache_id '+JSON.parse(item.response_json.wache_id));
-            db_wache_nr_ermitteln(item.response_json.wache_id, function(response_wachen_nr) {
-              if (response_wachen_nr.startsWith(wachen_nr)) {
+          var tmp = JSON.stringify(item.wache_nr);
+        console.log('item. '+tmp );
+        console.log(wachen_nr);
+        console.log(tmp.startsWith(wachen_nr));
+          
+              if (tmp.startsWith(wachen_nr)) {
                 // response_wache aufsummieren
-                all_responses.push(item.response_json)
+                all_responses.push(item)
               };
-            }); 
 
 
     
