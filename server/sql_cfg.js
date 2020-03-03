@@ -88,7 +88,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Rueckmelde-Tabelle erstellen
       db.run(`CREATE TABLE waip_response (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        waip_einsaetze_id INTEGER NOT NULL,
+        waip_uuid TEXT,
+        rmld_uuid TEXT,
         response_json TEXT)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (

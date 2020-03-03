@@ -655,14 +655,15 @@ module.exports = function(db, async, app_cfg) {
 
     db.get(`select name_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
       if (err == null && row) {
-        reuckmeldung.wache_name = row;
+        reuckmeldung.wache_name = row.name_wache;
 
-        db.run((`INSERT INTO waip_response
-        (waip_einsaetze_id, response_json)
-        VALUES (
-        \'` + reuckmeldung.waip_uuid + `\',
+        db.run((`insert or replace into waip_response (id, waip_uuid, rmld_uuid, response_json) 
+        values
+        ((select id from waip_response where rmld_uuid =  \'` + reuckmeldung.rmld_uuid + `\'), 
+        \'` + reuckmeldung.waip_uuid + `\', 
+        \'` + reuckmeldung.rmld_uuid + `\', 
         \'` + JSON.stringify(reuckmeldung) + `\')`), function(err) {
-          console.log(err);
+          //console.log(err);
         if (err == null) {
           callback && callback('OK');
         } else {
