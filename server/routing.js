@@ -131,7 +131,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   app.get('/waip/:wachen_id', function(req, res, next) {
     var parmeter_id = req.params.wachen_id;
     sql.db_wache_vorhanden(parmeter_id, function(wache) {
-      if (result) {
+      if (wache) {
         res.render('waip', {
           public: app_cfg.public,
           title: 'Alarmmonitor',
