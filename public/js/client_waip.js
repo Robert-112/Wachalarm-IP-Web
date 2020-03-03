@@ -486,9 +486,9 @@ $('#send_response').on('click', function() {
 socket.on('io.response', function(data) {
   console.log(data);
   // neue Rückmeldungen hinterlegen
-  $('#rueckmeldung').empty();
+  //$('#rueckmeldung').empty();
   //{einsatzkraft: "0", maschinist: "0", fuehrungskraft: "0", atemschutz: "0"}
-  for (var i in data) {
+  /*for (var i in data) {
     var item_class = 'list-group-item flex-fill list-group-item-action tf_singleline';
     switch (data[i]) {
       case '0':
@@ -501,6 +501,6 @@ socket.on('io.response', function(data) {
         item_class = item_class + ' text-success';
     };
     $('#rueckmeldung').append('<a class="' + item_class + '">' + data[i] + ' ' + i + '</a>');
-  };
+  };*/
   resize_text();
 });

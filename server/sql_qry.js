@@ -717,11 +717,29 @@ module.exports = function(db, async, app_cfg) {
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
           var tmp = JSON.stringify(item.wache_nr);
-        console.log('item. '+tmp );
-        console.log(wachen_nr);
-        console.log(tmp.startsWith(wachen_nr));
+        
           
               if (tmp.startsWith(wachen_nr)) {
+                if (item.einsatzkraft == 1) {
+                  item.einsatzkraft = true;
+                } else {
+                  item.einsatzkraft = true;
+                };
+                if (item.maschinist == 1) {
+                  item.maschinist = true;
+                } else {
+                  item.maschinist = true;
+                };
+                if (item.fuehrungskraft == 1) {
+                  item.fuehrungskraft = true;
+                } else {
+                  item.fuehrungskraft = true;
+                };
+                if (item.agt == 1) {
+                  item.agt = true;
+                } else {
+                  item.agt = true;
+                };
                 // response_wache aufsummieren
                 all_responses.push(item)
               };
