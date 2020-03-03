@@ -695,6 +695,7 @@ module.exports = function(db, async, app_cfg) {
   function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback) {
     db.all(`SELECT response_json FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
+        
         // temporaere Variablen
         var itemsProcessed = 0;
         var response_wache = {};
@@ -707,6 +708,7 @@ module.exports = function(db, async, app_cfg) {
           callback && callback(response_wache);
         };
         // Zeilen einzelnen durchgehen
+        console.log('rows: '+JSON.stringify(rows));
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
           if (item.wachen_nr) {
@@ -729,6 +731,7 @@ module.exports = function(db, async, app_cfg) {
           // Schleife ggf. beenden
           itemsProcessed++;
           if (itemsProcessed === array.length) {
+            console.log('get_response_wache: '+JSON.stringify(response_wache));
             loop_done(response_wache);
           };
         });
