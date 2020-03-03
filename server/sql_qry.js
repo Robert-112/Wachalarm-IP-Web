@@ -791,7 +791,7 @@ module.exports = function(db, async, app_cfg) {
   };
 
   function db_get_waipid_by_uuid(waip_uuid, callback){
-    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE e.uuid like ?`, [waip_uuid], function(err, row) {
+    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function(err, row) {
       if (err == null && row) {
         callback && callback(row.id);
       } else {

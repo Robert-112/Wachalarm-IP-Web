@@ -77,14 +77,13 @@ module.exports = function(io, sql, async, app_cfg) {
         if (data) {
           
           data.forEach(function(row) {
-            // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
-            var room_stockets = io.sockets.adapter.rooms[row.room];
-            if (typeof room_stockets !== 'undefined') {
-              Object.keys(room_stockets.sockets).forEach(function(socket_id) {
-                io.sockets.to(socket_id).emit('io.response', result)
-                sql.db_log('WAIP', 'Rückmeldung ' + result + ' an Socket ' + socket_id + ' gesendet');
-              });
-            };
+            sql.db_get_response_wache(waip_id, row.room, function(result){
+              console.log('response_wache: ' + row.room); 
+              if (row.room) {
+                reuckmeldung_verteilen(waip_id, row.room);
+              };
+            });  
+          
           });
         } else {
           sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden, Rückmeldung konnte nicht verteilt werden!');
