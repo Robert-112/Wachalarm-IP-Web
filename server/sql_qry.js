@@ -609,34 +609,35 @@ module.exports = function(db, async, app_cfg) {
 
     // Rueckmeldung aufarbeiten
     var reuckmeldung = {};
+    reuckmeldung.rmld_uuid = responseobj.rmld_uuid;
     reuckmeldung.waip_uuid = responseobj.waip_uuid;
     // Typ der Einsatzfunktion festlegen
     switch (responseobj.radio_efunction) {
       case 'ek':
-        reuckmeldung.einsatzkraft = 1;
-        reuckmeldung.maschinist = 0;
-        reuckmeldung.fuehrungskraft = 0;
+        reuckmeldung.einsatzkraft = true;
+        reuckmeldung.maschinist = false;
+        reuckmeldung.fuehrungskraft = false;
         break;
       case 'ma':
-        reuckmeldung.einsatzkraft = 0;
-        reuckmeldung.maschinist = 1;
-        reuckmeldung.fuehrungskraft = 0;
+        reuckmeldung.einsatzkraft = false;
+        reuckmeldung.maschinist = true;
+        reuckmeldung.fuehrungskraft = false;
         break;
       case 'fk':
-        reuckmeldung.einsatzkraft = 0;
-        reuckmeldung.maschinist = 0;
-        reuckmeldung.fuehrungskraft = 1;
+        reuckmeldung.einsatzkraft = false;
+        reuckmeldung.maschinist = false;
+        reuckmeldung.fuehrungskraft = true;
         break;
       default:
-        reuckmeldung.einsatzkraft = 0;
-        reuckmeldung.maschinist = 0;
-        reuckmeldung.fuehrungskraft = 0;
+        reuckmeldung.einsatzkraft = false;
+        reuckmeldung.maschinist = false;
+        reuckmeldung.fuehrungskraft = false;
     };
     // ist AGT ja / nein
     if (responseobj.cb_agt) {
-      reuckmeldung.agt = 1;
+      reuckmeldung.agt = true;
     } else {
-      reuckmeldung.agt = 0;
+      reuckmeldung.agt = false;
     };
     // Zeitpunkt der Rueckmeldung festlegen
     reuckmeldung.set_time = new Date();
@@ -646,23 +647,37 @@ module.exports = function(db, async, app_cfg) {
     reuckmeldung.arrival_time = resp_time;
     // Wache zuordnen
     if (!isNaN(responseobj.wachenauswahl)) {
-      reuckmeldung.wache = responseobj.wachenauswahl;
+      reuckmeldung.wache_id = responseobj.wachenauswahl;
     } else {
-      reuckmeldung.wache =  null;
+      reuckmeldung.wache_id = null;
     };
-    console.log(JSON.stringify(reuckmeldung));
-    db.run((`INSERT INTO waip_response
-      (waip_einsaetze_id, response_json)
-      VALUES (
-      \'` + reuckmeldung.waip_uuid + `\',
-      \'` + JSON.stringify(reuckmeldung) + `\')`), function(err) {
-        console.log(err);
-      if (err == null) {
-        callback && callback('OK');
+    //console.log(JSON.stringify(reuckmeldung));
+
+    db.get(`select name_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
+      if (err == null && row) {
+        reuckmeldung.wache_name = row;
+
+        db.run((`INSERT INTO waip_response
+        (waip_einsaetze_id, response_json)
+        VALUES (
+        \'` + reuckmeldung.waip_uuid + `\',
+        \'` + JSON.stringify(reuckmeldung) + `\')`), function(err) {
+          console.log(err);
+        if (err == null) {
+          callback && callback('OK');
+        } else {
+          callback && callback(null);
+        };
+      });
+
+
       } else {
         callback && callback(null);
       };
     });
+
+
+    
   };
 
   function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback){
