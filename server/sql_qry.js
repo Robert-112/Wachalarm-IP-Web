@@ -698,41 +698,30 @@ module.exports = function(db, async, app_cfg) {
         
         // temporaere Variablen
         var itemsProcessed = 0;
-        var response_wache = {};
-        response_wache.einsatzkraft = false;
-        response_wache.maschinist = false;
-        response_wache.fuehrungskraft = false;
-        response_wache.atemschutz = false;
+        var all_responses = [];
         // callback-function fuer absgeschlossene Schleife
-        function loop_done(response_wache) {
-          callback && callback(response_wache);
+        function loop_done(all_responses) {
+          callback && callback(all_responses);
         };
         // Zeilen einzelnen durchgehen
         console.log('rows: '+JSON.stringify(rows));
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
-          if (item.wachen_nr) {
-            if (item.wachen_nr.startsWith(wachen_nr)) {
-              // response_wache aufsummieren
-              if (Number.isInteger(item.einsatzkraft)) {
-                response_wache.einsatzkraft = response_wache.einsatzkraft + item.einsatzkraft;
+          console.log('item.response_json.wache_id '+JSON.parse(item.response_json.wache_id));
+            db_wache_nr_ermitteln(item.response_json.wache_id, function(response_wachen_nr) {
+              if (response_wachen_nr.startsWith(wachen_nr)) {
+                // response_wache aufsummieren
+                all_responses.push(item.response_json)
               };
-              if (Number.isInteger(item.maschinist)) {
-                response_wache.maschinist = response_wache.maschinist + item.maschinist;
-              };
-              if (Number.isInteger(item.fuehrungskraft)) {
-                response_wache.fuehrungskraft = response_wache.fuehrungskraft + item.fuehrungskraft;
-              };
-              if (Number.isInteger(item.atemschutz)) {
-                response_wache.atemschutz = response_wache.atemschutz + item.atemschutz;
-              };
-            };
-          };  
+            }); 
+
+
+    
           // Schleife ggf. beenden
           itemsProcessed++;
           if (itemsProcessed === array.length) {
-            console.log('get_response_wache: '+JSON.stringify(response_wache));
-            loop_done(response_wache);
+            console.log('get_response_wache: '+JSON.stringify(all_responses));
+            loop_done(all_responses);
           };
         });
       } else {
