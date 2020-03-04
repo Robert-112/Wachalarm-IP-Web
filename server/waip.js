@@ -70,7 +70,8 @@ module.exports = function(io, sql, async, app_cfg) {
   };
 
   function reuckmeldung_verteilen_by_uuid(waip_uuid, rmld_uuid) {
-    
+    console.log(waip_uuid);
+    console.log(rmld_uuid);
     sql.db_get_waipid_by_uuid(waip_uuid, function(waip_id) {
     
       console.log('rueckmeldung waip_id: '+waip_id);
@@ -86,7 +87,7 @@ module.exports = function(io, sql, async, app_cfg) {
             console.log(row.room);
             
             
-          sql.db_get_single_response_by_rmlduuid(rmld_uuid, function(rmld){
+         sql.db_get_single_response_by_rmlduuid(rmld_uuid, function(rmld){
                    console.log('vorhandene reuckmeldungen fuer die wache: ' + rmld); 
                   if (rmld) {
                     //waip.reuckmeldung_senden(socket.id, rmld);
