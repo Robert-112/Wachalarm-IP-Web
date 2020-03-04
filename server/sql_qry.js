@@ -756,6 +756,39 @@ module.exports = function(db, uuidv4, app_cfg) {
       };
     });
   };
+  
+  function db_get_single_response_by_rmlduuid(rmld_uuid, callback) {
+    db.get(`SELECT * FROM waip_response WHERE rmld_uuid like ?`, [rmld_uuid], function (err, row) {
+      if (err == null && row) {
+                console.log('single_rmld_uuid '+row);
+                if (row.einsatzkraft == 1) {
+                  row.einsatzkraft = true;
+                } else {
+                  row.einsatzkraft = false;
+                };
+                if (row.maschinist == 1) {
+                  row.maschinist = true;
+                } else {
+                  row.maschinist = false;
+                };
+                if (row.fuehrungskraft == 1) {
+                  row.fuehrungskraft = true;
+                } else {
+                  row.fuehrungskraft = false;
+                };
+                if (row.agt == 1) {
+                  row.agt = true;
+                } else {
+                  row.agt = false;
+                };
+                // response_wache aufsummieren
+         callback && callback(row);       
+       
+      } else {
+        callback && callback(null);
+      };
+    });
+  };  
 
   function db_get_einsatzdaten_by_uuid(waip_uuid, callback){
     db.get(`SELECT e.id, e.uuid, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
@@ -833,7 +866,8 @@ module.exports = function(db, uuidv4, app_cfg) {
     db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
     db_get_response_for_wache: db_get_response_for_wache,
     db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
-    db_get_waipid_by_uuid:db_get_waipid_by_uuid
+    db_get_waipid_by_uuid:db_get_waipid_by_uuid,
+    db_get_single_response_by_rmlduuid, db_get_single_response_by_rmlduuid
   };
 
 };

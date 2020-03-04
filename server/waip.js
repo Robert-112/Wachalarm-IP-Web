@@ -74,19 +74,33 @@ module.exports = function(io, sql, async, app_cfg) {
     sql.db_get_waipid_by_uuid(waip_uuid, function(waip_id) {
     
       console.log('rueckmeldung waip_id: '+waip_id);
+      
+      
+      
       sql.db_get_einsatzwachen(waip_id, function(data) {
         console.log(data);
-        /*if (data) {
-          
+        if (data) {
+        
+     
           data.forEach(function(row) {
-
-            var room_stockets = io.sockets.adapter.rooms[socketid];
+            console.log(row.room);
+            
+            
+          sql.db_get_single_response_by_rmlduuid(rmld_uuid, function(rmld){
+                   console.log('vorhandene reuckmeldungen fuer die wache: ' + rmld); 
+                  if (rmld) {
+                    //waip.reuckmeldung_senden(socket.id, rmld);
+                    io.to(row.room).emit('io.response', 'a');
+                  };
+                }); 
+			
+           /* var room_stockets = io.sockets.adapter.rooms[socketid];
           if (typeof socketid !== 'undefined') {
             Object.keys(room_stockets.sockets).forEach(function(socket_id) {
               io.sockets.to(socketid).emit('io.response', rmld)
               sql.db_log('WAIP', 'Rückmeldung ' + rmld + ' an Socket ' + socket_id + ' gesendet');
             });
-          };
+          };*/
 
 
             //sql.db_get_response_wache(waip_id, row.room, function(result){
@@ -99,7 +113,7 @@ module.exports = function(io, sql, async, app_cfg) {
           });
         } else {
           sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden, Rückmeldung konnte nicht verteilt werden!');
-        };*/
+        };
       });
     });
   };
