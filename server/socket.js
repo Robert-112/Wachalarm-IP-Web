@@ -41,10 +41,10 @@ socket_api.emit('CH01', 'me', 'test msg');
                 waip.einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
                 sql.db_update_client_status(socket, result_einsatz[0].waip_einsaetze_ID);
                 //vorhanden Rückmeldungen verteilen
-                sql.db_get_response_wache(result_einsatz[0].waip_einsaetze_ID, wachen_id, function(result){
-                  console.log('response_wache: ' + result); 
-                  if (result) {
-                    waip.reuckmeldung_verteilen(result_einsatz[0].waip_einsaetze_ID, result);
+                sql.db_get_response_for_wache(result_einsatz[0].waip_einsaetze_ID, wachen_id, function(rmld){
+                  console.log('vorhandene reuckmeldungen fuer die wache: ' + rmld); 
+                  if (rmld) {
+                    waip.reuckmeldung_senden(socket.id, rmld);
                   };
                 });
               } else {
@@ -61,15 +61,15 @@ socket_api.emit('CH01', 'me', 'test msg');
         };
       });
     });
-    socket.on('response', function(waip_id, responseobj) {
+    //socket.on('response', function(waip_id, responseobj) {
       //var i_ek = ek ? 1 : 0;
       //var i_ma = ma ? 1 : 0;
       //var i_fk = fk ? 1 : 0;
       //var i_agt = agt ? 1 : 0;
-      sql.db_update_response(waip_id, responseobj, function(result){
-        waip.reuckmeldung_verteilen(waip_id, result);
-      });
-    });
+      //sql.db_update_response(waip_id, responseobj, function(result){
+        //waip.reuckmeldung_verteilen(waip_id, result);
+      //});
+    //});
     // TODO: socket.on(Version) um Server-Version abzugleichen
   });
 

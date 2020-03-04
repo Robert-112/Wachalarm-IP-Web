@@ -699,7 +699,7 @@ module.exports = function(db, uuidv4, app_cfg) {
     });
   };
   
-  function db_get_response_wache(waip_einsaetze_id, wachen_nr, callback) {
+  function db_get_response_for_wache(waip_einsaetze_id, wachen_nr, callback) {
     db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
         
@@ -831,7 +831,7 @@ module.exports = function(db, uuidv4, app_cfg) {
     //db_update_response: db_update_response,
     db_save_rmld: db_save_rmld,
     db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
-    db_get_response_wache: db_get_response_wache,
+    db_get_response_for_wache: db_get_response_for_wache,
     db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
     db_get_waipid_by_uuid:db_get_waipid_by_uuid
   };

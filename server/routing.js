@@ -193,7 +193,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
       if (result) {
         req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
         res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid );
-        waip.reuckmeldung_verteilen_by_uuid(req.params.rmld_uuid);
+        waip.reuckmeldung_verteilen_by_uuid(waip_uuid, rmld_uuid);
       } else {
         req.flash('errorMessage', 'Fehler beim Senden der Rückmeldung!');
         res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid );
