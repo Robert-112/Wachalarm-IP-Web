@@ -492,11 +492,9 @@ module.exports = function(db, uuidv4, app_cfg) {
     });
   };
 
-  function db_check_permission(permissions, waip_id, callback) {
-    if (permissions === undefined) {
-      callback && callback(false);
-    } else {
-      if (permissions == 'admin') {
+  function db_check_permission(user, waip_id, callback) {
+    if (user && user.permissions) {
+      if (user.permissions == 'admin') {
         callback && callback(true);
       } else {
         //permissions -> 52,62,6690,....
@@ -504,7 +502,7 @@ module.exports = function(db, uuidv4, app_cfg) {
           left join waip_wachen wa on wa.id = em.waip_wachen_ID
           where waip_einsaetze_ID = ?`, [waip_id], function(err, row) {
           if (err == null && row) {
-            var permission_arr = permissions.split(",");
+            var permission_arr = user.permissions.split(",");
             var wachen_arr = row.wache.split(",");
             const found = permission_arr.some(r => row.wache.search(RegExp(',' + r + '|\\b' + r)) >= 0);
             if (found) {
@@ -517,6 +515,8 @@ module.exports = function(db, uuidv4, app_cfg) {
           };
         });
       };
+    } else {
+      callback && callback(false);
     };
   };
 

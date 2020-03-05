@@ -36,8 +36,8 @@ module.exports = function(io, sql, async, app_cfg) {
     sql.db_get_einsatzdaten(waip_id, wachen_nr, io.sockets.sockets[socket_id].request.user.id, function(einsatzdaten) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
-        var permissions = io.sockets.sockets[socket_id].request.user.permissions;
-        sql.db_check_permission(permissions, waip_id, function(valid) {
+        var user = io.sockets.sockets[socket_id].request.user;
+        sql.db_check_permission(user, waip_id, function(valid) {
           //console.log(permissions + ' ' + wachen_nr);
           //if (permissions == wachen_nr || permissions == 'admin') {} else {
           if (!valid) {

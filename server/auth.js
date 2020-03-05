@@ -123,17 +123,17 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
       // if(err)
       if (row) {
         req.flash('errorMessage', "Es existiert bereits ein Benutzer mit diesem Namen!");
-        res.redirect('/edit_users');
+        res.redirect('/adm_edit_users');
       } else {
         bcrypt.hash(req.body.password, app_cfg.global.saltRounds, function(err, hash) {
           db.run('INSERT INTO waip_users ( user, password, permissions, ip_address ) VALUES( ?, ?, ?, ? )', req.body.username, hash, req.body.permissions, req.body.ip, function(err) {
             // if(err)
             if (this.lastID) {
               req.flash('successMessage', "Neuer Benutzer wurde angelegt.");
-              res.redirect('/edit_users');
+              res.redirect('/adm_edit_users');
             } else {
               req.flash('errorMessage', "Da ist etwas schief gegangen...");
-              res.redirect('/edit_users');
+              res.redirect('/adm_edit_users');
             }
           });
         });
@@ -144,14 +144,14 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
   function deleteUser(req, res) {
     if (req.user.id == req.body.id) {
       req.flash('errorMessage', "Sie können sich nicht selbst löschen!");
-      res.redirect('/edit_users');
+      res.redirect('/adm_edit_users');
     } else {
       db.run('DELETE FROM waip_users WHERE id = ?', req.body.id, function(err) {
         if (err) {
           //...
         } else {
           req.flash('successMessage', "Benutzer \'" + req.body.username + "\' wurde gelöscht!");
-          res.redirect('/edit_users');
+          res.redirect('/adm_edit_users');
         }
       });
     };
@@ -195,15 +195,15 @@ module.exports = function(app, app_cfg, db, async, bcrypt, passport, io) {
               //...
               console.log(err);
               req.flash('errorMessage', "Da ist etwas schief gegangen...");
-              res.redirect('/edit_users');
+              res.redirect('/adm_edit_users');
             } else {
               req.flash('successMessage', "Benutzer aktualisiert.");
-              res.redirect('/edit_users');
+              res.redirect('/adm_edit_users');
             }
           });
         } else {
           req.flash('errorMessage', "Da ist etwas schief gegangen...");
-          res.redirect('/edit_users');
+          res.redirect('/adm_edit_users');
         }
       });
   };
