@@ -169,24 +169,15 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
     
     var waip_uuid = req.params.waip_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
-      if (einsatzdaten) {
-
-
-        
+      if (einsatzdaten) {        
         sql.db_check_permission(req.user, einsatzdaten.id, function(valid) {
-          //console.log(permissions + ' ' + wachen_nr);
-          //if (permissions == wachen_nr || permissions == 'admin') {} else {
           if (!valid) {
-            //einsatzdaten.objekt = '';
-            einsatzdaten.besonderheiten = 'nicht angemeldet';
-            //einsatzdaten.strasse = '';
-            //einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
-  			    //einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
+            delete einsatzdaten.objekt;
+            delete einsatzdaten.besonderheiten;
+            delete einsatzdaten.strasse;
+            delete einsatzdaten.wgs84_x;
+  			    delete einsatzdaten.wgs84_y;
           };
-
-
-
-
           res.render('rmld', {
             public: app_cfg.public,
             title: 'Einsatz-Rückmeldung',
