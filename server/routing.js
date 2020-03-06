@@ -171,13 +171,13 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
       if (einsatzdaten) {        
         sql.db_check_permission(req.user, einsatzdaten.id, function(valid) {
-          if (!valid) {
+          /*if (!valid) {
             delete einsatzdaten.objekt;
             delete einsatzdaten.besonderheiten;
             delete einsatzdaten.strasse;
             delete einsatzdaten.wgs84_x;
   			    delete einsatzdaten.wgs84_y;
-          };
+          };*/
           res.render('rmld', {
             public: app_cfg.public,
             title: 'Einsatz-Rückmeldung',
