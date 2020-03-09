@@ -44,16 +44,16 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       content.einsatzdaten.uuid = uuidv4();
     };
     // Polygon erzeugen und zuweisen falls nicht vorhanden
-    if (!content.einsatzdaten.wgs84_area) {
+    if (!content.ortsdaten.wgs84_area) {
       var point = turf.point([content.ortsdaten.wgs84_x, content.ortsdaten.wgs84_y]);
-      var buffered = turf.buffer(point, 1, {units: 'kilometers', steps: 4});
+      var buffered = turf.buffer(point, 1);
       var bbox = turf.bbox(buffered);
       var new_point = turf.randomPoint(1, {bbox: bbox});
-      content.einsatzdaten.wgs84_area = JSON.stringify(turf.buffer(new_point, 1, {units: 'kilometers', steps: 6}));
+      var new_buffer = turf.buffer(new_point, 1, {units: 'kilometers', steps: 6})
+      content.ortsdaten.wgs84_area = JSON.stringify(buffered);
     };
 
 
-    var point = turf.point([-75.343, 39.984]);
 
     db.serialize(function() {
       // Einsatzdaten speichern
