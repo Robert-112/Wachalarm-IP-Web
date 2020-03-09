@@ -98,8 +98,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         arrival_time DATETIME,
         wache_id INTEGER,
         wache_nr INTEGER,
-        wache_name TEXT,
-        FOREIGN KEY (waip_uuid) REFERENCES waip_einsaetze(uuid) ON DELETE CASCADE ON UPDATE CASCADE)`);
+        wache_name TEXT)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

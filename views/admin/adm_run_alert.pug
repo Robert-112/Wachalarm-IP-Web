@@ -16,7 +16,7 @@ block content
           .card.border-dark.mb-3.w-100
             .card-header Test-Alarm
             .card-body.text-dark
-              form#test_alert1(action="/test_alert", method="POST")
+              form#test_alert1(action="/adm_run_alert", method="POST")
                 .form-group
                   label(for='text_test_alert1') Alarmtext
                   textarea#text_test_alert1.form-control(rows='5' type='text', name='test_alert') {"einsatzdaten":{"nummer":"0815","alarmzeit":"01.01.19&01:00","art":"Sonstiges","stichwort":"S:Testeinsatz","sondersignal":1,"besonderheiten":"DEMO Wachalarm-IP-Web - Testeinsatz","patient":""},"ortsdaten":{"ort":"Elsterwerda","ortsteil":"Biehla","strasse":"Haidaer Str. 47A","objekt":"","objektnr":"-1","objektart":"","wachfolge":"611302","wgs84_x":"52.471244","wgs84_y":"13.502943"},"alarmdaten":[{"typ":"ALARM","netzadresse":"","wachenname":"EE FW Elsterwerda","einsatzmittel":"FL EE 02/14-01","zeit_a":"18:41","zeit_b":"","zeit_c":""}]}

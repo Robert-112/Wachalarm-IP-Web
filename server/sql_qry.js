@@ -1,4 +1,4 @@
-module.exports = function(db, uuidv4, app_cfg) {
+module.exports = function(db, uuidv4, turf, app_cfg) {
 
   // ermittelt den letzten vorhanden Einsatz zu einer Wache
   function db_einsatz_vorhanden(wachen_id, user_id, callback) {
@@ -43,10 +43,22 @@ module.exports = function(db, uuidv4, app_cfg) {
     if (!content.einsatzdaten.uuid) {
       content.einsatzdaten.uuid = uuidv4();
     };
+    // Polygon erzeugen und zuweisen falls nicht vorhanden
+    if (!content.einsatzdaten.wgs84_area) {
+      var point = turf.point([content.ortsdaten.wgs84_x, content.ortsdaten.wgs84_y]);
+      var buffered = turf.buffer(point, 1, {units: 'kilometers', steps: 4});
+      var bbox = turf.bbox(buffered);
+      var new_point = turf.randomPoint(1, {bbox: bbox});
+      content.einsatzdaten.wgs84_area = JSON.stringify(turf.buffer(new_point, 1, {units: 'kilometers', steps: 6}));
+    };
+
+
+    var point = turf.point([-75.343, 39.984]);
+
     db.serialize(function() {
       // Einsatzdaten speichern
       db.run(`INSERT OR REPLACE INTO waip_einsaetze (
-        id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y)
+        id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
         VALUES (
         (select ID from waip_einsaetze where einsatznummer like \'` + content.einsatzdaten.nummer + `\'),
         \'` + content.einsatzdaten.uuid + `\',
@@ -64,7 +76,8 @@ module.exports = function(db, uuidv4, app_cfg) {
         \'` + content.ortsdaten.objektart + `\',
         \'` + content.ortsdaten.wachfolge + `\',
         \'` + content.ortsdaten.wgs84_x + `\',
-        \'` + content.ortsdaten.wgs84_y + `\')`,
+        \'` + content.ortsdaten.wgs84_y + `\',
+        \'` + content.ortsdaten.wgs84_area + `\')`,
         function(err) {
           if (err == null) {
             // Einsatzmittel zum Einsatz speichern
@@ -72,7 +85,7 @@ module.exports = function(db, uuidv4, app_cfg) {
 
             function loop_done(waip_id) {
               callback && callback(waip_id);
-              //console.log('all done');
+              console.log('all done');
             };
 
             var itemsProcessed = 0;
