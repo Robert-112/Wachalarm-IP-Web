@@ -98,7 +98,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
         arrival_time DATETIME,
         wache_id INTEGER,
         wache_nr INTEGER,
-        wache_name TEXT)`);
+        wache_name TEXT,
+        FOREIGN KEY (waip_uuid) REFERENCES waip_einsaetze(uuid) ON DELETE CASCADE ON UPDATE CASCADE)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,15 +108,33 @@ module.exports = function (fs, bcrypt, app_cfg) {
         permissions TEXT,
         ip_address TEXT)`);
       // Einstellungs-Tabelle für Benutzer erstellen
-      db.run(`CREATE TABLE waip_configs (
+      db.run(`CREATE TABLE waip_user_config (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
-        reset_counter INTEGER)`);
+        reset_counter INTEGER,
+        FOREIGN KEY(user_id) REFERENCES waip_users(id))`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         einsatzmittel_typ TEXT,
         einsatzmittel_rufname TEXT)`);
+      // Twitter-Account-Tabelle erstellen
+      db.run(`CREATE TABLE waip_twitter_accounts (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        tw_screen_name TEXT,
+        tw_consumer_key TEXT,
+        tw_consumer_secret TEXT,
+        tw_access_token_key TEXT,
+        tw_access_token_secret TEXT)`);
+      // Twitter-Listen-Tabelle erstellen
+      db.run(`CREATE TABLE waip_twitter_wachen (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        waip_wachen_id INTEGER,
+        tw_account_id INTEGER,
+        tw_account_list TEXT,
+        FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id),
+        FOREIGN KEY(tw_account_id) REFERENCES waip_twitter_accounts(id))`);
+      // Log erstellen
       db.run(`CREATE TABLE waip_log (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         log_time DATETIME DEFAULT CURRENT_TIMESTAMP,

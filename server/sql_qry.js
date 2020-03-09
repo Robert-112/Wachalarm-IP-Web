@@ -14,7 +14,7 @@ module.exports = function(db, uuidv4, app_cfg) {
     } else {
       // wenn user_id vorhanden, aber keine config, dann dts COALESCE(MAX(reset_counter), xxx)
       select_reset_counter = `(SELECT COALESCE(MAX(reset_counter), ` + dts + `)
-      reset_counter FROM waip_configs WHERE user_id = ` + user_id + `)`;
+      reset_counter FROM waip_user_config WHERE user_id = ` + user_id + `)`;
     };
     // Einsätze für die gewählte Wachen_ID ermittel, und Ablaufzeit beachten
     db.all(`SELECT waip_einsaetze_ID FROM
@@ -318,7 +318,7 @@ module.exports = function(db, uuidv4, app_cfg) {
           e.id,
           DATETIME(e.zeitstempel, 'localtime') zeitstempel,
         	DATETIME(e.zeitstempel,	'+' || (
-            SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_configs WHERE user_id = ?
+            SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?
             ) || ' minutes', 'localtime') ablaufzeit,
           e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
           e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE
@@ -521,7 +521,7 @@ module.exports = function(db, uuidv4, app_cfg) {
   };
 
   function db_get_userconfig(user_id, callback) {
-    db.get(`SELECT reset_counter FROM waip_configs
+    db.get(`SELECT reset_counter FROM waip_user_config
       WHERE user_id = ?`, [user_id], function(err, row) {
       if (err == null && row) {
         callback && callback(row.reset_counter);
@@ -536,10 +536,10 @@ module.exports = function(db, uuidv4, app_cfg) {
     if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
       reset_counter = app_cfg.global.default_time_for_standby;
     };
-    db.run((`INSERT OR REPLACE INTO waip_configs
+    db.run((`INSERT OR REPLACE INTO waip_user_config
       (id, user_id, reset_counter)
       VALUES (
-      (select ID from waip_configs where user_id like \'` + user_id + `\'),
+      (select ID from waip_user_config where user_id like \'` + user_id + `\'),
       \'` + user_id + `\',
       \'` + reset_counter + `\')`), function(err) {
       if (err == null) {
