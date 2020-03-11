@@ -41,7 +41,7 @@ if (einsatzdaten_obj.wgs84_x && einsatzdaten_obj.wgs84_y) {
 } else {
   var geojson = L.geoJSON(JSON.parse(einsatzdaten_obj.wgs84_area)).addTo(map);
   //
-  map.fitBounds(JSON.parse(einsatzdaten_obj.wgs84_area));
+  map.fitBounds(geojson.getBounds());
 }
 
 
