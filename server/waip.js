@@ -1,4 +1,4 @@
-module.exports = function(io, sql, async, app_cfg) {
+module.exports = function(io, sql, tw, async, app_cfg) {
 
   // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(message) {
@@ -27,25 +27,21 @@ module.exports = function(io, sql, async, app_cfg) {
           sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden!');
         };
       });
-      sql.db_get_twitter_list(waip_id, function(data) {
-        if (data) {
-          console.log(data);
-          data.forEach(function(row) {
-            // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
-            var room_sockets = io.sockets.adapter.rooms[row.room];
-            //console.log(row);
-            //console.log(row.room);
-            //console.log(room_sockets);
-            //console.log(io.sockets.adapter);
-            if (typeof room_sockets !== 'undefined') {
-              Object.keys(room_sockets.sockets).forEach(function(socketId) {
-                einsatz_verteilen(waip_id, socketId, row.room);
-                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socketId + ' (' + row.room + ') gesendet');
-              });
+      sql.db_get_twitter_list(waip_id, function(twitter_data) {
+        if (twitter_data) {
+          console.log('Daten Twitter: ' + JSON.stringify(twitter_data));
+          
+          // tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache
+          tw.alert_twitter_list(twitter_data, function(result) {
+            if (!result) {
+              sql.db_log('Twitter', 'Einsatz-Rückmeldung erfolgreichen an Twitter-Liste gesendet. ' + result);
+            } else {
+              sql.db_log('Twitter', 'Fehler beim senden der Einsatz-Rueckmeldung an Twitter: ' + result);
             };
           });
+            
         } else {
-          sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden!');
+          sql.db_log('Twitter', 'Keine Twitter-Liste für Einsatz ' + waip_id + ' hinterlegt.');
         };
       });
     });

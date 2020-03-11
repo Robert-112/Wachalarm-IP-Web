@@ -705,7 +705,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
 
   function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback){
     db.all(`SELECT response_json FROM waip_response
-      WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function(err, row) {
+      WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function(err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -846,6 +846,33 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };
 
+  function db_get_twitter_list(waip_id, callback){
+    // Pruefen ob fuer eine Wache in diesem Einsatz ein Twitter-Account mit Liste hinterlegt ist
+    db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_twitter_wachen t 
+      where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
+      where em.waip_einsaetze_ID = ?)`, [waip_id], function(err, twitter_liste) {
+      if (err == null && twitter_liste) {
+        console.log(twitter_liste);
+        // Falls Account und Liste hinterlegt ist, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
+        db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
+        from waip_twitter_accounts tw, waip_einsaetze we, waip_wachen wa
+        where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function(err, twitter_daten) {
+          console.log(twitter_daten);
+          console.log(err);
+          if (err == null && twitter_daten) {
+            // liste zu SQL-Select hinzufuegen
+            twitter_daten.list = twitter_liste.tw_account_list;
+            callback && callback(twitter_daten);
+          } else {
+            callback && callback(null);
+          };
+        });
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
@@ -882,7 +909,8 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     db_get_response_for_wache: db_get_response_for_wache,
     db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
     db_get_waipid_by_uuid:db_get_waipid_by_uuid,
-    db_get_single_response_by_rmlduuid, db_get_single_response_by_rmlduuid
+    db_get_single_response_by_rmlduuid, db_get_single_response_by_rmlduuid,
+    db_get_twitter_list: db_get_twitter_list
   };
 
 };
