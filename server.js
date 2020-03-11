@@ -15,6 +15,7 @@ const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
+const twitter = require('twitter');
 const uuidv4 = require('uuid/v4');
 const turf = require('@turf/turf');
 
@@ -33,7 +34,8 @@ app.use(bodyParser.urlencoded({
 var app_cfg = require('./server/app_cfg.js');
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, uuidv4, turf, app_cfg);
-var waip = require('./server/waip')(io, sql, async, app_cfg);
+var tw = require('./server/twitter')(twitter, uuidv4, app_cfg);
+var waip = require('./server/waip')(io, sql, tw, async, app_cfg);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
