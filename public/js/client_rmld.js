@@ -29,11 +29,14 @@ var marker = L.marker(new L.LatLng(0, 0), {
   icon: redIcon
 }).addTo(map);
 
+console.log(einsatzdaten_obj.wgs84_area);
+
 // Karte setzen
 map.removeLayer(marker);
 marker = L.marker(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), {
   icon: redIcon
 }).addTo(map);
+L.geoJSON(einsatzdaten_obj.wgs84_area).addTo(map);
 map.setView(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), 13);
 
 
