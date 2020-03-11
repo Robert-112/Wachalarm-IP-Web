@@ -45,12 +45,14 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     };
     // Polygon erzeugen und zuweisen falls nicht vorhanden
     if (!content.ortsdaten.wgs84_area) {
-      var point = turf.point([content.ortsdaten.wgs84_x, content.ortsdaten.wgs84_y]);
-      var buffered = turf.buffer(point, 1);
+      var wgs_x = parseFloat(content.ortsdaten.wgs84_x);
+      var wgs_y = parseFloat(content.ortsdaten.wgs84_y);
+      var point = turf.point([wgs_y, wgs_x]);
+      var buffered = turf.buffer(point, 1, {steps: 5, units: 'kilometers'});
       var bbox = turf.bbox(buffered);
       var new_point = turf.randomPoint(1, {bbox: bbox});
-      var new_buffer = turf.buffer(new_point, 1, {units: 'kilometers', steps: 6})
-      content.ortsdaten.wgs84_area = JSON.stringify(buffered);
+      var new_buffer = turf.buffer(new_point, 1, {steps: 5, units: 'kilometers'})
+      content.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
     };
 
 
