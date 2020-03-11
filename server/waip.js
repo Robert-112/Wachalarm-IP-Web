@@ -27,6 +27,27 @@ module.exports = function(io, sql, async, app_cfg) {
           sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden!');
         };
       });
+      sql.db_get_twitter_list(waip_id, function(data) {
+        if (data) {
+          console.log(data);
+          data.forEach(function(row) {
+            // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
+            var room_sockets = io.sockets.adapter.rooms[row.room];
+            //console.log(row);
+            //console.log(row.room);
+            //console.log(room_sockets);
+            //console.log(io.sockets.adapter);
+            if (typeof room_sockets !== 'undefined') {
+              Object.keys(room_sockets.sockets).forEach(function(socketId) {
+                einsatz_verteilen(waip_id, socketId, row.room);
+                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socketId + ' (' + row.room + ') gesendet');
+              });
+            };
+          });
+        } else {
+          sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden!');
+        };
+      });
     });
   };
 
