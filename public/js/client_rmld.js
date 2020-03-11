@@ -29,8 +29,6 @@ var marker = L.marker(new L.LatLng(0, 0), {
   icon: redIcon
 }).addTo(map);
 
-console.log(einsatzdaten_obj.wgs84_area);
-
 // Karte setzen
 map.removeLayer(marker);
 if (einsatzdaten_obj.wgs84_x && einsatzdaten_obj.wgs84_y) {
@@ -42,10 +40,7 @@ if (einsatzdaten_obj.wgs84_x && einsatzdaten_obj.wgs84_y) {
   var geojson = L.geoJSON(JSON.parse(einsatzdaten_obj.wgs84_area)).addTo(map);
   //
   map.fitBounds(geojson.getBounds());
-}
-
-
-
+};
 
 /* ########################### */
 /* ####### Funktionen ######## */
