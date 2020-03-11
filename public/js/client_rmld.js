@@ -33,12 +33,18 @@ console.log(einsatzdaten_obj.wgs84_area);
 
 // Karte setzen
 map.removeLayer(marker);
-marker = L.marker(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), {
-  icon: redIcon
-}).addTo(map);
-L.geoJSON(JSON.parse(einsatzdaten_obj.wgs84_area)).addTo(map);
-map.setView(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), 13);
-map.fitBounds(poly.getBounds(JSON.parse(einsatzdaten_obj.wgs84_area)));
+if (einsatzdaten_obj.wgs84_x && einsatzdaten_obj.wgs84_y) {
+  marker = L.marker(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), {
+    icon: redIcon
+  }).addTo(map);
+  map.setView(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), 13);
+} else {
+  var geojson = L.geoJSON(JSON.parse(einsatzdaten_obj.wgs84_area)).addTo(map);
+  //
+  map.fitBounds(JSON.parse(einsatzdaten_obj.wgs84_area));
+}
+
+
 
 
 /* ########################### */
