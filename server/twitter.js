@@ -30,12 +30,13 @@ console.log('twitter_data'+JSON.stringify(twitter_data));
             for (var i = 0; i < arrayLength; i++) {
                 console.log(members.users[i].screen_name);
                 
+                var tw_text = 'Neuer Einsatz für ' + twitter_data.name_wache +', bitte um Rückmeldung: https://wachalarm.info.tm/rmld/'+twitter_data.uuid+'/'+uuidv4();
                 //Do something
 
-                var msg_params = {type: "message_create", message_create: {target: {recipient_id: members.users[i].id}, message_data: {text: "Hello World!"}}};
+                var msg_params = {event: {type: "message_create", message_create: {target: {recipient_id: members.users[i].id}, message_data: {text: tw_text}}}};
                 T.post('direct_messages/events/new', msg_params, function(error, members, response) {
                   if (!error) {
-                    console.log(OK);
+                    console.log('OK');
                     callback && callback(members);
                   } else {
                     console.log(error);
