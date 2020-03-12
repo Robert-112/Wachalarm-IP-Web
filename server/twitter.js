@@ -8,7 +8,7 @@ console.log('twitter_data'+JSON.stringify(twitter_data));
     var T = new twit({
       consumer_key: twitter_data.tw_consumer_key,
       consumer_secret: twitter_data.tw_consumer_secret,
-      access_token_key: twitter_data.tw_access_token_key,
+      access_token: twitter_data.tw_access_token_key,
       access_token_secret: twitter_data.tw_access_token_secret//,
       //timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
       //strictSSL:            true,     // optional - requires SSL certificates to be valid.
