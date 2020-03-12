@@ -21,6 +21,14 @@ module.exports = function(twitter, uuidv4, app_cfg) {
         client.get('lists/members', member_params, function(error, members, response) {
           if (!error) {
             console.log(JSON.stringify(members));
+
+            var arrayLength = members.users.length;
+            for (var i = 0; i < arrayLength; i++) {
+                console.log(members.users[i].screen_name);
+                //Do something
+            }
+
+
             callback && callback(members);
           } else {
             console.log(error);
