@@ -17,7 +17,6 @@
           span(aria-hidden='true') ×
       #responseModalBody.modal-body
         form#send_response.was-validated(action=einsatzdaten.uuid, method="POST")
-          input(type="hidden" name="waip_uuid" value=einsatzdaten.uuid)
           .form-group
             p.text-muted Ich komme als ...
             .custom-control.custom-radio.form-control-lg

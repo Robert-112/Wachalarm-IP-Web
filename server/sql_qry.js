@@ -616,13 +616,12 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };*/
 
-  function db_save_rmld(responseobj, callback) {
+  function db_save_rmld(waip_uuid, rmld_uuid, responseobj, callback) {
 
-    console.log('rmld by post: '+JSON.stringify(responseobj.rmld_uuid));
-    // Rueckmeldung aufarbeiten
+        // Rueckmeldung aufarbeiten
     var reuckmeldung = {};
-    reuckmeldung.rmld_uuid = responseobj.rmld_uuid;
-    reuckmeldung.waip_uuid = responseobj.waip_uuid;
+    reuckmeldung.rmld_uuid = rmld_uuid;
+    reuckmeldung.waip_uuid = waip_uuid;
     // Typ der Einsatzfunktion festlegen
     switch (responseobj.radio_efunction) {
       case 'ek':
@@ -664,7 +663,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       reuckmeldung.wache_id = null;
     };
     //console.log(JSON.stringify(reuckmeldung));
-   
+    console.log('rmld by post: '+JSON.stringify(reuckmeldung));
 
     db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
       if (err == null && row) {
