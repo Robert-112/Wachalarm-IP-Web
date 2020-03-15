@@ -105,7 +105,7 @@ module.exports = function(io, sql, tw, async, app_cfg) {
             
             
          sql.db_get_single_response_by_rmlduuid(rmld_uuid, function(rmld){
-                   console.log('vorhandene reuckmeldungen fuer die wache: ' + rmld); 
+                   console.log('vorhandene reuckmeldungen fuer die wache: ' + JSON.stringify(rmld)); 
                   if (rmld) {
                     //waip.reuckmeldung_senden(socket.id, rmld);
                     io.to(row.room).emit('io.response', 'a');

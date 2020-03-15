@@ -618,7 +618,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
 
   function db_save_rmld(responseobj, callback) {
 
-
+    console.log('rmld by post: '+JSON.stringify(responseobj.rmld_uuid));
     // Rueckmeldung aufarbeiten
     var reuckmeldung = {};
     reuckmeldung.rmld_uuid = responseobj.rmld_uuid;
@@ -664,6 +664,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       reuckmeldung.wache_id = null;
     };
     //console.log(JSON.stringify(reuckmeldung));
+   
 
     db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
       if (err == null && row) {
