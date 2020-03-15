@@ -520,11 +520,14 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
       break;
   };
 
+  // pruefen ob div mit id 'pg-'+p_id schon vorhanden ist
+  var pgbar = document.getElementById('pg-' + p_id);
+    if(!pgbar){ 
   $( '#pg-' + p_type ).append( '<div class="progress mt-1 position-relative '+bar_border+'" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>'); //+ ' ></div>' );
 
   $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped '+ bar_background +'" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
   $( '#pg-bar'+ p_id ).append('<small id="pg-text'+ p_id +'" class="justify-content-center d-flex position-absolute w-100"></small>');
-  
+    };
   
   
 

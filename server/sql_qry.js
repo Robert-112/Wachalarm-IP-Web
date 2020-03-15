@@ -662,7 +662,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     } else {
       reuckmeldung.wache_id = null;
     };
-    
+
     console.log('reuckmeldung: '+JSON.stringify(reuckmeldung));
     console.log('responseobj: '+JSON.stringify(responseobj));
 
@@ -774,7 +774,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
   
   function db_get_single_response_by_rmlduuid(rmld_uuid, callback) {
-    db.get(`SELECT * FROM waip_response WHERE rmld_uuid like ?`, [rmld_uuid], function (err, row) {
+    db.all(`SELECT * FROM waip_response WHERE rmld_uuid like ?`, [rmld_uuid], function (err, row) {
       if (err == null && row) {
                 console.log('single_rmld_uuid '+row);
                 if (row.einsatzkraft == 1) {

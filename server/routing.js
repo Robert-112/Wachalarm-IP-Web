@@ -168,6 +168,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   app.get('/rmld/:waip_uuid/:rmld_uuid', function(req, res, next) {
     
     var waip_uuid = req.params.waip_uuid;
+    var rmld_uuid = req.params.rmld_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
       if (einsatzdaten) {        
         sql.db_check_permission(req.user, einsatzdaten.id, function(valid) {
@@ -178,6 +179,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
             delete einsatzdaten.wgs84_x;
   			    delete einsatzdaten.wgs84_y;
           };
+          einsatzdaten.rmld_uuid = rmld_uuid;
           res.render('rmld', {
             public: app_cfg.public,
             title: 'Einsatz-Rückmeldung',
@@ -197,14 +199,14 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
 
   // Rueckmeldung entgegennehmen
   app.post('/rmld/:waip_uuid/:rmld_uuid', function(req, res) {
-    var waip_uuid = req.params.waip_uuid;
-    var rmld_uuid = req.params.rmld_uuid;
-    var rmld_obj = Object.assign(req.params, req.body);
+    var waip_uuid = req.body.waip_uuid;
+    var rmld_uuid = req.body.rmld_uuid;
+    //var rmld_obj = Object.assign(req.params, req.body);
     
-    console.log(req.params);
-    console.log(req.body);
-    console.log(rmld_obj);
-    sql.db_save_rmld(rmld_obj, function(result){
+    //console.log(req.params);
+    //console.log(req.body);
+    //console.log(rmld_obj);
+    sql.db_save_rmld(req.body, function(result){
       if (result) {
         req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
         res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid );

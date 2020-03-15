@@ -61,10 +61,6 @@ audio {
   height: 40% !important;
 }
 
-.h-70 {
-  height: 70% !important;
-}
-
 .h-45 {
   height: 45% !important;
 }
@@ -73,8 +69,16 @@ audio {
   height: 55% !important;
 }
 
+.h-60 {
+  height: 60% !important;
+}
+
 .h-65 {
   height: 65% !important;
+}
+
+.h-70 {
+  height: 70% !important;
 }
 
 .h-80 {
