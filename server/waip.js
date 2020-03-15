@@ -108,7 +108,7 @@ module.exports = function(io, sql, tw, async, app_cfg) {
                    console.log('vorhandene reuckmeldungen fuer die wache: ' + JSON.stringify(rmld)); 
                   if (rmld) {
                     //waip.reuckmeldung_senden(socket.id, rmld);
-                    io.to(row.room).emit('io.response', 'a');
+                    io.to(row.room).emit('io.response', rmld);
                   };
                 }); 
 			
