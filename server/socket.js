@@ -41,12 +41,7 @@ socket_api.emit('CH01', 'me', 'test msg');
                 waip.einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
                 sql.db_update_client_status(socket, result_einsatz[0].waip_einsaetze_ID);
                 //vorhanden Rückmeldungen verteilen
-                sql.db_get_response_for_wache(result_einsatz[0].waip_einsaetze_ID, wachen_id, function(rmld){
-                  console.log('vorhandene reuckmeldungen fuer die wache: ' + rmld); 
-                  if (rmld) {
-                    waip.reuckmeldung_senden(socket.id, rmld);
-                  };
-                });
+                waip.rueckmeldung_verteilen_for_client(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
               } else {
                 sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_id + ' vorhanden, Standby');
                 //oder falls kein Einsatz vorhanden ist, dann

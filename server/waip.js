@@ -99,6 +99,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
               socket_rooms.forEach(function (rooms) {
                 io.to(rooms.room).emit('io.response', rmld);
                 sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Raum ' + rooms.room + ' gesendet.');
+                sql.db_log('RMLD', 'DEBUG: ' + JSON.stringify(rmld));
               });
             };
           });
@@ -107,24 +108,19 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     });
   };
 
-  function reuckmeldung_senden(socketid, rmld) {
-    //console.log('rueckmeldung alt: '+waip_id + ' ' + result);
-    //sql.db_get_einsatz_rooms(waip_id, function(data) {
-    // if (data) {
-    //data.forEach(function(row) {
-    // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Einsatz verteilen
-    //var room_stockets = io.sockets.adapter.rooms[socketid];
-    if (typeof socketid !== 'undefined') {
-      //Object.keys(room_stockets.sockets).forEach(function(socket_id) {
-      io.sockets.to(socketid).emit('io.response', rmld)
-      sql.db_log('WAIP', 'Rückmeldung ' + rmld + ' an Socket ' + socketid + ' gesendet');
-      //});
+  function rueckmeldung_verteilen_for_client(waip_id, socket_id, wachen_id) {
+    if (typeof socket_id !== 'undefined') {
+      sql.db_get_response_for_wache(waip_id, wachen_id, function (rmld) {
+        if (rmld) {
+          // Rueckmeldung nur an den einen Socket senden
+          io.sockets.to(socket_id).emit('io.response', rmld)
+          sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket_id + ' gesendet.');
+          sql.db_log('RMLD', 'DEBUG: ' + JSON.stringify(rmld));
+        } else {
+          sql.db_log('RMLD', 'Keine Rückmeldungen für Einsatz-ID' + waip_id + ' und Wachen-ID ' + wachen_id + ' vorhanden.');
+        };
+      });
     };
-    //});
-    //} else {
-    //sql.db_log('Fehler-WAIP', 'Fehler: Wache für waip_id ' + waip_id + ' nicht vorhanden, Rückmeldung konnte nicht verteilt werden!');
-    //};
-    //});
   };
 
   function tts_erstellen(app_cfg, socket_id, einsatzdaten, callback) {
@@ -304,7 +300,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
   return {
     einsatz_speichern: einsatz_speichern,
     einsatz_verteilen: einsatz_verteilen,
-    reuckmeldung_senden: reuckmeldung_senden,
+    rueckmeldung_verteilen_for_client: rueckmeldung_verteilen_for_client,
     reuckmeldung_verteilen_by_uuid: reuckmeldung_verteilen_by_uuid
   };
 };
