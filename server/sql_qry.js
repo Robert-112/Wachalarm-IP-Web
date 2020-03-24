@@ -221,7 +221,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       });
   };
 
-  function db_get_einsatzwachen(waip_id, callback) {
+  function db_get_einsatz_rooms(waip_id, callback) {
     db.all(`select w.nr_kreis room from waip_wachen w
       left join waip_einsatzmittel em on em.wachenname = w.name_wache
       where em.waip_einsaetze_ID = ? group by w.nr_kreis
@@ -882,7 +882,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     db_wache_id_ermitteln: db_wache_id_ermitteln,
     db_wache_nr_ermitteln: db_wache_nr_ermitteln,
     db_get_einsatzdaten: db_get_einsatzdaten,
-    db_get_einsatzwachen: db_get_einsatzwachen,
+    db_get_einsatz_rooms: db_get_einsatz_rooms,
     db_list_wachen: db_list_wachen,
     db_list_traeger: db_list_traeger,
     db_list_kreis: db_list_kreis,

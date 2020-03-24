@@ -201,11 +201,6 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   app.post('/rmld/:waip_uuid/:rmld_uuid', function(req, res) {
     var waip_uuid = req.body.waip_uuid;
     var rmld_uuid = req.body.rmld_uuid;
-    //var rmld_obj = Object.assign(req.params, req.body);
-    
-    //console.log(req.params);
-    //console.log(req.body);
-    //console.log(rmld_obj);
     sql.db_save_rmld(req.body, function(result){
       if (result) {
         req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
