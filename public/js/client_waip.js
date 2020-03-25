@@ -226,7 +226,7 @@ var socket = io.connect();
 
 // Wachen-ID bei Connect an Server senden
 socket.on('connect', function() {
-  socket.emit('wachen_id', wachen_id);
+  socket.emit('WAIP', wachen_id);
   $('#waipModal').modal('hide');
 });
 
