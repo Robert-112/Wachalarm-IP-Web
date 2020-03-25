@@ -108,13 +108,13 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     });
   };
 
-  function rueckmeldung_verteilen_for_client(waip_id, socket_id, wachen_id) {
-    if (typeof socket_id !== 'undefined') {
+  function rueckmeldung_verteilen_for_client(waip_id, socket, wachen_id) {
+    if (typeof socket !== 'undefined') {
       sql.db_get_response_for_wache(waip_id, wachen_id, function (rmld) {
         if (rmld) {
           // Rueckmeldung nur an den einen Socket senden
-          io.sockets.to(socket_id).emit('io.response', rmld)
-          sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket_id + ' gesendet.');
+          socket.emit('io.response', rmld);
+          sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket.id + ' gesendet.');
           sql.db_log('RMLD', 'DEBUG: ' + JSON.stringify(rmld));
         } else {
           sql.db_log('RMLD', 'Keine Rückmeldungen für Einsatz-ID' + waip_id + ' und Wachen-ID ' + wachen_id + ' vorhanden.');

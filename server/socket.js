@@ -17,10 +17,10 @@ module.exports = function (io, sql, app_cfg, waip) {
   io.on('connection', function (socket) {
     sql.db_log('WAIP', 'Wachalarm von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') geoeffnet');
     //zuerst Server-Version senden, damit der Client diese prueft und die Seite ggf. neu lädt
-    io.sockets.to(socket.id).emit('io.version', app_cfg.global.app_id);
-
+          //io.sockets.to(socket.id).emit('io.version', app_cfg.global.app_id);
+    socket.emit('io.version', app_cfg.global.app_id);
     // Aufruf des Alarmmonitors einer bestimmten Wache verarbeiten
-    socket.on('wachen_id', function (wachen_id) {
+    socket.on('WAIP', function (wachen_id) {
       sql.db_log('WAIP', 'Alarmmonitor Nr. ' + wachen_id + ' von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') aufgerufen');
       // prüfen ob Wachenummer in der Datenbank hinterlegt ist
       sql.db_wache_vorhanden(wachen_id, function (result) {
@@ -30,20 +30,26 @@ module.exports = function (io, sql, app_cfg, waip) {
           socket.join(wachen_id, function () {
             // Socket-ID und Client-IP in der Datenbank speichern
             sql.db_client_save(socket.id, socket.request.connection.remoteAddress, wachen_id);
-            // prüfen ob für diese Wache ein Einsatz vorhanden ist
-            sql.db_einsatz_vorhanden(wachen_id, socket.request.user.id, function (result_einsatz) {
+            // prüfen ob für diese Wache Einsätze vorhanden sind
+            sql.db_einsatz_ermitteln(wachen_id, socket.request.user.id, function (result_einsatz) {
               if (result_einsatz) {
-                console.log(result_einsatz[0].waip_einsaetze_ID);
-                sql.db_log('WAIP', 'Einsatz ' + result_einsatz[0].waip_einsaetze_ID + ' fuer Wache ' + wachen_id + ' vorhanden');
+                // nur den ersten Einsatz senden, falls mehrere vorhanden sind
+                var waip_id = result_einsatz[0].waip_einsaetze_ID;
+                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' für Wache ' + wachen_id + ' vorhanden, wird jetzt an Client gesendet.');
                 //letzten Einsatz verteilen
-                waip.einsatz_verteilen(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
-                sql.db_update_client_status(socket, result_einsatz[0].waip_einsaetze_ID);
+                        //                                                  zuvor: socket.id
+                waip.einsatz_verteilen(waip_id, socket.id, wachen_id);
                 //vorhanden Rückmeldungen verteilen
-                waip.rueckmeldung_verteilen_for_client(result_einsatz[0].waip_einsaetze_ID, socket.id, wachen_id);
+                      //                                                  zuvor: socket.id
+                waip.rueckmeldung_verteilen_for_client(waip_id, socket, wachen_id);
+                // in Statusüberischt speichern
+                sql.db_update_client_status(socket, waip_id);
               } else {
-                sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_id + ' vorhanden, Standby');
-                //oder falls kein Einsatz vorhanden ist, dann
-                io.sockets.to(socket.id).emit('io.standby', null);
+                sql.db_log('WAIP', 'Kein Einsatz für Wache ' + wachen_id + ' vorhanden, gehe in Standby');
+                // falls kein Einsatz vorhanden ist, dann Standby senden
+                //io.sockets.to(socket.id).emit('io.standby', null);
+                socket.emit('io.standby', null);
+                // in Statusüberischt speichern
                 sql.db_update_client_status(socket, null);
               };
             });
