@@ -15,7 +15,7 @@ module.exports = function (io, sql, app_cfg, waip) {
 
   // Socket.IO Server
   io.on('connection', function (socket) {
-    sql.db_log('WAIP', 'Wachalarm von ' + socket.request.connection.remoteAddress + ' (' + socket.id + ') geoeffnet');
+    
     //zuerst Server-Version senden, damit der Client diese prueft und die Seite ggf. neu lädt
           //io.sockets.to(socket.id).emit('io.version', app_cfg.global.app_id);
     socket.emit('io.version', app_cfg.global.app_id);
