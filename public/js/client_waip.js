@@ -222,7 +222,7 @@ var marker = L.marker(new L.LatLng(0, 0), {
 /* ########################### */
 
 // Websocket
-var socket = io.connect();
+var socket = io('/waip');
 
 // Wachen-ID bei Connect an Server senden
 socket.on('connect', function() {

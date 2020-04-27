@@ -373,9 +373,9 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       room_name + '\')');
   };
 
-  function db_client_delete(client_id) {
+  function db_client_delete(socket) {
     db.run('DELETE FROM waip_clients ' +
-      'WHERE socket_id = ?', client_id);
+      'WHERE socket_id = ?', socket.id);
   };
 
   // Funkrufname
@@ -414,7 +414,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     var user_name = socket.request.user.user;
     var user_permissions = socket.request.user.permissions;
     var user_agent = socket.request.headers['user-agent'];
-    var client_ip = socket.request.connection.remoteAddress;
+    var client_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
     var reset_timestamp = socket.request.user.reset_counter;
     if (isNaN(client_status) || client_status == null) {
       client_status = 'Standby';
