@@ -17,9 +17,10 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             //console.log(room_sockets);
             //console.log(io.sockets.adapter);
             if (typeof room_sockets !== 'undefined') {
-              Object.keys(room_sockets.sockets).forEach(function (socketId) {
-                einsatz_verteilen(waip_id, socketId, rooms.room);
-                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socketId + ' (' + rooms.room + ') gesendet');
+              //Object.keys(room_sockets.sockets).forEach(function (socketId) {
+                Object.keys(room_sockets).forEach(function (socket) {
+                einsatz_verteilen(waip_id, socket, rooms.room);
+                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
               });
             };
           });
@@ -48,38 +49,43 @@ module.exports = function (io, sql, tw, async, app_cfg) {
   };
 
   // Einsatz an Client verteilen
-  function einsatz_verteilen(waip_id, socket_id, wachen_nr) {
+  function einsatz_verteilen(waip_id, socket, wachen_nr) {
     // Einsatzdaten für eine Wache aus Datenbank laden
-    sql.db_get_einsatzdaten(waip_id, wachen_nr, io.sockets.sockets[socket_id].request.user.id, function (einsatzdaten) {
+    var user_obj = socket.request.user;
+    sql.db_get_einsatzdaten(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
-        var user = io.sockets.sockets[socket_id].request.user;
-        sql.db_check_permission(user, waip_id, function (valid) {
+        sql.db_check_permission(user_obj, waip_id, function (valid) {
           //console.log(permissions + ' ' + wachen_nr);
           //if (permissions == wachen_nr || permissions == 'admin') {} else {
           if (!valid) {
             einsatzdaten.objekt = '';
             einsatzdaten.besonderheiten = '';
             einsatzdaten.strasse = '';
-            einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
-            einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
+            //einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
+            //einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
+            einsatzdaten.wgs84_x = '';
+            einsatzdaten.wgs84_y = '';
           };
           // Einsatz senden
-          io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
-          sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket_id + ' gesendet');
-          sql.db_update_client_status(io.sockets.sockets[socket_id], waip_id);
+          //  io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
+          socket.emit('io.neuerEinsatz', einsatzdaten);
+          sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
+    --->      sql.db_update_client_status(io.sockets.sockets[socket_id], waip_id);
           // Sound erstellen
-          tts_erstellen(app_cfg, socket_id, einsatzdaten, function (tts) {
+          tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
             if (tts) {
               // Sound senden
               sql.db_log('WAIP', 'ttsfile: ' + tts);
-              io.sockets.to(socket_id).emit('io.playtts', tts);
+              //io.sockets.to(socket_id).emit('io.playtts', tts);
+              socket.emit('io.playtts', tts);
             };
           });
         });
       } else {
         // Standby senden
-        io.sockets.to(socket_id).emit('io.standby', null);
+        //io.sockets.to(socket_id).emit('io.standby', null);
+        socket.emit('io.standby', null);
         sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket_id + ' gesendet..');
         sql.db_update_client_status(io.sockets.sockets[socket_id], null);
       };
