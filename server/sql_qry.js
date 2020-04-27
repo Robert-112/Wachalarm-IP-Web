@@ -337,7 +337,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
             SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?
             ) || ' minutes', 'localtime') ablaufzeit,
           e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
-          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE
+          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area, em1.EM_ALARMIERT, em0.EM_WEITERE
           FROM WAIP_EINSAETZE e
           LEFT JOIN (
             SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_alarmiert
@@ -508,9 +508,9 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };
 
-  function db_check_permission(user, waip_id, callback) {
-    if (user && user.permissions) {
-      if (user.permissions == 'admin') {
+  function db_check_permission(user_obj, waip_id, callback) {
+    if (user_obj && user_obj.permissions) {
+      if (user_obj.permissions == 'admin') {
         callback && callback(true);
       } else {
         //permissions -> 52,62,6690,....
@@ -518,7 +518,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
           left join waip_wachen wa on wa.id = em.waip_wachen_ID
           where waip_einsaetze_ID = ?`, [waip_id], function(err, row) {
           if (err == null && row) {
-            var permission_arr = user.permissions.split(",");
+            var permission_arr = user_obj.permissions.split(",");
             var wachen_arr = row.wache.split(",");
             const found = permission_arr.some(r => row.wache.search(RegExp(',' + r + '|\\b' + r)) >= 0);
             if (found) {

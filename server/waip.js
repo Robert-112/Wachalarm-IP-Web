@@ -18,7 +18,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             //console.log(io.sockets.adapter);
             if (typeof room_sockets !== 'undefined') {
               //Object.keys(room_sockets.sockets).forEach(function (socketId) {
-                Object.keys(room_sockets).forEach(function (socket) {
+              Object.keys(room_sockets).forEach(function (socket) {
                 einsatz_verteilen(waip_id, socket, rooms.room);
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
               });
@@ -71,7 +71,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           //  io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
           socket.emit('io.neuerEinsatz', einsatzdaten);
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
-    --->      sql.db_update_client_status(io.sockets.sockets[socket_id], waip_id);
+          sql.db_update_client_status(socket, waip_id);
           // Sound erstellen
           tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
             if (tts) {
@@ -86,8 +86,8 @@ module.exports = function (io, sql, tw, async, app_cfg) {
         // Standby senden
         //io.sockets.to(socket_id).emit('io.standby', null);
         socket.emit('io.standby', null);
-        sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket_id + ' gesendet..');
-        sql.db_update_client_status(io.sockets.sockets[socket_id], null);
+        sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket.id + ' gesendet..');
+        sql.db_update_client_status(socket, null);
       };
     });
   };
@@ -245,10 +245,11 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     sql.db_get_sockets_to_standby(function (socket_ids) {
       if (socket_ids) {
         socket_ids.forEach(function (row) {
-          io.sockets.to(row.socket_id).emit('io.standby', null);
-          io.sockets.to(row.socket_id).emit('io.stopaudio', null);
-          sql.db_log('WAIP', 'Standby an Socket ' + row.socket_id + ' gesendet');
-          sql.db_update_client_status(io.sockets.sockets[row.socket_id], null);
+          var socket = io.sockets.sockets[row.socket_id];
+          socket.emit('io.standby', null);
+          socket.emit('io.stopaudio', null);
+          sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
+          sql.db_update_client_status(socket, null);
         });
       };
     });
@@ -263,15 +264,15 @@ module.exports = function (io, sql, tw, async, app_cfg) {
               // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_stockets = io.sockets.adapter.rooms[row.room];
               if (typeof room_stockets !== 'undefined') {
-                Object.keys(room_stockets.sockets).forEach(function (socketId) {
+                Object.keys(room_stockets).forEach(function (socket) {
                   // Standby senden
                   // TODO: Standby nur senden, wenn kein anderer (als der zu löschende) Einsatz angezeigt wird
-                  sql.db_check_client_waipid(socketId, waip_id, function (same_id) {
+                  sql.db_check_client_waipid(socket.id, waip_id, function (same_id) {
                     if (same_id) {
-                      io.sockets.to(socketId).emit('io.standby', null);
-                      io.sockets.to(socketId).emit('io.stopaudio', null);
-                      sql.db_log('WAIP', 'Standby an Socket ' + socketId + ' gesendet');
-                      sql.db_update_client_status(io.sockets.sockets[socketId], null);
+                      socket.emit('io.standby', null);
+                      socket.emit('io.stopaudio', null);
+                      sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
+                      sql.db_update_client_status(socket, null);
                     };
                   });
                 });

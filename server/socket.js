@@ -38,7 +38,7 @@ module.exports = function (io, sql, app_cfg, waip) {
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' für Wache ' + wachen_id + ' vorhanden, wird jetzt an Client gesendet.');
                 //letzten Einsatz verteilen
                         //                                                  zuvor: socket.id
-                waip.einsatz_verteilen(waip_id, socket.id, wachen_id);
+                waip.einsatz_verteilen(waip_id, socket, wachen_id);
                 //vorhanden Rückmeldungen verteilen
                       //                                                  zuvor: socket.id
                 waip.rueckmeldung_verteilen_for_client(waip_id, socket, wachen_id);
