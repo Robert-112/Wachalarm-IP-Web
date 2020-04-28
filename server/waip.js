@@ -239,8 +239,9 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     // alle User-Einstellungen prüfen und ggf. Standby senden
     sql.db_get_sockets_to_standby(function (socket_ids) {
       if (socket_ids) {
+        console.log()
         socket_ids.forEach(function (row) {
-          var socket = io.sockets.sockets[row.socket_id];
+          var socket = io.sockets.connected[row.socket_id];
           socket.emit('io.standby', null);
           socket.emit('io.stopaudio', null);
           sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
@@ -297,11 +298,38 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     })
   }, 10000);
 
+  function dbrd_verteilen(dbrd_uuid, socket) {
+    sql.db_get_einsatzdaten_by_uuid(dbrd_uuid, function(einsatzdaten) {
+      if (einsatzdaten) {        
+        sql.db_check_permission(socket.request.user, einsatzdaten.id, function(valid) {
+          if (!valid) {
+            delete einsatzdaten.objekt;
+            delete einsatzdaten.besonderheiten;
+            delete einsatzdaten.strasse;
+            delete einsatzdaten.wgs84_x;
+            delete einsatzdaten.wgs84_y;
+          };
+          socket.emit('io.Einsatz', einsatzdaten);
+          sql.db_log('DBRD', 'Einsatzdaten für Dashboard' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
+          sql.db_update_client_status(socket, waip_id);
+        });
+      } else {
+        var err = new Error('Der angefragte Einsatz ist nicht - oder nicht mehr - vorhanden!');
+        err.status = 404;
+        next(err);
+      };
+    });
+  };
+
+
+
+
   // TODO: Funktion um Clients "neuzustarten" (Seite remote neu laden)
 
   return {
     einsatz_speichern: einsatz_speichern,
     einsatz_verteilen: einsatz_verteilen,
+    dbrd_verteilen: dbrd_verteilen,
     rueckmeldung_verteilen_for_client: rueckmeldung_verteilen_for_client,
     reuckmeldung_verteilen_by_uuid: reuckmeldung_verteilen_by_uuid
   };

@@ -32,8 +32,7 @@ module.exports = function (io, sql, app_cfg, waip) {
           // Socket-Room beitreiten
           socket.join(wachen_id, function () {
             // prüfen ob für diese Wache Einsätze vorhanden sind
-            var user_id = socket.request.user.id; 
-            sql.db_einsatz_ermitteln(wachen_id, user_id, function (result_einsatz) {
+            sql.db_einsatz_ermitteln(wachen_id, socket, function (result_einsatz) {
               if (result_einsatz) {
                 // nur den ersten Einsatz senden, falls mehrere vorhanden sind
                 var waip_id = result_einsatz[0].waip_einsaetze_ID;
@@ -59,7 +58,7 @@ module.exports = function (io, sql, app_cfg, waip) {
     });
     // Disconnect
     socket.on('disconnect', function () {
-      sql.db_log('DEBUG', 'Alarmmonitor Nr. ' + wachen_id + ' von ' + client_ip + ' (' + socket.id + ') geschlossen.');
+      sql.db_log('DEBUG', 'Alarmmonitor von ' + client_ip + ' (' + socket.id + ') geschlossen.');
       sql.db_client_delete(socket);
     });
   });
@@ -78,29 +77,15 @@ nsp_dbrd.on('connection', function (socket) {
     sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') aufgerufen.');
     // prüfen ob Dashboard/Einsatz vorhanden
     sql.db_einsatz_uuid_vorhanden(uuid, function(dbrd_uuid) {
-      // wenn die Wachennummer vorhanden/plausibel dann weiter
-      if (result) {
+      // wenn die Wachennummer vorhanden dann weiter
+      if (dbrd_uuid) {
         // Socket-Room beitreiten
-        socket.join(wachen_id, function () {
-          // prüfen ob für diese Wache Einsätze vorhanden sind
-          var user_id = socket.request.user.id; 
-          sql.db_einsatz_ermitteln(wachen_id, user_id, function (result_einsatz) {
-            if (result_einsatz) {
-              // nur den ersten Einsatz senden, falls mehrere vorhanden sind
-              var waip_id = result_einsatz[0].waip_einsaetze_ID;
-              sql.db_log('WAIP', 'Einsatz ' + waip_id + ' für Wache ' + wachen_id + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
-              //letzten Einsatz verteilen
-              waip.einsatz_verteilen(waip_id, socket, wachen_id);
-              //vorhandene Rückmeldungen verteilen
-              waip.rueckmeldung_verteilen_for_client(waip_id, socket, wachen_id);
-            } else {
-              sql.db_log('WAIP', 'Kein Einsatz für Wache ' + wachen_id + ' vorhanden, gehe in Standby');
-              // falls kein Einsatz vorhanden ist, dann Standby senden
-              socket.emit('io.standby', null);
-            };
-          });
+        socket.join(dbrd_uuid, function () {
+          sql.db_log('DBRD', 'Einsatz ' + dbrd_uuid + ' für Dashboard ' + dbrd_uuid + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
+          //letzten Einsatz verteilen
+          waip.dbrd_verteilen(dbrd_uuid, socket);
           // in Statusüberischt speichern
-          sql.db_update_client_status(socket, null);
+          sql.db_update_client_status(socket, dbrd_uuid);
         });
       } else {
         sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid + 'nicht (mehr) vorhanden!');

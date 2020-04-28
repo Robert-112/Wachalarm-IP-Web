@@ -1,8 +1,9 @@
 module.exports = function (db, uuidv4, turf, app_cfg) {
 
   // ermittelt den letzten vorhanden Einsatz zu einer Wache
-  function db_einsatz_ermitteln(wachen_id, user_id, callback) {
+  function db_einsatz_ermitteln(wachen_id, socket, callback) {
     var select_reset_counter;
+    var user_id = socket.request.user.id; 
     var dts = app_cfg.global.default_time_for_standby;
     // wenn Wachen-ID 0 ist, dann % setzen
     if (parseInt(wachen_id) == 0) {
