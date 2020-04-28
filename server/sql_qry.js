@@ -258,9 +258,9 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
       function (err, rows) {
         if (err == null && rows.length > 0) {
           // falls einsätze vorhanden, auch die null hinzufuegen
-          //rows.push({
-          //"room": 0
-          //});
+          rows.push({
+          "room": 0
+          });
           callback && callback(rows);
         } else {
           callback && callback(null);

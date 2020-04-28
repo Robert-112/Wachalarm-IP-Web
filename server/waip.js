@@ -92,13 +92,19 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     sql.db_get_waipid_by_uuid(waip_uuid, function (waip_id) {
       // am Einsatz beteilite Socket-Räume ermitteln
       sql.db_get_einsatz_rooms(waip_id, function (socket_rooms) {
+        
         if (socket_rooms) {
           // wenn Raum zum Einsatz vorhanden ist, dann Rueckmeldung aus DB laden und an diesen versenden
           sql.db_get_single_response_by_rmlduuid(rmld_uuid, function (rmld) {
+            
             if (rmld) {
+              
               // Rückmeldung an Clients/Räume senden
               socket_rooms.forEach(function (rooms) {
-                io.to(rooms.room).emit('io.response', rmld);
+                var room_sockets = io.sockets.adapter.rooms[rooms.room];
+                console.log('rooms: ' + JSON.stringify(socket_rooms));
+                console.log('rooms: ' + JSON.stringify(rooms));
+                room_sockets.emit('io.response', rmld);
                 sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Raum ' + rooms.room + ' gesendet.');
                 sql.db_log('RMLD', 'DEBUG: ' + JSON.stringify(rmld));
               });
