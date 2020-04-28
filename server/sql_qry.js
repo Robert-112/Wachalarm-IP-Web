@@ -364,15 +364,6 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     };
   };
 
-  function db_client_save(client_id, client_ip, room_name) {
-    db.run('INSERT OR REPLACE INTO waip_clients (' +
-      'socket_id, client_ip, room_name) ' +
-      'VALUES (\'' +
-      client_id + '\', \'' +
-      client_ip + '\', \'' +
-      room_name + '\')');
-  };
-
   function db_client_delete(socket) {
     db.run('DELETE FROM waip_clients ' +
       'WHERE socket_id = ?', socket.id);
@@ -408,9 +399,18 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };
 
+  
+  /*function db_client_save(client_id, client_ip, room_name) {
+    db.run('INSERT OR REPLACE INTO waip_clients (' +
+      'socket_id, client_ip, room_name) ' +
+      'VALUES (\'' +
+      client_id + '\', \'' +
+      client_ip + '\', \'' +
+      room_name + '\')');
+  };*/
+
   function db_update_client_status(socket, client_status) {
     //console.log(socket);
-    var socket_id = socket.id;
     var user_name = socket.request.user.user;
     var user_permissions = socket.request.user.permissions;
     var user_agent = socket.request.headers['user-agent'];
@@ -428,14 +428,27 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     if ((typeof reset_timestamp === "undefined") || (reset_timestamp == null)) {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
-    db.run(`UPDATE waip_clients
+    
+    db.run(`insert or replace into waip_clients 
+      (id, socket_id, client_ip, room_name, client_status, user_name, user_permissions, user_agent, reset_timestamp ) values (
+      (select id from waip_clients where socket_id = \'` + socket.id + `\'),
+      \'` + socket.id + `\',
+      \'` + client_ip + `\',
+      \'` + socket.rooms[Object.keys(socket.rooms)[0]] + `\',
+      \'` + client_status + `\',
+      \'` + user_name + `\',
+      \'` + user_permissions + `\',
+      \'` + user_agent + `\',
+      (select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\'));`);
+
+    /*db.run(`UPDATE waip_clients
       SET client_status=\'` + client_status + `\',
       client_ip=\'` + client_ip + `\',
       user_name=\'` + user_name + `\',
       user_permissions=\'` + user_permissions + `\',
       user_agent=\'` + user_agent + `\',
       reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\')
-      WHERE socket_id=\'` + socket_id + `\'`);
+      WHERE socket_id=\'` + socket_id + `\'`);*/
   };
 
   function db_check_client_waipid(socketId, waip_id, callback) {
@@ -890,7 +903,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     db_letzten_einsatz_ermitteln: db_letzten_einsatz_ermitteln,
     db_einsatz_loeschen: db_einsatz_loeschen,
     db_get_alte_einsaetze: db_get_alte_einsaetze,
-    db_client_save: db_client_save,
+    //db_client_save: db_client_save,
     db_client_delete: db_client_delete,
     db_tts_einsatzmittel: db_tts_einsatzmittel,
     db_get_socket_by_id: db_get_socket_by_id,

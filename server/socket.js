@@ -33,7 +33,8 @@ module.exports = function (io, sql, app_cfg, waip) {
           // Socket-Room beitreiten
           socket.join(wachen_id, function () {
             // Socket-ID und Client-IP in der Datenbank speichern
-            sql.db_client_save(socket.id, client_ip, wachen_id);
+            //sql.db_client_save(socket.id, client_ip, wachen_id);
+            //sql.db_update_client_status(socket, null);
             // prüfen ob für diese Wache Einsätze vorhanden sind
             sql.db_einsatz_ermitteln(wachen_id, socket.request.user.id, function (result_einsatz) {
               if (result_einsatz) {
