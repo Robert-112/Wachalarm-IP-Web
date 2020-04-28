@@ -410,7 +410,9 @@ socket.on('io.neuerEinsatz', function(data) {
   } else {
     geojson = L.geoJSON(JSON.parse(data.wgs84_area));
     geojson.addTo(map);
-    map.fitBounds(geojson.getBounds());
+    var bounds =geojson.getBounds();
+    console.log(bounds);
+    console.log(map.fitBounds(bounds));
   };  
   
   
