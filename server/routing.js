@@ -157,10 +157,30 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
     sql.db_get_active_waips(function(data) {
       res.render('overview', {
         public: app_cfg.public,
-        title: 'Einsatzübersicht',
+        title: 'Dashboard',
         user: req.user,
         dataSet: data
       });
+    });
+  });
+
+  // Dasboard fuer einen Einsatz
+  app.get('/dbrd/:dbrd_uuid', function(req, res, next) {
+    var dbrd_uuid = req.params.dbrd_uuid;
+    sql.db_einsatz_uuid_vorhanden(dbrd_uuid, function(wache) {
+      if (wache) {
+        res.render('dbrd', {
+          public: app_cfg.public,
+          title: 'Dashboard',
+          dbrd_uuid: dbrd_uuid,
+          app_id: app_cfg.global.app_id,
+          user: req.user
+        });
+      } else {
+        var err = new Error('Dashboard oder Einsatz nicht vorhanden!');
+        err.status = 404;
+        next(err);
+      };
     });
   });
 

@@ -1,4 +1,4 @@
-module.exports = function(db, uuidv4, turf, app_cfg) {
+module.exports = function (db, uuidv4, turf, app_cfg) {
 
   // ermittelt den letzten vorhanden Einsatz zu einer Wache
   function db_einsatz_ermitteln(wachen_id, user_id, callback) {
@@ -28,7 +28,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     	)
       WHERE DATETIME(zeitstempel,	\'+\' || ` + select_reset_counter + ` || \' minutes\')
       	> DATETIME(\'now\')`, [wachen_id],
-      function(err, rows) {
+      function (err, rows) {
         if (err == null && rows.length > 0) {
           //callback && callback(row.waip_einsaetze_ID); ALT
           callback && callback(rows);
@@ -49,16 +49,24 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       var wgs_x = parseFloat(content.ortsdaten.wgs84_x);
       var wgs_y = parseFloat(content.ortsdaten.wgs84_y);
       var point = turf.point([wgs_y, wgs_x]);
-      var buffered = turf.buffer(point, 1, {steps: 5, units: 'kilometers'});
+      var buffered = turf.buffer(point, 1, {
+        steps: 5,
+        units: 'kilometers'
+      });
       var bbox = turf.bbox(buffered);
-      var new_point = turf.randomPoint(1, {bbox: bbox});
-      var new_buffer = turf.buffer(new_point, 1, {steps: 5, units: 'kilometers'})
+      var new_point = turf.randomPoint(1, {
+        bbox: bbox
+      });
+      var new_buffer = turf.buffer(new_point, 1, {
+        steps: 5,
+        units: 'kilometers'
+      })
       content.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
     };
 
 
 
-    db.serialize(function() {
+    db.serialize(function () {
       // Einsatzdaten speichern
       db.run(`INSERT OR REPLACE INTO waip_einsaetze (
         id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
@@ -81,7 +89,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
         \'` + content.ortsdaten.wgs84_x + `\',
         \'` + content.ortsdaten.wgs84_y + `\',
         \'` + content.ortsdaten.wgs84_area + `\')`,
-        function(err) {
+        function (err) {
           if (err == null) {
             // Einsatzmittel zum Einsatz speichern
             var id = this.lastID;
@@ -148,7 +156,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       'ON em0.waip_einsaetze_id = e.ID ' +
       'WHERE e.id LIKE ? ' +
       'ORDER BY e.id DESC LIMIT 1', [waip_id, wachen_id, waip_id, wachen_id, waip_id],
-      function(err, row) {
+      function (err, row) {
         if (err == null && row) {
           callback && callback(row);
         } else {
@@ -171,7 +179,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       } else {
         // je nach laenge andere SQL ausfuehren
         if (parseInt(content) == 0) {
-          db.get('select \'1\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function(err, row) {
+          db.get('select \'1\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -180,7 +188,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
           });
         };
         if (len == 2) {
-          db.get('select \'2\' length, nr_kreis nr, name_kreis name from waip_wachen where nr_kreis like SUBSTR(?,-2, 2) group by name_kreis LIMIT 1', [content], function(err, row) {
+          db.get('select \'2\' length, nr_kreis nr, name_kreis name from waip_wachen where nr_kreis like SUBSTR(?,-2, 2) group by name_kreis LIMIT 1', [content], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -189,7 +197,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
           });
         };
         if (len == 4) {
-          db.get('select \'4\' length, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis like SUBSTR(?,-4, 2) and nr_traeger like SUBSTR(?,-2, 2) group by name_traeger LIMIT 1', [content, content], function(err, row) {
+          db.get('select \'4\' length, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis like SUBSTR(?,-4, 2) and nr_traeger like SUBSTR(?,-2, 2) group by name_traeger LIMIT 1', [content, content], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -198,7 +206,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
           });
         };
         if (len == 6) {
-          db.get('select \'6\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function(err, row) {
+          db.get('select \'6\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -210,10 +218,22 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     };
   };
 
+  function db_einsatz_uuid_vorhanden(uuid, callback) {
+    // Einsatz mit dieser UUID vorhanden?        
+    db.get('select uuid from waip_einsaetze where uuid like ?', [uuid], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+
+  };
+
   function db_wache_id_ermitteln(content, callback) {
     db.each('select waip_wachen_ID from waip_einsatzmittel where waip_einsaetze_ID = ? ' +
       'and waip_wachen_ID not null group by waip_wachen_ID', [content],
-      function(err, row) {
+      function (err, row) {
         if (err == null && row) {
           callback && callback(row.waip_wachen_ID);
         } else {
@@ -234,11 +254,11 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       select w.nr_wache room from waip_wachen w
       left join waip_einsatzmittel em on em.wachenname = w.name_wache
       where em.waip_einsaetze_ID = ? group by w.nr_wache`, [waip_id, waip_id, waip_id],
-      function(err, rows) {
+      function (err, rows) {
         if (err == null && rows.length > 0) {
           // falls einsätze vorhanden, auch die null hinzufuegen
           //rows.push({
-            //"room": 0
+          //"room": 0
           //});
           callback && callback(rows);
         } else {
@@ -248,7 +268,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_wache_nr_ermitteln(content, callback) {
-    db.get('select nr_wache from waip_wachen where id = ? ', [content], function(err, row) {
+    db.get('select nr_wache from waip_wachen where id = ? ', [content], function (err, row) {
       if (err == null && row) {
         callback && callback(row.nr_wache);
       } else {
@@ -258,7 +278,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_letzten_einsatz_ermitteln(callback) {
-    db.get('select id from waip_einsaetze order by id DESC LIMIT 1', function(err, row) {
+    db.get('select id from waip_einsaetze order by id DESC LIMIT 1', function (err, row) {
       if (err == null && row) {
         callback && callback(row.id);
       } else {
@@ -269,7 +289,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
 
   // alte Inhalte loeschen / aufräumen alle 15 Minuten
   function db_get_alte_einsaetze(minuten, callback) {
-    db.each('SELECT id FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function(err, row) {
+    db.each('SELECT id FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
       if (err == null && row) {
         callback && callback(row.id);
       } else {
@@ -284,7 +304,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_list_wachen(callback) {
-    db.all('select nr_wache nr, name_wache name from waip_wachen order by name_wache', function(err, rows) {
+    db.all('select nr_wache nr, name_wache name from waip_wachen order by name_wache', function (err, rows) {
       if (err == null && rows.length > 0) {
         callback && callback(rows);
       } else {
@@ -294,7 +314,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_list_traeger(callback) {
-    db.all('select nr_kreis || nr_traeger nr, name_traeger name from waip_wachen group by name_traeger order by name_traeger', function(err, rows) {
+    db.all('select nr_kreis || nr_traeger nr, name_traeger name from waip_wachen group by name_traeger order by name_traeger', function (err, rows) {
       if (err == null && rows.length > 0) {
         callback && callback(rows);
       } else {
@@ -304,7 +324,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_list_kreis(callback) {
-    db.all('select nr_kreis nr, name_kreis name from waip_wachen group by name_kreis order by name_kreis', function(err, rows) {
+    db.all('select nr_kreis nr, name_kreis name from waip_wachen group by name_kreis order by name_kreis', function (err, rows) {
       if (err == null && rows.length > 0) {
         callback && callback(rows);
       } else {
@@ -353,7 +373,8 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
             ) em0 ON em0.waip_einsaetze_id = e.ID
           WHERE e.id LIKE ?
           ORDER BY e.id DESC LIMIT 1`,
-          [app_cfg.global.default_time_for_standby, user_id, waip_id, wachen_nr, waip_id, wachen_nr, waip_id], function(err, row) {
+          [app_cfg.global.default_time_for_standby, user_id, waip_id, wachen_nr, waip_id, wachen_nr, waip_id],
+          function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -377,7 +398,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       var typ = tmp.toString().substring(0, 2);
       var nr = tmp.toString().slice(4);
       nr = nr.toString().replace(/^0+/, '');
-      db.get('SELECT einsatzmittel_rufname name FROM waip_ttsreplace WHERE einsatzmittel_typ = ?', [typ], function(err, row) {
+      db.get('SELECT einsatzmittel_rufname name FROM waip_ttsreplace WHERE einsatzmittel_typ = ?', [typ], function (err, row) {
         if (err == null && row) {
           callback(null, row.name + ' ' + nr);
         } else {
@@ -390,7 +411,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_get_socket_by_id(content, callback) {
-    db.get('select * from waip_clients where socket_id = ? ', [content], function(err, row) {
+    db.get('select * from waip_clients where socket_id = ? ', [content], function (err, row) {
       if (err == null && row) {
         callback && callback(row);
       } else {
@@ -399,7 +420,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };
 
-  
+
   /*function db_client_save(client_id, client_ip, room_name) {
     db.run('INSERT OR REPLACE INTO waip_clients (' +
       'socket_id, client_ip, room_name) ' +
@@ -428,7 +449,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     if ((typeof reset_timestamp === "undefined") || (reset_timestamp == null)) {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
-    
+
     db.run(`insert or replace into waip_clients 
       (id, socket_id, client_ip, room_name, client_status, user_name, user_permissions, user_agent, reset_timestamp ) values (
       (select id from waip_clients where socket_id = \'` + socket.id + `\'),
@@ -452,7 +473,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_check_client_waipid(socketId, waip_id, callback) {
-    db.get('SELECT client_status id from waip_clients where socket_id like ?', [socketId], function(err, row) {
+    db.get('SELECT client_status id from waip_clients where socket_id like ?', [socketId], function (err, row) {
       if (err == null && row) {
         if (row.id == waip_id) {
           callback && callback(row);
@@ -474,7 +495,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_get_log(callback) {
-    db.all(`select * from waip_log order by id desc LIMIT 5000`, function(err, rows) {
+    db.all(`select * from waip_log order by id desc LIMIT 5000`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -484,7 +505,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_get_active_clients(callback) {
-    db.all(`select * from waip_clients`, function(err, rows) {
+    db.all(`select * from waip_clients`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -502,7 +523,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     left join waip_einsatzmittel em on em.waip_einsaetze_ID = we.id
     left join waip_wachen wa on wa.id = em.waip_wachen_ID
     GROUP by we.id
-    ORDER by we.einsatzart, we.stichwort`, function(err, rows) {
+    ORDER by we.einsatzart, we.stichwort`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -512,7 +533,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
   };
 
   function db_get_users(callback) {
-    db.all('SELECT id, user, permissions, ip_address FROM waip_users', function(err, rows) {
+    db.all('SELECT id, user, permissions, ip_address FROM waip_users', function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -529,7 +550,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
         //permissions -> 52,62,6690,....
         db.get(`select group_concat(DISTINCT wa.nr_wache) wache from waip_einsatzmittel em
           left join waip_wachen wa on wa.id = em.waip_wachen_ID
-          where waip_einsaetze_ID = ?`, [waip_id], function(err, row) {
+          where waip_einsaetze_ID = ?`, [waip_id], function (err, row) {
           if (err == null && row) {
             var permission_arr = user_obj.permissions.split(",");
             var wachen_arr = row.wache.split(",");
@@ -551,7 +572,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
 
   function db_get_userconfig(user_id, callback) {
     db.get(`SELECT reset_counter FROM waip_user_config
-      WHERE user_id = ?`, [user_id], function(err, row) {
+      WHERE user_id = ?`, [user_id], function (err, row) {
       if (err == null && row) {
         callback && callback(row.reset_counter);
       } else {
@@ -570,7 +591,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       VALUES (
       (select ID from waip_user_config where user_id like \'` + user_id + `\'),
       \'` + user_id + `\',
-      \'` + reset_counter + `\')`), function(err) {
+      \'` + reset_counter + `\')`), function (err) {
       if (err == null) {
         callback && callback();
       } else {
@@ -581,7 +602,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
 
   function db_get_sockets_to_standby(callback) {
     db.all(`select socket_id from waip_clients
-      where reset_timestamp < DATETIME(\'now\')`, function(err, rows) {
+      where reset_timestamp < DATETIME(\'now\')`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -667,7 +688,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     // Zeitpunkt der Rueckmeldung festlegen
     reuckmeldung.set_time = new Date();
     // Zeitpunkt der geplanten Ankunft festlegen
-    var resp_time = new Date(); 
+    var resp_time = new Date();
     resp_time.setMinutes(resp_time.getMinutes() + parseInt(responseobj.eintreffzeit));
     reuckmeldung.arrival_time = resp_time;
     // Wache zuordnen
@@ -677,10 +698,10 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       reuckmeldung.wache_id = null;
     };
 
-    console.log('reuckmeldung: '+JSON.stringify(reuckmeldung));
-    console.log('responseobj: '+JSON.stringify(responseobj));
+    console.log('reuckmeldung: ' + JSON.stringify(reuckmeldung));
+    console.log('responseobj: ' + JSON.stringify(responseobj));
 
-    db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function(err, row) {
+    db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function (err, row) {
       if (err == null && row) {
         reuckmeldung.wache_name = row.name_wache;
         reuckmeldung.wache_nr = row.nr_wache;
@@ -698,15 +719,15 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
         \'` + reuckmeldung.arrival_time + `\', 
         \'` + reuckmeldung.wache_id + `\', 
         \'` + reuckmeldung.wache_nr + `\', 
-        \'` + reuckmeldung.wache_name + `\')`), function(err) {
+        \'` + reuckmeldung.wache_name + `\')`), function (err) {
           //console.log(err);
-        if (err == null) {
-          // TODO: Rueckmeldung-UUID zurückgeben
-          callback && callback('OK');
-        } else {
-          callback && callback(null);
-        };
-      });
+          if (err == null) {
+            // TODO: Rueckmeldung-UUID zurückgeben
+            callback && callback('OK');
+          } else {
+            callback && callback(null);
+          };
+        });
 
 
       } else {
@@ -715,12 +736,12 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
 
 
-    
+
   };
 
-  function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback){
+  function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback) {
     db.all(`SELECT response_json FROM waip_response
-      WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function(err, rows) {
+      WHERE waip_einsaetze_id = ?`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -728,11 +749,11 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       };
     });
   };
-  
+
   function db_get_response_for_wache(waip_einsaetze_id, wachen_nr, callback) {
     db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
-        
+
         // temporaere Variablen
         var itemsProcessed = 0;
         var all_responses = [];
@@ -741,43 +762,43 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
           callback && callback(all_responses);
         };
         // Zeilen einzelnen durchgehen
-        console.log('rows: '+JSON.stringify(rows));
+        console.log('rows: ' + JSON.stringify(rows));
         rows.forEach(function (item, index, array) {
           // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
           var tmp = JSON.stringify(item.wache_nr);
-        
-          
-              if (tmp.startsWith(wachen_nr)) {
-                if (item.einsatzkraft == 1) {
-                  item.einsatzkraft = true;
-                } else {
-                  item.einsatzkraft = false;
-                };
-                if (item.maschinist == 1) {
-                  item.maschinist = true;
-                } else {
-                  item.maschinist = false;
-                };
-                if (item.fuehrungskraft == 1) {
-                  item.fuehrungskraft = true;
-                } else {
-                  item.fuehrungskraft = false;
-                };
-                if (item.agt == 1) {
-                  item.agt = true;
-                } else {
-                  item.agt = false;
-                };
-                // response_wache aufsummieren
-                all_responses.push(item)
-              };
 
 
-    
+          if (tmp.startsWith(wachen_nr)) {
+            if (item.einsatzkraft == 1) {
+              item.einsatzkraft = true;
+            } else {
+              item.einsatzkraft = false;
+            };
+            if (item.maschinist == 1) {
+              item.maschinist = true;
+            } else {
+              item.maschinist = false;
+            };
+            if (item.fuehrungskraft == 1) {
+              item.fuehrungskraft = true;
+            } else {
+              item.fuehrungskraft = false;
+            };
+            if (item.agt == 1) {
+              item.agt = true;
+            } else {
+              item.agt = false;
+            };
+            // response_wache aufsummieren
+            all_responses.push(item)
+          };
+
+
+
           // Schleife ggf. beenden
           itemsProcessed++;
           if (itemsProcessed === array.length) {
-            console.log('get_response_wache: '+JSON.stringify(all_responses));
+            console.log('get_response_wache: ' + JSON.stringify(all_responses));
             loop_done(all_responses);
           };
         });
@@ -786,61 +807,61 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
       };
     });
   };
-  
+
   function db_get_single_response_by_rmlduuid(rmld_uuid, callback) {
     db.all(`SELECT * FROM waip_response WHERE rmld_uuid like ?`, [rmld_uuid], function (err, row) {
       if (err == null && row) {
-                console.log('single_rmld_uuid '+row);
-                if (row.einsatzkraft == 1) {
-                  row.einsatzkraft = true;
-                } else {
-                  row.einsatzkraft = false;
-                };
-                if (row.maschinist == 1) {
-                  row.maschinist = true;
-                } else {
-                  row.maschinist = false;
-                };
-                if (row.fuehrungskraft == 1) {
-                  row.fuehrungskraft = true;
-                } else {
-                  row.fuehrungskraft = false;
-                };
-                if (row.agt == 1) {
-                  row.agt = true;
-                } else {
-                  row.agt = false;
-                };
-                // response_wache aufsummieren
-         callback && callback(row);       
-       
+        console.log('single_rmld_uuid ' + row);
+        if (row.einsatzkraft == 1) {
+          row.einsatzkraft = true;
+        } else {
+          row.einsatzkraft = false;
+        };
+        if (row.maschinist == 1) {
+          row.maschinist = true;
+        } else {
+          row.maschinist = false;
+        };
+        if (row.fuehrungskraft == 1) {
+          row.fuehrungskraft = true;
+        } else {
+          row.fuehrungskraft = false;
+        };
+        if (row.agt == 1) {
+          row.agt = true;
+        } else {
+          row.agt = false;
+        };
+        // response_wache aufsummieren
+        callback && callback(row);
+
       } else {
         callback && callback(null);
       };
     });
-  };  
+  };
 
-  function db_get_einsatzdaten_by_uuid(waip_uuid, callback){
+  function db_get_einsatzdaten_by_uuid(waip_uuid, callback) {
     db.get(`SELECT e.id, e.uuid, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
       e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area FROM WAIP_EINSAETZE e 
-      WHERE e.uuid like ?`, [waip_uuid], function(err, row) {
+      WHERE e.uuid like ?`, [waip_uuid], function (err, row) {
       if (err == null && row) {
         console.log(row.uuid);
         console.log(row.id);
         db.all(`SELECT e.einsatzmittel, e.status FROM waip_einsatzmittel e 
-          WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, rows) {
+          WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, rows) {
           if (err == null && rows) {
             var einsatzdaten = row;
-            einsatzdaten.einsatzmittel = rows; 
+            einsatzdaten.einsatzmittel = rows;
             db.all(`SELECT DISTINCT e.waip_wachen_ID, e.wachenname FROM waip_einsatzmittel e 
-              WHERE e.waip_einsaetze_id = ?`, [row.id], function(err, wachen) {
+              WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, wachen) {
               if (err == null && wachen) {
                 einsatzdaten.wachen = wachen;
                 callback && callback(einsatzdaten);
               } else {
                 callback && callback(null);
               };
-            });        
+            });
           } else {
             callback && callback(null);
           };
@@ -851,8 +872,8 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };
 
-  function db_get_waipid_by_uuid(waip_uuid, callback){
-    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function(err, row) {
+  function db_get_waipid_by_uuid(waip_uuid, callback) {
+    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
       if (err == null && row) {
         callback && callback(row.id);
       } else {
@@ -861,17 +882,17 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     });
   };
 
-  function db_get_twitter_list(waip_id, callback){
+  function db_get_twitter_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache in diesem Einsatz ein Twitter-Account mit Liste hinterlegt ist
     db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_twitter_wachen t 
       where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
-      where em.waip_einsaetze_ID = ?)`, [waip_id], function(err, twitter_liste) {
+      where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, twitter_liste) {
       if (err == null && twitter_liste) {
         console.log(twitter_liste);
         // Falls Account und Liste hinterlegt ist, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
         db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
         from waip_twitter_accounts tw, waip_einsaetze we, waip_wachen wa
-        where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function(err, twitter_daten) {
+        where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function (err, twitter_daten) {
           console.log(twitter_daten);
           console.log(err);
           if (err == null && twitter_daten) {
@@ -893,6 +914,7 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     db_einsatz_laden: db_einsatz_laden,
     db_einsatz_ermitteln: db_einsatz_ermitteln,
     db_wache_vorhanden: db_wache_vorhanden,
+    db_einsatz_uuid_vorhanden: db_einsatz_uuid_vorhanden,
     db_wache_id_ermitteln: db_wache_id_ermitteln,
     db_wache_nr_ermitteln: db_wache_nr_ermitteln,
     db_get_einsatzdaten: db_get_einsatzdaten,
@@ -923,8 +945,9 @@ module.exports = function(db, uuidv4, turf, app_cfg) {
     db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
     db_get_response_for_wache: db_get_response_for_wache,
     db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
-    db_get_waipid_by_uuid:db_get_waipid_by_uuid,
-    db_get_single_response_by_rmlduuid, db_get_single_response_by_rmlduuid,
+    db_get_waipid_by_uuid: db_get_waipid_by_uuid,
+    db_get_single_response_by_rmlduuid,
+    db_get_single_response_by_rmlduuid,
     db_get_twitter_list: db_get_twitter_list
   };
 
