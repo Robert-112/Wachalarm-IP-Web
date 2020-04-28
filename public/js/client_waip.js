@@ -216,6 +216,7 @@ var redIcon = new L.Icon({
 var marker = L.marker(new L.LatLng(0, 0), {
   icon: redIcon
 }).addTo(map);
+var geojson = L.geoJSON().addTo(map);
 
 /* ########################### */
 /* ######## SOCKET.IO ######## */
@@ -397,11 +398,22 @@ socket.on('io.neuerEinsatz', function(data) {
     $('#em_weitere').html(tmp);
   };
   // Karte setzen
+
+  // Karte setzen
   map.removeLayer(marker);
-  marker = L.marker(new L.LatLng(data.wgs84_x, data.wgs84_y), {
-    icon: redIcon
-  }).addTo(map);
-  map.setView(new L.LatLng(data.wgs84_x, data.wgs84_y), 15);
+  map.removeLayer(geojson);
+  if (data.wgs84_x && data.wgs84_y) {
+    marker = L.marker(new L.LatLng(data.wgs84_x, data.wgs84_y), {
+      icon: redIcon
+    }).addTo(map);
+    map.setView(new L.LatLng(data.wgs84_x, data.wgs84_y), 15);
+  } else {
+    geojson = L.geoJSON(JSON.parse(data.wgs84_area));
+    geojson.addTo(map);
+    map.fitBounds(geojson.getBounds());
+  };  
+  
+  
   // Hilfsfrist setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // Uhr ausblenden

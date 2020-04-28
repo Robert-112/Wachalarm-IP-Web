@@ -7,8 +7,6 @@ block content
   include includes/modal_info
   .container-fluid
     include includes/master_dashboard
-  //script.
-    var einsatzdaten_obj = !{JSON.stringify(einsatzdaten).replace(/<\//g, '<\\/')}
   script(src='/socket.io/socket.io.js') 
   script(src='/js/leaflet.js')
   script(src='/js/client_dbrd.js')
