@@ -398,8 +398,6 @@ socket.on('io.neuerEinsatz', function(data) {
     $('#em_weitere').html(tmp);
   };
   // Karte setzen
-
-  // Karte setzen
   map.removeLayer(marker);
   map.removeLayer(geojson);
   if (data.wgs84_x && data.wgs84_y) {
@@ -410,12 +408,9 @@ socket.on('io.neuerEinsatz', function(data) {
   } else {
     geojson = L.geoJSON(JSON.parse(data.wgs84_area));
     geojson.addTo(map);
-    var bounds =geojson.getBounds();
-    console.log(bounds);
-    console.log(map.fitBounds(bounds));
-  };  
-  
-  
+    map.fitBounds(geojson.getBounds());
+    map.setZoom(13);
+  };    
   // Hilfsfrist setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // Uhr ausblenden

@@ -38,8 +38,8 @@ if (einsatzdaten_obj.wgs84_x && einsatzdaten_obj.wgs84_y) {
   map.setView(new L.LatLng(einsatzdaten_obj.wgs84_x, einsatzdaten_obj.wgs84_y), 13);
 } else {
   var geojson = L.geoJSON(JSON.parse(einsatzdaten_obj.wgs84_area)).addTo(map);
-  //
   map.fitBounds(geojson.getBounds());
+  map.setZoom(13);
 };
 
 /* ########################### */
