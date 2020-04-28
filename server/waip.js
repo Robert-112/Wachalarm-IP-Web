@@ -10,12 +10,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
         if (socket_rooms) {
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
-            //io.to(rooms.room).emit('io.response', rmld);
             var room_sockets = io.sockets.adapter.rooms[rooms.room];
-            //console.log(row);
-            //console.log(row.room);
-            //console.log(room_sockets);
-            //console.log(io.sockets.adapter);
             if (typeof room_sockets !== 'undefined') {
               //Object.keys(room_sockets.sockets).forEach(function (socketId) {
               Object.keys(room_sockets).forEach(function (socket) {

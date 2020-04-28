@@ -149,6 +149,22 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   /* ######################## */
+  /* ###### Dashboard ####### */
+  /* ######################## */
+
+  // Dasboard-Uebersicht
+  app.get('/dbrd', function(req, res, next) {
+    sql.db_get_active_waips(function(data) {
+      res.render('overview', {
+        public: app_cfg.public,
+        title: 'Einsatzübersicht',
+        user: req.user,
+        dataSet: data
+      });
+    });
+  });
+
+  /* ######################## */
   /* ##### Rueckmeldung ##### */
   /* ######################## */
 
