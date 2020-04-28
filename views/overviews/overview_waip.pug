@@ -7,16 +7,17 @@ block content
         .col-12.p-3
           .card.bg-dark
             .card-body.text-center.text-muted
-              h3 - wählen sie einen Alarmmonitor -
+              h3 - wählen Sie einen Alarmmonitor -
         .col-12.p-3
-          .card
-            if !user
+          if !user
+            .card.border-warning
               .card-header
                 h4.card-title.text-warning Sie sind nicht angemeldet! 
               .card-body
                 p Auch ohne Anmeldung haben Sie Zugriff auf alle Alarmmonitore, jedoch mit eingeschr&auml;nktem Funktionsumfang.
                 p.text-muted Um mehr Funktionen nutzen zu können, melden Sie sich bitte #[a(href="/login") hier] an.
-            else
+          else
+            .card.border-info
               .card-header
                 h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet.'
               .card-body
@@ -29,18 +30,19 @@ block content
                       else
                         a(href="/waip/" + val)= val  
         .col-12.col-xl-6.d-flex.align-self-stretch.p-3
-          .card
+          .card.border-success.w-100.h-100
             .card-header
               h1.text-success Alle Wachalarme 
             .card-body
-              p Auch ohne Anmeldung haben Sie Zugriff auf alle Alarmmonitore, jedoch mit eingeschr&auml;nkten Funktionsumfang.
-              a.btn.btn-lg(href='/waip/0')
+              p.text-muted Zeigt Wachalarme aller Wachen an.
+            .card-footer.text-right
+              a.btn.btn-info.ion-md-arrow-round-forward(href='/waip/0', role='button')  alle anzeigen
         .col-12.col-xl-6.d-flex.align-self-stretch.p-3
-          .card.border-dark.w-100.h-100
+          .card.w-100.h-100
             .card-header
               h1.text-info Alarmmonitor Wache
             .card-body
-              p.text-muted Zeigt den Wachalarm einer der einzelnen Wache (z.B. Feuerwache, Rettungswache etc.) an.
+              p.text-muted Zeigt den Wachalarm einer einzelnen Wache (z.B. Feuerwache, Rettungswache etc.) an.
             .card-footer.text-right
               .dropdown
                 button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
@@ -50,7 +52,7 @@ block content
                     if item.typ == 'wache'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name
         .col-12.col-xl-6.d-flex.align-self-stretch.p-3
-          .card.border-dark.w-100.h-100
+          .card.w-100.h-100
             .card-header            
               h1.text-info Alarmmonitor Tr&auml;ger
             .card-body
@@ -64,7 +66,7 @@ block content
                     if item.typ == 'traeger'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name
         .col-12.col-xl-6.d-flex.align-self-stretch.p-3
-          .card.border-dark.w-100.h-100
+          .card.w-100.h-100
             .card-header
               h1.text-info Alarmmonitor Kreis
             .card-body

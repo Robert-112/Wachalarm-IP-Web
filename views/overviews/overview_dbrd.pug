@@ -7,10 +7,10 @@ block content
         .col-12.p-3
           .card.bg-dark
             .card-body.text-center.text-muted
-              h3 - wählen sie ein Dashboard -
+              h3 - wählen Sie ein Dashboard -
         each val in dataSet
           .col-12.col-xl-6.d-flex.align-self-stretch.p-3
-            .card.border-dark.w-100
+            .card.w-100
               .card-header
                 case val.einsatzart
                   when 'Brandeinsatz'
@@ -28,4 +28,5 @@ block content
                   a= val.ort + ', ' + val.ortsteil
                 else
                   p= val.ort
-                a.btn.btn-primary.btn-lg.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen
+              .card-footer.text-right
+                a.btn.btn-primary.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen

@@ -9,10 +9,9 @@ block content
         hr
         a Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
         p Zusätzlich besteht für Einsatzkräfte die Möglichkeit zur einfachen Rückmeldung.
-        p Nachfolgend können Sie aus einer der aufgef&uuml;hrten Wachen ausw&auml;hlen. Entsprechend Ihrer Berechtigungen werden Ihnen auf dem Alarmmonitor alle oder nur ausgew&auml;hlte Einsatzdaten angezeigt.
     .container
       .row
-        .col-md-12
+        .col-md-12.p-3
           .card
             if !user
               .card-header
@@ -32,46 +31,4 @@ block content
                       if user.permissions == 'admin'
                         a.text-muted Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
                       else
-                        a(href="/waip/" + val)= val  
-        .col-md-4.p-3
-          .card.h-100
-            .card-header
-              h1.text-info Wache
-            .card-body
-              p.text-muted Zeigt den Wachalarm einer der einzelnen Wache (z.B. Feuerwach, Rettungswache etc.) an.
-            .card-footer.text-right
-              .dropdown
-                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                  | bitte ausw&auml;hlen
-                .dropdown-menu
-                  each item in list_wachen
-                    if item.typ == 'wache'
-                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
-        .col-md-4.p-3
-          .card.h-100
-            .card-header            
-              h1.text-info Tr&auml;ger
-            .card-body
-              p.text-muted Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
-            .card-footer.text-right
-              .dropdown
-                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                  | bitte ausw&auml;hlen
-                .dropdown-menu
-                  each item in list_wachen
-                    if item.typ == 'traeger'
-                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
-        .col-md-4.p-3
-          .card.h-100
-            .card-header
-              h1.text-info Kreis
-            .card-body
-              p.text-muted Zeigt alle Wachalarme des gesamten Kreises (egal ob f&uuml; Feuerwehr oder Rettungsdienst) an.
-            .card-footer.text-right
-              .dropdown
-                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                  | bitte ausw&auml;hlen
-                .dropdown-menu
-                  each item in list_wachen
-                    if item.typ == 'kreis'
-                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
+                        a(href="/waip/" + val)= val 

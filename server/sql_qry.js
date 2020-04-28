@@ -788,7 +788,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
           var tmp = JSON.stringify(item.wache_nr);
 
 
-          if (tmp.startsWith(wachen_nr)) {
+          if (tmp.startsWith(wachen_nr) || wachen_nr == 0) {
             if (item.einsatzkraft == 1) {
               item.einsatzkraft = true;
             } else {

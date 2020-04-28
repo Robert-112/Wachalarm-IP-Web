@@ -6,13 +6,10 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
 
   // Startseite
   app.get('/', function(req, res) {
-    sql.db_get_alle_wachen(function(data) {
-      res.render('home', {
-        public: app_cfg.public,
-        title: 'Startseite',
-        list_wachen: data,
-        user: req.user
-      });
+    res.render('home', {
+      public: app_cfg.public,
+      title: 'Startseite',
+      user: req.user
     });
   });
 
