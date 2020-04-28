@@ -4,13 +4,13 @@ block content
   main(role='main')
     .container
       .row
-        .col-12.mb-4
-          .card
+        .col-12.p-3
+          .card.bg-dark
             .card-body.text-center.text-muted
               h3 - wählen sie ein Dashboard -
         each val in dataSet
-          .col-lg-12.col-6.d-flex.align-self-stretch
-            .card.border-dark.m-3.w-100
+          .col-12.col-xl-6.d-flex.align-self-stretch.p-3
+            .card.border-dark.w-100
               .card-header
                 case val.einsatzart
                   when 'Brandeinsatz'
