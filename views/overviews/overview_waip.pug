@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+  main(role='main')
+    .container
+      .row
+        each val in dataSet
+          .col-12.d-flex.align-self-stretch
+            .card.border-dark.mb-3.w-100
+              .card-header
+                case val.einsatzart
+                  when 'Brandeinsatz'
+                    h5.font-weight-bold.text-danger.ion-md-flame= ' ' + val.einsatzart + ' - ' + val.stichwort
+                  when 'Hilfeleistungseinsatz'
+                    h5.font-weight-bold.text-info.ion-md-construct= ' ' + val.einsatzart + ' - ' + val.stichwort
+                  when 'Rettungseinsatz'
+                    h5.font-weight-bold.text-warning.ion-md-medkit= ' ' + val.einsatzart + ' - ' + val.stichwort
+                  when 'Krankentransport'
+                    h5.font-weight-bold.text-success.ion-md-medical= ' ' + val.einsatzart + ' - ' + val.stichwort                    
+                  default
+                    h5.font-weight-bold.ion-md-information-circle= ' ' + val.einsatzart + ' - ' + val.stichwort
+              .card-body.d-flex.justify-content-between
+                if val.ortsteil
+                  a= val.ort + ', ' + val.ortsteil
+                else
+                  p= val.ort
+                a.btn.btn-primary.btn-lg.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen
