@@ -45,7 +45,7 @@ block content
                   | bitte ausw&auml;hlen
                 .dropdown-menu
                   each item in list_wachen
-                    if item.typ = 'wache'
+                    if item.typ == 'wache'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name
         .col-md-4.p-3
           .card.h-100
@@ -59,7 +59,7 @@ block content
                   | bitte ausw&auml;hlen
                 .dropdown-menu
                   each item in list_wachen
-                    if item.typ = 'traeger'
+                    if item.typ == 'traeger'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name
         .col-md-4.p-3
           .card.h-100
@@ -73,5 +73,5 @@ block content
                   | bitte ausw&auml;hlen
                 .dropdown-menu
                   each item in list_wachen
-                    if item.typ = 'kreis'
+                    if item.typ == 'kreis'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name

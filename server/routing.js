@@ -7,7 +7,6 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   // Startseite
   app.get('/', function(req, res) {
     sql.db_get_alle_wachen(function(data) {
-      var data_kreis = data
       res.render('home', {
         public: app_cfg.public,
         title: 'Startseite',
@@ -116,14 +115,12 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
 
   // /waip nach /waip/0 umleiten
   app.get('/waip', function(req, res) {
-    res.redirect('/waip/0');
-
-    sql.db_get_active_waips(function(data) {
-      res.render('overviews/overview_dbrd', {
+     sql.db_get_alle_wachen(function(data) {
+      res.render('overviews/overview_waip', {
         public: app_cfg.public,
-        title: 'Dashboard',
-        user: req.user,
-        dataSet: data
+        title: 'Alarmmonitor',
+        list_wachen: data,
+        user: req.user
       });
     });
   });
