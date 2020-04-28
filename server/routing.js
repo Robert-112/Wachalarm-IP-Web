@@ -6,21 +6,13 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
 
   // Startseite
   app.get('/', function(req, res) {
-    sql.db_list_wachen(function(data) {
-      var data_wachen = data
-      sql.db_list_traeger(function(data) {
-        var data_traeger = data
-        sql.db_list_kreis(function(data) {
-          var data_kreis = data
-          res.render('home', {
-            public: app_cfg.public,
-            title: 'Startseite',
-            list_wache: data_wachen,
-            list_traeger: data_traeger,
-            list_kreis: data_kreis,
-            user: req.user
-          });
-        });
+    sql.db_get_alle_wachen(function(data) {
+      var data_kreis = data
+      res.render('home', {
+        public: app_cfg.public,
+        title: 'Startseite',
+        list_wachen: data,
+        user: req.user
       });
     });
   });
@@ -125,6 +117,15 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   // /waip nach /waip/0 umleiten
   app.get('/waip', function(req, res) {
     res.redirect('/waip/0');
+
+    sql.db_get_active_waips(function(data) {
+      res.render('overviews/overview_dbrd', {
+        public: app_cfg.public,
+        title: 'Dashboard',
+        user: req.user,
+        dataSet: data
+      });
+    });
   });
 
   // Alarmmonitor aufloesen /waip/<wachennummer>
@@ -153,7 +154,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ######################## */
 
   // Dasboard-Uebersicht
-  app.get('/dbrd', function(req, res, next) {
+  app.get('/dbrd', function(req, res) {
     sql.db_get_active_waips(function(data) {
       res.render('overviews/overview_dbrd', {
         public: app_cfg.public,

@@ -44,8 +44,9 @@ block content
                 button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                   | bitte ausw&auml;hlen
                 .dropdown-menu
-                  each item in list_wache
-                    a.dropdown-item(href='/waip/'+ item.nr)= item.name
+                  each item in list_wachen
+                    if item.typ = 'wache'
+                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
         .col-md-4.p-3
           .card.h-100
             .card-header            
@@ -57,8 +58,9 @@ block content
                 button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                   | bitte ausw&auml;hlen
                 .dropdown-menu
-                  each item in list_traeger
-                    a.dropdown-item(href='/waip/'+ item.nr)= item.name
+                  each item in list_wachen
+                    if item.typ = 'traeger'
+                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
         .col-md-4.p-3
           .card.h-100
             .card-header
@@ -70,5 +72,6 @@ block content
                 button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                   | bitte ausw&auml;hlen
                 .dropdown-menu
-                  each item in list_kreis
-                    a.dropdown-item(href='/waip/'+ item.nr)= item.name
+                  each item in list_wachen
+                    if item.typ = 'kreis'
+                      a.dropdown-item(href='/waip/'+ item.nr)= item.name

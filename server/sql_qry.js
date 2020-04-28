@@ -304,7 +304,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
     db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
   };
 
-  function db_list_wachen(callback) {
+  /*function db_list_wachen(callback) {
     db.all('select nr_wache nr, name_wache name from waip_wachen order by name_wache', function (err, rows) {
       if (err == null && rows.length > 0) {
         callback && callback(rows);
@@ -332,7 +332,26 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
         callback && callback(null);
       };
     });
+  };*/
+
+  function db_get_alle_wachen(callback) {
+    db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen
+      union all
+      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen group by name_traeger
+      union all
+      select 'kreis' typ, nr_kreis nr, name_kreis name from waip_wachen group by name_kreis 
+      order by typ, name`, function (err, rows) {
+      if (err == null && rows.length > 0) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
   };
+
+
+  ;
+
 
   function db_get_einsatzdaten(waip_id, wachen_nr, user_id, callback) {
     // vorsichtshalber nochmals id pruefen
@@ -920,9 +939,10 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
     db_wache_nr_ermitteln: db_wache_nr_ermitteln,
     db_get_einsatzdaten: db_get_einsatzdaten,
     db_get_einsatz_rooms: db_get_einsatz_rooms,
-    db_list_wachen: db_list_wachen,
+    /*db_list_wachen: db_list_wachen,
     db_list_traeger: db_list_traeger,
-    db_list_kreis: db_list_kreis,
+    db_list_kreis: db_list_kreis,*/
+    db_get_alle_wachen: db_get_alle_wachen,
     db_letzten_einsatz_ermitteln: db_letzten_einsatz_ermitteln,
     db_einsatz_loeschen: db_einsatz_loeschen,
     db_get_alte_einsaetze: db_get_alte_einsaetze,
