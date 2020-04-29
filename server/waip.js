@@ -92,21 +92,23 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     sql.db_get_waipid_by_uuid(waip_uuid, function (waip_id) {
       // am Einsatz beteilite Socket-Räume ermitteln
       sql.db_get_einsatz_rooms(waip_id, function (socket_rooms) {
-        
         if (socket_rooms) {
           // wenn Raum zum Einsatz vorhanden ist, dann Rueckmeldung aus DB laden und an diesen versenden
-          sql.db_get_single_response_by_rmlduuid(rmld_uuid, function (rmld) {
-            
-            if (rmld) {
-              
+          sql.db_get_single_response_by_rmlduuid(rmld_uuid, function (rmld_obj) {
+            if (rmld_obj) {
               // Rückmeldung an Clients/Räume senden
               socket_rooms.forEach(function (rooms) {
                 var room_sockets = io.sockets.adapter.rooms[rooms.room];
-                console.log('rooms: ' + JSON.stringify(socket_rooms));
-                console.log('rooms: ' + JSON.stringify(rooms));
-                room_sockets.emit('io.response', rmld);
-                sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Raum ' + rooms.room + ' gesendet.');
-                sql.db_log('RMLD', 'DEBUG: ' + JSON.stringify(rmld));
+                if (typeof room_sockets !== 'undefined') {
+                  //Object.keys(room_sockets.sockets).forEach(function (socketId) {
+                  Object.keys(room_sockets).forEach(function (socket) {
+                    console.log('rooms: ' + JSON.stringify(socket_rooms));
+                    console.log('rooms: ' + JSON.stringify(rooms));
+                    socket.emit('io.response', rmld_obj);
+                    sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Raum ' + rooms.room + ' gesendet.');
+                    sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
+                  });     
+                };        
               });
             };
           });
