@@ -12,7 +12,6 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
             var room_sockets = io.sockets.adapter.rooms[rooms.room];
             if (typeof room_sockets !== 'undefined') {
-              //Object.keys(room_sockets.sockets).forEach(function (socketId) {
               Object.keys(room_sockets).forEach(function (socket) {
                 waip_verteilen(waip_id, socket, rooms.room);
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
@@ -23,21 +22,19 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden!');
         };
       });
-      sql.db_get_twitter_list(waip_id, function (twitter_data) {
-        if (twitter_data) {
-          console.log('Daten Twitter: ' + JSON.stringify(twitter_data));
-
-          // tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache
-          tw.alert_twitter_list(twitter_data, function (result) {
+      // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
+      sql.db_get_vmtl_list(waip_id, function (vmtl_data) {
+        if (vmtl_data) {
+                                                                                      console.log('Daten Twitter: ' + JSON.stringify(vmtl_data));
+          tw.alert_vmtl_list(vmtl_data, function (result) {
             if (!result) {
-              sql.db_log('Twitter', 'Einsatz-Rückmeldung erfolgreichen an Twitter-Liste gesendet. ' + result);
+              sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
             } else {
-              sql.db_log('Twitter', 'Fehler beim senden der Einsatz-Rueckmeldung an Twitter: ' + result);
+              sql.db_log('VMTL', 'Fehler beim senden des Links zur Einsatz-Rueckmeldung an die Vermittler-Liste: ' + result);
             };
           });
-
         } else {
-          sql.db_log('Twitter', 'Keine Twitter-Liste für Einsatz ' + waip_id + ' hinterlegt.');
+          sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
         };
       });
     });
@@ -51,19 +48,14 @@ module.exports = function (io, sql, tw, async, app_cfg) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
         sql.db_check_permission(user_obj, waip_id, function (valid) {
-          //console.log(permissions + ' ' + wachen_nr);
-          //if (permissions == wachen_nr || permissions == 'admin') {} else {
           if (!valid) {
             einsatzdaten.objekt = '';
             einsatzdaten.besonderheiten = '';
             einsatzdaten.strasse = '';
-            //einsatzdaten.wgs84_x = einsatzdaten.wgs84_x.substring(0, einsatzdaten.wgs84_x.indexOf('.') + 3);
-            //einsatzdaten.wgs84_y = einsatzdaten.wgs84_y.substring(0, einsatzdaten.wgs84_y.indexOf('.') + 3);
             einsatzdaten.wgs84_x = '';
             einsatzdaten.wgs84_y = '';
           };
           // Einsatz senden
-          //  io.sockets.to(socket_id).emit('io.neuerEinsatz', einsatzdaten)
           socket.emit('io.neuerEinsatz', einsatzdaten);
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
           sql.db_update_client_status(socket, waip_id);
@@ -79,9 +71,8 @@ module.exports = function (io, sql, tw, async, app_cfg) {
         });
       } else {
         // Standby senden
-        //io.sockets.to(socket_id).emit('io.standby', null);
         socket.emit('io.standby', null);
-        sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket.id + ' gesendet..');
+        sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket.id + ' gesendet.');
         sql.db_update_client_status(socket, null);
       };
     });
@@ -98,12 +89,10 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             if (rmld_obj) {
               // Rückmeldung an Clients/Räume senden
               socket_rooms.forEach(function (rooms) {
-
-                    var nsp_waip = io.of('/waip');
-                    nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
-                    sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Raum ' + rooms.room + ' gesendet.');
-                    sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
-      
+                var nsp_waip = io.of('/waip');
+                nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
+                sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Wache ' + rooms.room + ' gesendet.');
+                sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
               });
             };
           });
@@ -112,14 +101,14 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     });
   };
 
-  function rueckmeldung_verteilen_for_one_client(waip_id, socket, wachen_id) {
+  function rmld_verteilen_for_one_client(waip_id, socket, wachen_id) {
     if (typeof socket !== 'undefined') {
-      sql.db_get_response_for_wache(waip_id, wachen_id, function (rmld) {
-        if (rmld) {
+      sql.db_get_response_for_wache(waip_id, wachen_id, function (rmld_obj) {
+        if (rmld_obj) {
           // Rueckmeldung nur an den einen Socket senden
-          socket.emit('io.response', rmld);
+          socket.emit('io.response', rmld_obj);
           sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket.id + ' gesendet.');
-          sql.db_log('RMLD', 'DEBUG: ' + JSON.stringify(rmld));
+          sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
         } else {
           sql.db_log('RMLD', 'Keine Rückmeldungen für Einsatz-ID' + waip_id + ' und Wachen-ID ' + wachen_id + ' vorhanden.');
         };
@@ -333,7 +322,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     einsatz_speichern: einsatz_speichern,
     waip_verteilen: waip_verteilen,
     dbrd_verteilen: dbrd_verteilen,
-    rmld_verteilen_for_one_client: rueckmeldung_verteilen_for_one_client,
+    rmld_verteilen_for_one_client: rmld_verteilen_for_one_client,
     rmld_verteilen_by_uuid: rmld_verteilen_by_uuid
   };
 };

@@ -900,7 +900,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
     });
   };
 
-  function db_get_twitter_list(waip_id, callback) {
+  function db_get_vmtl_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache in diesem Einsatz ein Twitter-Account mit Liste hinterlegt ist
     db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_twitter_wachen t 
       where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
@@ -967,7 +967,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
     db_get_waipid_by_uuid: db_get_waipid_by_uuid,
     db_get_single_response_by_rmlduuid,
     db_get_single_response_by_rmlduuid,
-    db_get_twitter_list: db_get_twitter_list
+    db_get_vmtl_list: db_get_vmtl_list
   };
 
 };
