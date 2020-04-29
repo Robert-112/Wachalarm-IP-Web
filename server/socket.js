@@ -38,9 +38,9 @@ module.exports = function (io, sql, app_cfg, waip) {
                 var waip_id = result_einsatz[0].waip_einsaetze_ID;
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' für Wache ' + wachen_id + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
                 //letzten Einsatz verteilen
-                waip.einsatz_verteilen(waip_id, socket, wachen_id);
+                waip.waip_verteilen(waip_id, socket, wachen_id);
                 //vorhandene Rückmeldungen verteilen
-                waip.rueckmeldung_verteilen_for_client(waip_id, socket, wachen_id);
+                waip.rueckmeldung_verteilen_for_one_client(waip_id, socket, wachen_id);
               } else {
                 sql.db_log('WAIP', 'Kein Einsatz für Wache ' + wachen_id + ' vorhanden, gehe in Standby');
                 // falls kein Einsatz vorhanden ist, dann Standby senden

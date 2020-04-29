@@ -244,7 +244,9 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
   };
 
   function db_get_einsatz_rooms(waip_id, callback) {
-    db.all(`select w.nr_kreis room from waip_wachen w
+    db.all(`select '0' room
+      union all
+      select w.nr_kreis room from waip_wachen w
       left join waip_einsatzmittel em on em.wachenname = w.name_wache
       where em.waip_einsaetze_ID = ? group by w.nr_kreis
       union all
@@ -257,10 +259,6 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
       where em.waip_einsaetze_ID = ? group by w.nr_wache`, [waip_id, waip_id, waip_id],
       function (err, rows) {
         if (err == null && rows.length > 0) {
-          // falls einsätze vorhanden, auch die null hinzufuegen
-          rows.push({
-          "room": 0
-          });
           callback && callback(rows);
         } else {
           callback && callback(null);

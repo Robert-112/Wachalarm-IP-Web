@@ -14,7 +14,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             if (typeof room_sockets !== 'undefined') {
               //Object.keys(room_sockets.sockets).forEach(function (socketId) {
               Object.keys(room_sockets).forEach(function (socket) {
-                einsatz_verteilen(waip_id, socket, rooms.room);
+                waip_verteilen(waip_id, socket, rooms.room);
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
               });
             };
@@ -44,7 +44,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
   };
 
   // Einsatz an Client verteilen
-  function einsatz_verteilen(waip_id, socket, wachen_nr) {
+  function waip_verteilen(waip_id, socket, wachen_nr) {
     // Einsatzdaten für eine Wache aus Datenbank laden
     var user_obj = socket.request.user;
     sql.db_get_einsatzdaten(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
@@ -87,7 +87,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     });
   };
 
-  function reuckmeldung_verteilen_by_uuid(waip_uuid, rmld_uuid) {
+  function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
     // Einsatz-ID mittels Einsatz-UUID ermitteln
     sql.db_get_waipid_by_uuid(waip_uuid, function (waip_id) {
       // am Einsatz beteilite Socket-Räume ermitteln
@@ -98,17 +98,12 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             if (rmld_obj) {
               // Rückmeldung an Clients/Räume senden
               socket_rooms.forEach(function (rooms) {
-                var room_sockets = io.sockets.adapter.rooms[rooms.room];
-                if (typeof room_sockets !== 'undefined') {
-                  //Object.keys(room_sockets.sockets).forEach(function (socketId) {
-                  Object.keys(room_sockets).forEach(function (socket) {
-                    console.log('rooms: ' + JSON.stringify(socket_rooms));
-                    console.log('rooms: ' + JSON.stringify(rooms));
-                    socket.emit('io.response', rmld_obj);
+
+                    var nsp_waip = io.of('/waip');
+                    nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
                     sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Raum ' + rooms.room + ' gesendet.');
                     sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
-                  });     
-                };        
+      
               });
             };
           });
@@ -117,7 +112,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     });
   };
 
-  function rueckmeldung_verteilen_for_client(waip_id, socket, wachen_id) {
+  function rueckmeldung_verteilen_for_one_client(waip_id, socket, wachen_id) {
     if (typeof socket !== 'undefined') {
       sql.db_get_response_for_wache(waip_id, wachen_id, function (rmld) {
         if (rmld) {
@@ -336,9 +331,9 @@ module.exports = function (io, sql, tw, async, app_cfg) {
 
   return {
     einsatz_speichern: einsatz_speichern,
-    einsatz_verteilen: einsatz_verteilen,
+    waip_verteilen: waip_verteilen,
     dbrd_verteilen: dbrd_verteilen,
-    rueckmeldung_verteilen_for_client: rueckmeldung_verteilen_for_client,
-    reuckmeldung_verteilen_by_uuid: reuckmeldung_verteilen_by_uuid
+    rmld_verteilen_for_one_client: rueckmeldung_verteilen_for_one_client,
+    rmld_verteilen_by_uuid: rmld_verteilen_by_uuid
   };
 };
