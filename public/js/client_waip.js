@@ -474,10 +474,10 @@ setInterval(set_clock, 1000);
 
 // Uhrzeit verschieben
 $(document).ready(function(){
-  setTimeout(function(){ animateDiv(); },5000);
-  
+  setTimeout(function(){ animateDiv(); },1000);
 });
 
+// neue Random-Position fuer Uhrzeit ermitteln
 function makeNewPosition(){
   // Get viewport dimensions 
   var h = $('.fullheight').height() - $('.clock_y').height();
@@ -487,35 +487,25 @@ function makeNewPosition(){
   return [nh,nw];    
 };
 
+// Verschieben animieren
 function animateDiv(){
   var newq = makeNewPosition();
   var oldq = $('.clock_y').offset();
   var speed = calcSpeed([oldq.top, oldq.left], newq);
-  
   $('.clock_y').animate({ top: newq[0], left: newq[1] }, speed, function(){
     animateDiv();        
-  });
-  
+  });  
 };
 
+// Verschiebe-Geschindigkeit berechnen
 function calcSpeed(prev, next) {
   var x = Math.abs(prev[1] - next[1]);
   var y = Math.abs(prev[0] - next[0]);
-  
   var greatest = x > y ? x : y;
-  
-  var speedModifier = 0.1;
-
+  var speedModifier = 0.001;
   var speed = Math.ceil(greatest/speedModifier);
-
   return speed;
-
-}
-
-
-
-
-
+};
 
 /* ########################### */
 /* ####### Rückmeldung ####### */

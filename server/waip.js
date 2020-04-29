@@ -25,7 +25,9 @@ module.exports = function (io, sql, tw, async, app_cfg) {
       // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
       sql.db_get_vmtl_list(waip_id, function (vmtl_data) {
         if (vmtl_data) {
-                                                                                      console.log('Daten Twitter: ' + JSON.stringify(vmtl_data));
+          if (app_cfg.global.development) {
+            console.log('Daten Twitter: ' + JSON.stringify(vmtl_data));
+          };                                                                                     
           tw.alert_vmtl_list(vmtl_data, function (result) {
             if (!result) {
               sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
@@ -204,7 +206,9 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           var options = {
             shell: true
           };
-          console.log(commands);
+          if (app_cfg.global.development) {
+            console.log(commands);
+          };          
           var childD = proc.spawn('/bin/sh', commands);
           childD.stdin.setEncoding('ascii');
           childD.stderr.setEncoding('ascii');
@@ -231,11 +235,18 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     // alle User-Einstellungen prüfen und ggf. Standby senden
     sql.db_get_sockets_to_standby(function (socket_ids) {
       if (socket_ids) {
-        console.log()
         socket_ids.forEach(function (row) {
           var socket = io.sockets.connected[row.socket_id];
-          socket.emit('io.standby', null);
-          socket.emit('io.stopaudio', null);
+
+          
+          //nvar nsp_waip = io.of('/waip');
+          //nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
+
+          io.of('/waip').to(row.socket_id).emit('io.standby', null);
+          io.of('/waip').to(row.socket_id).emit('io.stopaudio', null);
+
+          //socket.emit('io.standby', null);
+          //socket.emit('io.stopaudio', null);
           sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
           sql.db_update_client_status(socket, null);
         });
@@ -253,8 +264,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
               var room_stockets = io.sockets.adapter.rooms[row.room];
               if (typeof room_stockets !== 'undefined') {
                 Object.keys(room_stockets).forEach(function (socket) {
-                  // Standby senden
-                  // TODO: Standby nur senden, wenn kein anderer (als der zu löschende) Einsatz angezeigt wird
+                  // Standby senden                  
                   sql.db_check_client_waipid(socket.id, waip_id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
@@ -266,11 +276,13 @@ module.exports = function (io, sql, tw, async, app_cfg) {
                 });
               };
             });
-          };
-          // Einsatz löschen
-          sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird gelöscht');
-          sql.db_einsatz_loeschen(waip_id);
+          };          
         });
+        // TODO: an Dashboard senden, das der Einsatz gelöscht wurde
+        // TODO: Rueckmeldung löschen, und vorher backup
+        // Einsatz löschen
+        sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird gelöscht');
+        sql.db_einsatz_loeschen(waip_id);
       };
     });
     // TODO: löschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)

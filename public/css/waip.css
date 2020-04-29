@@ -171,6 +171,16 @@ audio {
   position:fixed;
 }
 
+.client_wache {
+  animation: x2 1200s linear infinite alternate;
+}
+
+@keyframes x2 {
+  100% {
+    transform: translatex(300%);
+  }
+}
+
 /*** Texte des Bildschirmschoners dynamisch bewegen lassen 
 
 .clock_x {
@@ -193,13 +203,5 @@ audio {
   }
 }
 
-.client_wache {
-  animation: x2 1200s linear infinite alternate;
-}
 
-@keyframes x2 {
-  100% {
-    transform: translatex(300%);
-  }
-}
 **********/
