@@ -165,7 +165,7 @@ audio {
   }
 }
 
-/*** Texte des Bildschirmschoners dynamisch bewegen lassen **********/
+/*** Texte des Bildschirmschoners dynamisch bewegen lassen 
 
 .clock_x {
   animation: x 1200s linear infinite alternate;
@@ -196,3 +196,4 @@ audio {
     transform: translatex(300%);
   }
 }
+**********/
