@@ -385,6 +385,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   // error handler
   app.use(function(err, req, res, next) {
     // set locals, only providing error in development
+    // TODO: Development Modus abfangen
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
     // render the error page

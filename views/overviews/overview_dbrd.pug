@@ -8,7 +8,7 @@ block content
           .card.bg-dark
             .card-body.text-center.text-muted
               h3 - wählen Sie ein Dashboard -
-        each val in dataSet
+        each val, index in dataSet
           .col-12.col-xl-6.d-flex.align-self-stretch.p-3
             .card.w-100
               .card-header
@@ -24,9 +24,11 @@ block content
                   default
                     h5.font-weight-bold.ion-md-information-circle= ' ' + val.einsatzart + ' - ' + val.stichwort
               .card-body.d-flex.justify-content-between
+                .h-100.rounded( id='map' + val.uuid )
                 if val.ortsteil
                   a= val.ort + ', ' + val.ortsteil
                 else
                   p= val.ort
               .card-footer.text-right
                 a.btn.btn-primary.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen
+  

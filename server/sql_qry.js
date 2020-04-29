@@ -534,7 +534,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
   };
 
   function db_get_active_waips(callback) {
-    db.all(`select we.uuid, we.einsatzart, we.stichwort, we.ort, we.ortsteil,
+    db.all(`select we.uuid, we.einsatzart, we.stichwort, we.ort, we.ortsteil, we.wgs84_area,
     GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
     GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
     GROUP_concat(DISTINCT wa.nr_wache) c

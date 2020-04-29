@@ -91,8 +91,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             if (rmld_obj) {
               // Rückmeldung an Clients/Räume senden
               socket_rooms.forEach(function (rooms) {
-                var nsp_waip = io.of('/waip');
-                nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
+                io.of('/waip').to(rooms.room).emit('io.response', rmld_obj);
                 sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Wache ' + rooms.room + ' gesendet.');
                 sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
               });
@@ -236,18 +235,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     sql.db_get_sockets_to_standby(function (socket_ids) {
       if (socket_ids) {
         socket_ids.forEach(function (row) {
-          //var socket = io.sockets.connected[row.socket_id];
-
-          
-          var nsp_waip = io.of('/waip');
-          console.log(JSON.stringify(row));
-          console.log(nsp_waip.connected[row.socket_id]);
-          var socket = nsp_waip.connected[row.socket_id];
-          //nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
-
-          //io.of('/waip').to(row.socket_id).emit('io.standby', null);
-          //io.of('/waip').to(row.socket_id).emit('io.stopaudio', null);
-
+          var socket = io.of('/waip').connected[row.socket_id];
           socket.emit('io.standby', null);
           socket.emit('io.stopaudio', null);
           sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');

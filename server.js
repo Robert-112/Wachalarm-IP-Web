@@ -19,10 +19,16 @@ const twit = require('twit');
 const uuidv4 = require('uuid/v4');
 const turf = require('@turf/turf');
 
+// Basis-Konfiguration laden
+var app_cfg = require('./server/app_cfg.js');
+
 // Express-Einstellungen
 app.set('views', path.join(__dirname, 'views'));
 app.locals.basedir = app.get('views');
 app.set('view engine', 'pug');
+if (!app_cfg.global.development) {
+  app.set('view cache', true);
+};
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
@@ -31,7 +37,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Scripte einbinden
-var app_cfg = require('./server/app_cfg.js');
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, uuidv4, turf, app_cfg);
 var tw = require('./server/twitter')(twit, uuidv4, app_cfg);
@@ -66,5 +71,3 @@ http.createServer(function(req, res) {
 	res.end();
   };
 }).listen(app_cfg.global.http_port);
-
-// TODO: auf HTTPS mit TLS1.2 umstellen, inkl. WSS

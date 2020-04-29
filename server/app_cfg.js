@@ -32,6 +32,4 @@ app_cfg.remote = {
 	jwt_secret: 'asdfwert1234567890#'
 };
 
-remoteapi: 'http://localhost:8078/api',
-
 module.exports = app_cfg;
