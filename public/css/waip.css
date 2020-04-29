@@ -165,6 +165,12 @@ audio {
   }
 }
 
+/*** Texte des Bildschirmschoners dynamisch bewegen lassen ***/
+
+.clock_y {
+  position:fixed;
+}
+
 /*** Texte des Bildschirmschoners dynamisch bewegen lassen 
 
 .clock_x {

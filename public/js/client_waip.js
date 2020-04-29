@@ -472,37 +472,33 @@ function set_clock() {
 // Uhrzeit jede Sekunden anpassen
 setInterval(set_clock, 1000);
 
+// Uhrzeit verschieben
 $(document).ready(function(){
-  animateDiv();
+  setTimeout(function(){ animateDiv(); },5000);
   
 });
 
 function makeNewPosition(){
-  
-  // Get viewport dimensions (remove the dimension of the div)
-  var h = $('.fullheight').height();// - 50;
-  var w = $('.fullheight').width();// - 50;
-  
+  // Get viewport dimensions 
+  var h = $('.fullheight').height() - $('.clock_y').height();
+  var w = $('.fullheight').width() - $('.clock_y').width();  
   var nh = Math.floor(Math.random() * h);
   var nw = Math.floor(Math.random() * w);
-  
   return [nh,nw];    
-  
-}
+};
 
 function animateDiv(){
   var newq = makeNewPosition();
-  var oldq = $('.clock_x').offset();
+  var oldq = $('.clock_y').offset();
   var speed = calcSpeed([oldq.top, oldq.left], newq);
   
-  $('.clock_x').animate({ top: newq[0], left: newq[1] }, speed, function(){
+  $('.clock_y').animate({ top: newq[0], left: newq[1] }, speed, function(){
     animateDiv();        
   });
   
 };
 
 function calcSpeed(prev, next) {
-  
   var x = Math.abs(prev[1] - next[1]);
   var y = Math.abs(prev[0] - next[0]);
   
