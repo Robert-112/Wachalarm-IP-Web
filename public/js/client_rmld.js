@@ -8,6 +8,7 @@ var map = L.map('map', {
 }).setView([51.733005, 14.338048], 13);
 
 // Layer der Karte
+// TODO: internen Kartendienst setzten
 mapLink = L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   //map_tile, {

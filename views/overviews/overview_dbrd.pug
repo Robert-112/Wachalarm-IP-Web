@@ -1,5 +1,8 @@
 extends ../layout
 
+append head
+  link(rel='stylesheet', href='/css/leaflet.css')
+
 block content
   main(role='main')
     .container
@@ -23,12 +26,45 @@ block content
                     h5.font-weight-bold.text-success.ion-md-medical= ' ' + val.einsatzart + ' - ' + val.stichwort                    
                   default
                     h5.font-weight-bold.ion-md-information-circle= ' ' + val.einsatzart + ' - ' + val.stichwort
-              .card-body.d-flex.justify-content-between
-                .h-100.rounded( id='map' + val.uuid )
+              .card-body                
                 if val.ortsteil
-                  a= val.ort + ', ' + val.ortsteil
+                  p= val.ort + ', ' + val.ortsteil
                 else
                   p= val.ort
+                .w-100.rounded( id='map' + val.uuid style='height:200px')
               .card-footer.text-right
                 a.btn.btn-primary.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen
   
+  script(src='/js/leaflet.js')
+  script.
+  
+    // TODO: internen Kartendienst nutzen
+    //var map_tile = !{JSON.stringify(public.map_tile).replace(/<\//g, '<\\/')}
+    var data = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
+    console.log(data);
+    for (let i in data) {
+      console.log(i); // logs "0", "1", "2", "foo"
+      // Karte definieren
+      var map = L.map('map'+data[i].uuid, {
+        zoomControl: false
+      });
+
+      // Layer der Karte
+      mapLink = L.tileLayer(
+        
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        //map_tile, {
+          maxZoom: 12
+        }).addTo(map);
+
+
+      // Karte setzen
+    
+  
+        var geojson = L.geoJSON(JSON.parse(data[i].wgs84_area)).addTo(map);
+        map.fitBounds(geojson.getBounds());
+        map.setZoom(13);
+    }
+    
+    
+ 
