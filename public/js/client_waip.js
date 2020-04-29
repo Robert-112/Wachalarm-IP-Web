@@ -51,9 +51,10 @@ function resize_text() {
       detectMultiLine: false
     });
     textFit(document.getElementsByClassName('tf_test'), {
-      detectMultiLine: false,
-      multiLine: false,
-      alignVertWithFlexbox: flase
+      minFontSize: 1,
+      maxFontSize: 500,
+      reProcess: true,
+      alignVertWithFlexbox: false
     });
     map.invalidateSize();
     $("body").css("background-color", "#222");
@@ -377,7 +378,15 @@ socket.on('io.neuerEinsatz', function (data) {
   $('#em_alarmiert').empty();
   var data_em_alarmiert = JSON.parse(data.em_alarmiert);
   for (var i in data_em_alarmiert) {
-    $('#em_alarmiert').append('<li class="list-group-item d-flex justify-content-between align-items-center">' + data_em_alarmiert[i].name + '</li>');
+    var tmp = data_em_alarmiert[i].name.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
+    $('#em_alarmiert').append('<div id="cn_' + tmp + '" class="rounded bg-secondary d-flex justify-content-between flex-fill p-2 m-1"></div>');
+    $('#cn_' + tmp).append('<div class="pr-2">' + data_em_alarmiert[i].name + '</div>');
+
+//<div class="p-2 badge badge-success">2</div>
+  //  div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+    //      div.pr-2 FL CB 01/42-01
+      //    div.p-2.badge.badge-success 2
+    //$('#em_alarmiert').append('<li class="list-group-item d-flex justify-content-between align-items-center">' + data_em_alarmiert[i].name + '</li>');
   };
   // weitere alarmierte Einsatzmittel setzen
   $('#em_weitere').html('');

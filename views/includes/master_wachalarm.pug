@@ -1,11 +1,11 @@
 #waiptableau.fullheight.row.no-gutters
-  .col-6.h-5.d-flex.align-items-center.py-1.text-muted 
-    button#replay.btn.btn-outline-light.h-100.py-1.tf_singleline
+  .col-6.h-5.d-flex.align-items-center.py-1.text-muted.tf_singleline 
+    button#replay.btn.btn-outline-light.h-100.py-1
       .ion-md-play-circle
-    button#volume.btn.btn-outline-light.h-100.mx-1.tf_singleline
+    button#volume.btn.btn-outline-light.h-100.mx-1
       .ion-md-volume-high
-    #date-time
-      .tf_singleline -Datum- - -Uhrzeit-  
+    #date-time 
+      div -Datum- - -Uhrzeit-  
   .col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
     #wachenname.ion-md-business=data_wache || ' -Wachenname-'
   .col-10.h-15.h-20_ls.pr-3
@@ -63,7 +63,6 @@
           | -Straße Hsnr-
       //.col-6.h-65.d-flex.align-items-around.justify-content-end
       #em_alarmiert.col-6.h-60.d-flex.flex-wrap.align-content-end
-        //div.flex-fill.rounded.bg-secondary.p-2.m-1
         div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
           div.pr-2 FL CB 01/42-01
           div.p-2.badge.badge-success 2
@@ -99,7 +98,7 @@
           // TODO: auflistung vieler Fahrzeuge verbessern. flexfill
       .col-12.h-5.d-flex.align-items-end.justify-content-center.text-muted.tf_singleline
         #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
-      .col-12.h-15.d-flex.align-items-center.rounded.bg-light.font-weight-bold.text-info.tf_singleline
+      .col-12.h-15.d-flex.align-items-center.rounded.bg-dark.font-weight-bold.text-info.tf_singleline
         #besonderheiten -Besonderheiten-
   .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
     .progress(style='height: 100%;').flex-fill
