@@ -236,17 +236,20 @@ module.exports = function (io, sql, tw, async, app_cfg) {
     sql.db_get_sockets_to_standby(function (socket_ids) {
       if (socket_ids) {
         socket_ids.forEach(function (row) {
-          var socket = io.sockets.connected[row.socket_id];
+          //var socket = io.sockets.connected[row.socket_id];
 
           
-          //nvar nsp_waip = io.of('/waip');
+          var nsp_waip = io.of('/waip');
+          console.log(JSON.stringify(row));
+          console.log(nsp_waip.sockets.connected[row.socket_id]);
+          //var socket = ;
           //nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
 
-          io.of('/waip').to(row.socket_id).emit('io.standby', null);
-          io.of('/waip').to(row.socket_id).emit('io.stopaudio', null);
+          //io.of('/waip').to(row.socket_id).emit('io.standby', null);
+          //io.of('/waip').to(row.socket_id).emit('io.stopaudio', null);
 
-          //socket.emit('io.standby', null);
-          //socket.emit('io.stopaudio', null);
+          socket.emit('io.standby', null);
+          socket.emit('io.stopaudio', null);
           sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
           sql.db_update_client_status(socket, null);
         });

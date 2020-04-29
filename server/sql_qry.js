@@ -505,8 +505,9 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
   };
 
   function db_log(typ, text) {
+    //TODO: Debug Eintraege nur bei Development speichern 
     db.run(`INSERT INTO waip_log (log_typ, log_text)
-      VALUES (
+        VALUES (
         \'` + typ + `\',
         \'` + text + `\')`);
     //TODO: Log auf 20.000 Datensätze begrenzen

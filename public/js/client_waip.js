@@ -1,16 +1,15 @@
 // TODO: Remote-Reload per Socket
-// TODO: Client-Server-Version abgleichen
-// TODO: Modal bei Chrome, dass Audio erst bei interaktion aktiv
+// TODO: Modal bei Server-Verbindung, und Modal bei Reload
 
-$(document).ready(function() {
+$(document).ready(function () {
   set_clock();
 });
 
-$(window).on("resize", function() {
+$(window).on("resize", function () {
   resize_text();
 });
 
-$('#replay').on('click', function(event) {
+$('#replay').on('click', function (event) {
   audio.play();
 });
 
@@ -20,12 +19,12 @@ $('#replay').on('click', function(event) {
 
 var waipAudio = document.getElementById('audio');
 
-waipAudio.addEventListener('ended', function(){
-   $('.ion-md-pause').toggleClass("ion-md-play-circle");
+waipAudio.addEventListener('ended', function () {
+  $('.ion-md-pause').toggleClass("ion-md-play-circle");
 });
 
-  waipAudio.addEventListener("play", function () {
-      $('.ion-md-play-circle').toggleClass("ion-md-pause");
+waipAudio.addEventListener("play", function () {
+  $('.ion-md-play-circle').toggleClass("ion-md-pause");
 });
 
 /* ############################ */
@@ -64,20 +63,20 @@ function resize_text() {
 
 
 // Text nach bestimmter Laenge, in Abhaengigkeit von Zeichen, umbrechen
-function break_text_15(text){
+function break_text_15(text) {
   var new_text;
   new_text = text.replace(/.{15}(\s+|\-+)+/g, "$&@")
   new_text = new_text.split(/@/);
-  new_text= new_text.join("<br>");
+  new_text = new_text.join("<br>");
   //console.log(new_text);
   return new_text;
 };
 
 
-function break_text_35(text){
+function break_text_35(text) {
   var new_text;
   new_text = text.replace(/.{50}\S*\s+/g, "$&@").split(/\s+@/);
-  new_text= new_text.join("<br>");
+  new_text = new_text.join("<br>");
   //console.log(new_text);
   return new_text;
 };
@@ -162,7 +161,7 @@ function start_counter(zeitstempel, ablaufzeit) {
     end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
 
   clearInterval(counter_ID);
-  counter_ID = setInterval(function() {
+  counter_ID = setInterval(function () {
     do_progressbar(start, end);
   }, 1000);
 };
@@ -226,19 +225,19 @@ var geojson = L.geoJSON().addTo(map);
 var socket = io('/waip');
 
 // Wachen-ID bei Connect an Server senden
-socket.on('connect', function() {
+socket.on('connect', function () {
   socket.emit('WAIP', wachen_id);
   $('#waipModal').modal('hide');
 });
 
-socket.on('connect_error', function(err) {
+socket.on('connect_error', function (err) {
   $('#waipModalTitle').html('FEHLER');
   $('#waipModalBody').html('Verbindung zum Server getrennt!');
   $('#waipModal').modal('show');
 });
 
 // ID von Server und Client vergleichen, falls ungleich -> Seite neu laden
-socket.on('io.version', function(server_id) {
+socket.on('io.version', function (server_id) {
   // TODO: socket.emit(lade client xxx neu)
   if (client_id != server_id) {
     $('#waipModalTitle').html('ACHTUNG');
@@ -247,33 +246,33 @@ socket.on('io.version', function(server_id) {
       $('#waipModal').modal('hide');
     };
     $('#waipModal').modal('show');
-    setTimeout(function() {
+    setTimeout(function () {
       location.reload();
     }, 10000);
   };
 });
 
 // ggf. Fehler ausgeben
-socket.on('io.error', function(data) {
+socket.on('io.error', function (data) {
   console.log('Error:', data);
 });
 
 // Sounds stoppen
-socket.on('io.stopaudio', function(data) {
+socket.on('io.stopaudio', function (data) {
   var audio = document.getElementById('audio');
   audio.pause;
 });
 
 // Sounds abspielen
-socket.on('io.playtts', function(data) {
+socket.on('io.playtts', function (data) {
   var audio = document.getElementById('audio');
   audio.src = (data);
   // Audio-Blockade des Browsers erkennen
   var promise = document.querySelector('audio').play();
   if (promise !== undefined) {
-    promise.then(function(_) {
+    promise.then(function (_) {
       audio.play();
-    }).catch(function(error) {
+    }).catch(function (error) {
       //$('#waipModalTitle').html('Audio-Fehler');
       //$('#waipModalBody').html('Die automatische Audio-Wiedergabe wird durch Ihren Browser blockiert! Fehlermeldung: ' + error.message);
       //$('#waipModal').modal('show');
@@ -284,11 +283,11 @@ socket.on('io.playtts', function(data) {
 });
 
 // Daten löschen, Uhr anzeigen
-socket.on('io.standby', function(data) {
+socket.on('io.standby', function (data) {
   // Einsatz-ID auf 0 setzen
   waip_id = null;
   // TODO: Wenn vorhanden, hier #hilfsfrist zurücksetzen
-  $('#einsatz_art').removeClass(function(index, className) {
+  $('#einsatz_art').removeClass(function (index, className) {
     return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
   });
   $('#einsatz_stichwort').removeClass();
@@ -307,13 +306,13 @@ socket.on('io.standby', function(data) {
 });
 
 // Einsatzdaten laden, Wachalarm anzeigen
-socket.on('io.neuerEinsatz', function(data) {
+socket.on('io.neuerEinsatz', function (data) {
   // DEBUG
   //console.log(data);
   // Einsatz-ID speichern
   waip_id = data.id;
   // Hintergrund der Einsatzart zunächst entfernen
-  $('#einsatz_art').removeClass(function(index, className) {
+  $('#einsatz_art').removeClass(function (index, className) {
     return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
   });
   // Icon der Einsatzart enfernen
@@ -410,7 +409,7 @@ socket.on('io.neuerEinsatz', function(data) {
     geojson.addTo(map);
     map.fitBounds(geojson.getBounds());
     map.setZoom(13);
-  };    
+  };
   // Hilfsfrist setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // Uhr ausblenden
@@ -473,28 +472,33 @@ function set_clock() {
 setInterval(set_clock, 1000);
 
 // Uhrzeit verschieben
-$(document).ready(function(){
-  setTimeout(function(){ animateDiv(); },1000);
+$(document).ready(function () {
+  setTimeout(function () {
+    animateDiv();
+  }, 1000);
 });
 
 // neue Random-Position fuer Uhrzeit ermitteln
-function makeNewPosition(){
+function makeNewPosition() {
   // Get viewport dimensions 
   var h = $('.fullheight').height() - $('.clock_y').height();
-  var w = $('.fullheight').width() - $('.clock_y').width();  
+  var w = $('.fullheight').width() - $('.clock_y').width();
   var nh = Math.floor(Math.random() * h);
   var nw = Math.floor(Math.random() * w);
-  return [nh,nw];    
+  return [nh, nw];
 };
 
 // Verschieben animieren
-function animateDiv(){
+function animateDiv() {
   var newq = makeNewPosition();
   var oldq = $('.clock_y').offset();
   var speed = calcSpeed([oldq.top, oldq.left], newq);
-  $('.clock_y').animate({ top: newq[0], left: newq[1] }, speed, function(){
-    animateDiv();        
-  });  
+  $('.clock_y').animate({
+    top: newq[0],
+    left: newq[1]
+  }, speed, function () {
+    animateDiv();
+  });
 };
 
 // Verschiebe-Geschindigkeit berechnen
@@ -503,7 +507,7 @@ function calcSpeed(prev, next) {
   var y = Math.abs(prev[0] - next[0]);
   var greatest = x > y ? x : y;
   var speedModifier = 0.001;
-  var speed = Math.ceil(greatest/speedModifier);
+  var speed = Math.ceil(greatest / speedModifier);
   return speed;
 };
 
@@ -511,20 +515,20 @@ function calcSpeed(prev, next) {
 /* ####### Rückmeldung ####### */
 /* ########################### */
 
-$('#rueckmeldung').each(function(index) {
-    $(this).on("click", function(){
-      $('#responseModal').modal('show');
-    });
+$('#rueckmeldung').each(function (index) {
+  $(this).on("click", function () {
+    $('#responseModal').modal('show');
+  });
 });
 
-$('#send_response').on('click', function() {
+$('#send_response').on('click', function () {
   // Rückmeldung sammeln
   var respo = {};
   respo.einsatzkraft = $('#radios_res_ek').prop('checked');
   respo.maschinist = $('#radios_res_ma').prop('checked');
   respo.fuehrungskraft = $('#radios_res_fk').prop('checked');
   respo.atemschutz = $('#cb_res_agt').prop('checked');
-  socket.emit('response',waip_id,respo);
+  socket.emit('response', waip_id, respo);
 });
 
 
@@ -534,15 +538,15 @@ var counter_tmld = [];
 function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
   // Split timestamp into [ Y, M, D, h, m, s ]
   //var t1 = zeitstempel.split(/[- :]/),
-    //t2 = ablaufzeit.split(/[- :]/);
+  //t2 = ablaufzeit.split(/[- :]/);
 
   //var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
-    //end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
+  //end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
 
   // Progressbar erstellen falls nicht existiert
 
-    // 
-    //<div class="progress mt-1">
+  // 
+  //<div class="progress mt-1">
   //<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">2min</div></div>
   var bar_background = '';
   var bar_border = '';
@@ -566,117 +570,98 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
 
   // pruefen ob div mit id 'pg-'+p_id schon vorhanden ist
   var pgbar = document.getElementById('pg-' + p_id);
-    if(!pgbar){ 
-  $( '#pg-' + p_type ).append( '<div class="progress mt-1 position-relative '+bar_border+'" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>'); //+ ' ></div>' );
+  if (!pgbar) {
+    $('#pg-' + p_type).append('<div class="progress mt-1 position-relative ' + bar_border + '" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>'); //+ ' ></div>' );
 
-  $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped '+ bar_background +'" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
-  $( '#pg-bar'+ p_id ).append('<small id="pg-text'+ p_id +'" class="justify-content-center d-flex position-absolute w-100"></small>');
-    };
-  
-  
+    $('#pg-' + p_id).append('<div id="pg-bar' + p_id + '" class="progress-bar progress-bar-striped ' + bar_background + '" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>');
+    $('#pg-bar' + p_id).append('<small id="pg-text' + p_id + '" class="justify-content-center d-flex position-absolute w-100"></small>');
+  };
+
+
 
   clearInterval(counter_tmld[p_id]);
   counter_tmld[p_id] = 0;
-  
-  counter_tmld[p_id] = setInterval(function() {
+
+  counter_tmld[p_id] = setInterval(function () {
     do_rmld_bar(p_id, p_start, p_end);
   }, 1000);
 };
 
 
-  function do_rmld_bar(p_id, start, end) {
-    //console.log(p_id);
-    today = new Date();
-    // restliche Zeit ermitteln
-    //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
-    var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
-  
-    var diff = Math.abs(end - today);
-    var minutesDifference = Math.floor(diff / 1000 / 60);
-    diff -= minutesDifference * 1000 * 60;
-    var secondsDifference = Math.floor(diff / 1000);
-    if (secondsDifference <= 9) {
-      secondsDifference = '0' + secondsDifference;
-    };
-    var minutes = minutesDifference + ':' + secondsDifference;
-   
-    
-    // Progressbar anpassen
-    if (current_progress >= 100) {
-      $("#pg-bar"+p_id)
-        .css("width", "100%")
-        .attr("aria-valuenow", 100)
-        .addClass("ion-md-checkmark-circle");
-        $("#pg-text"+p_id).text("");
-      clearInterval(counter_ID[p_id]);
-    } else {
-      $("#pg-bar"+p_id)
-        .css("width", current_progress + "%")
-        .attr("aria-valuenow", current_progress);
-      $("#pg-text"+p_id).text(minutes);
-    };
+function do_rmld_bar(p_id, start, end) {
+  //console.log(p_id);
+  today = new Date();
+  // restliche Zeit ermitteln
+  //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
+  var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
+
+  var diff = Math.abs(end - today);
+  var minutesDifference = Math.floor(diff / 1000 / 60);
+  diff -= minutesDifference * 1000 * 60;
+  var secondsDifference = Math.floor(diff / 1000);
+  if (secondsDifference <= 9) {
+    secondsDifference = '0' + secondsDifference;
   };
+  var minutes = minutesDifference + ':' + secondsDifference;
 
-socket.on('io.response', function(data) {
+
+  // Progressbar anpassen
+  if (current_progress >= 100) {
+    $("#pg-bar" + p_id)
+      .css("width", "100%")
+      .attr("aria-valuenow", 100)
+      .addClass("ion-md-checkmark-circle");
+    $("#pg-text" + p_id).text("");
+    clearInterval(counter_ID[p_id]);
+  } else {
+    $("#pg-bar" + p_id)
+      .css("width", current_progress + "%")
+      .attr("aria-valuenow", current_progress);
+    $("#pg-text" + p_id).text(minutes);
+  };
+};
+
+socket.on('io.response', function (data) {
   console.log(data);
-  // neue Rückmeldungen hinterlegen
-  //$('#rueckmeldung').empty();
-  //{einsatzkraft: "0", maschinist: "0", fuehrungskraft: "0", atemschutz: "0"}
-  /*for (var i in data) {
-    var item_class = 'list-group-item flex-fill list-group-item-action tf_singleline';
-    switch (data[i]) {
-      case '0':
-        item_class = item_class + ' text-danger';
-        break;
-      case '1':
-        item_class = item_class + ' text-warning';
-        break;
-      default:
-        item_class = item_class + ' text-success';
-    };
-    $('#rueckmeldung').append('<a class="' + item_class + '">' + data[i] + ' ' + i + '</a>');
-  };*/
-
-
   data.forEach(function (arrayItem) {
     //var x = arrayItem.prop1 + 2;
     //console.log(x);
     var item_content = '';
     var item_classname = '';
     var item_type = "";
-if (arrayItem.einsatzkraft){
-item_content = 'Einsatzkraft';
-item_classname = 'ek';
-item_type = 'ek';
-};
-if (arrayItem.maschinist){
-item_content = 'Maschinist';
-item_classname = 'ma';
-item_type = 'ma';
-};
-if (arrayItem.fuehrungskraft){
-item_content = 'Führungskraft';
-item_classname = 'fk'
-item_type = 'fk';
-};
-if (arrayItem.agt){
-item_content = item_content + (' (AGT)');
-item_classname = item_classname + ('-agt');
-};
-//var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
-
-    
-    add_resp_progressbar(arrayItem.rmld_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
-    
-    var tmp_count = parseInt( $( '#'+item_type+'-counter' ).text() );
-    $( '#'+item_type+'-counter' ).text(tmp_count + 1 );
-
-    if (arrayItem.agt){
-      var tmp_agt = parseInt( $( '#agt-counter' ).text() );
-      $( '#agt-counter' ).text(tmp_agt + 1 );
+    if (arrayItem.einsatzkraft) {
+      item_content = 'Einsatzkraft';
+      item_classname = 'ek';
+      item_type = 'ek';
     };
-    
-});
+    if (arrayItem.maschinist) {
+      item_content = 'Maschinist';
+      item_classname = 'ma';
+      item_type = 'ma';
+    };
+    if (arrayItem.fuehrungskraft) {
+      item_content = 'Führungskraft';
+      item_classname = 'fk'
+      item_type = 'fk';
+    };
+    if (arrayItem.agt) {
+      item_content = item_content + (' (AGT)');
+      item_classname = item_classname + ('-agt');
+    };
+    //var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
+
+
+    add_resp_progressbar(arrayItem.rmld_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
+
+    var tmp_count = parseInt($('#' + item_type + '-counter').text());
+    $('#' + item_type + '-counter').text(tmp_count + 1);
+
+    if (arrayItem.agt) {
+      var tmp_agt = parseInt($('#agt-counter').text());
+      $('#agt-counter').text(tmp_agt + 1);
+    };
+
+  });
 
 
   resize_text();

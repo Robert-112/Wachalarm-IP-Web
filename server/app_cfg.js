@@ -1,10 +1,10 @@
 var app_cfg = {};
 
 app_cfg.global = {
+	development: true,
 	http_port: 3000,
 	https_port: 3443,
-	udpport: 60233,
-	remoteapi: 'http://localhost:8078/api',
+	udpport: 60233,	
 	database: './database.sqlite3',
 	soundpath: '/public/media/',
 	mediapath: '/media/',
@@ -26,5 +26,12 @@ app_cfg.public = {
 	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	map_attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 };
+
+app_cfg.remote = {
+	api: 'http://localhost:8078/api',
+	jwt_secret: 'asdfwert1234567890#'
+};
+
+remoteapi: 'http://localhost:8078/api',
 
 module.exports = app_cfg;
