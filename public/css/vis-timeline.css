@@ -26,7 +26,7 @@
   */
 }
 
-/* TODO: get animation working nicely
+/* 
 
 .vis-item {
   -webkit-transition: top .4s ease-in-out;
@@ -134,7 +134,7 @@
   width: 100%;
   height: 1px;
   box-shadow: 0 0 10px rgba(0,0,0,0.8);
-  /* TODO: find a nice way to ensure vis-shadows are drawn on top of items
+  /* 
   z-index: 1;
   */
 }

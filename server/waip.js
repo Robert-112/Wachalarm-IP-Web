@@ -241,8 +241,8 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           
           var nsp_waip = io.of('/waip');
           console.log(JSON.stringify(row));
-          console.log(nsp_waip.sockets.connected[row.socket_id]);
-          //var socket = ;
+          console.log(nsp_waip.connected[row.socket_id]);
+          var socket = nsp_waip.connected[row.socket_id];
           //nsp_waip.to(rooms.room).emit('io.response', rmld_obj);
 
           //io.of('/waip').to(row.socket_id).emit('io.standby', null);
