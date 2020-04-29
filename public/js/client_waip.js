@@ -51,10 +51,9 @@ function resize_text() {
       detectMultiLine: false
     });
     textFit(document.getElementsByClassName('tf_test'), {
-      widthOnly: true,
-      alignHoriz: false,
-      alignVert: false,
-      alignVertWithFlexbox: false
+      detectMultiLine: false,
+      multiLine: false,
+      alignVertWithFlexbox: flase
     });
     map.invalidateSize();
     $("body").css("background-color", "#222");
