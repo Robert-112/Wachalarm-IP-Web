@@ -7,21 +7,13 @@ module.exports = function (io, sql, tw, async, app_cfg) {
       sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
       // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln      
       sql.db_get_einsatz_rooms(waip_id, function (socket_rooms) {
-        
         if (socket_rooms) {
-          console.log(JSON.stringify(socket_rooms));
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
-            //var room_sockets =  io.of('/waip').sockets.adapter.rooms[rooms.room];
-
-
-
-            var room_sockets =  io.of('/waip').rooms(rooms.room).sockets;
-            console.log(JSON.stringify(room_sockets));
+            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room].sockets;
+            console.log(room_sockets);
             if (typeof room_sockets !== 'undefined') {
               Object.keys(room_sockets).forEach(function (socket) {
-                console.log(JSON.stringify(socket));
-                
                 waip_verteilen(waip_id, socket, rooms.room);
                 sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
               });
