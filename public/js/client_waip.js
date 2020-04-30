@@ -418,6 +418,14 @@ socket.on('io.neuerEinsatz', function (data) {
     map.fitBounds(geojson.getBounds());
     map.setZoom(13);
   };
+  // Rueckmeldung leeren
+  $('#pg-ek').empty();
+  $('#pg-ma').empty();
+  $('#pg-fk').empty();
+  $('#ek-counter').text(0);
+  $('#ma-counter').text(0);
+  $('#fk-counter').text(0);
+  $('#agt-counter').text(0);
   // Hilfsfrist setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // Uhr ausblenden
