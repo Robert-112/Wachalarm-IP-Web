@@ -10,12 +10,19 @@ module.exports = function (io, sql, tw, async, app_cfg) {
         if (socket_rooms) {
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
-            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room].sockets;
+            
+            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];//.sockets;
             console.log(room_sockets);
-            if (typeof room_sockets !== 'undefined') {
-              Object.keys(room_sockets).forEach(function (socket) {
-                waip_verteilen(waip_id, socket, rooms.room);
-                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
+            if (typeof room_sockets !== 'undefined'){ // ) {
+              Object.keys(room_sockets.sockets).forEach(function (socket) {
+                console.log(socket);
+                if (typeof socket !== 'undefined') {
+                  
+                  var socket_real = io.of('/waip').connected[socket];
+                  console.log(socket_real);
+                  waip_verteilen(waip_id, socket_real, rooms.room);
+                  sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
+                };
               });
             };
           });
