@@ -10,19 +10,12 @@ module.exports = function (io, sql, tw, async, app_cfg) {
         if (socket_rooms) {
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
-            
-            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];//.sockets;
-            console.log(room_sockets);
-            if (typeof room_sockets !== 'undefined'){ // ) {
-              Object.keys(room_sockets.sockets).forEach(function (socket) {
-                console.log(socket);
-                if (typeof socket !== 'undefined') {
-                  
-                  var socket_real = io.of('/waip').connected[socket];
-                  console.log(socket_real);
-                  waip_verteilen(waip_id, socket_real, rooms.room);
-                  sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
-                };
+            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];
+            if (typeof room_sockets !== 'undefined'){ 
+              Object.keys(room_sockets.sockets).forEach(function (socket_id) {
+                var socket = io.of('/waip').connected[socket_id];
+                waip_verteilen(waip_id, socket, rooms.room);
+                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
               });
             };
           });
@@ -260,10 +253,11 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           if (data) {
             data.forEach(function (row) {
               // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
-              var room_stockets = io.sockets.adapter.rooms[row.room];
-              if (typeof room_stockets !== 'undefined') {
-                Object.keys(room_stockets).forEach(function (socket) {
-                  // Standby senden                  
+              var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
+              if (typeof room_sockets !== 'undefined') { 
+                Object.keys(room_sockets.sockets).forEach(function (socket_id) {
+                  // Standby senden    
+                  var socket = io.of('/waip').connected[socket_id];              
                   sql.db_check_client_waipid(socket.id, waip_id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);

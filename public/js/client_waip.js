@@ -240,15 +240,15 @@ socket.on('connect_error', function (err) {
 socket.on('io.version', function (server_id) {
   // TODO: socket.emit(lade client xxx neu)
   if (client_id != server_id) {
-    $('#waipModalTitle').html('ACHTUNG');
-    $('#waipModalBody').html('Neue Server-Version. Seite wird in 10 Sekunden neu geladen!');
-    if ($('#waipModal').hasClass('in')) {
-      $('#waipModal').modal('hide');
-    };
-    $('#waipModal').modal('show');
-    setTimeout(function () {
-      location.reload();
-    }, 10000);
+    $('#waipModal').modal('hide');
+    setTimeout(function () {      
+      $('#waipModalTitle').html('ACHTUNG');
+      $('#waipModalBody').html('Neue Server-Version. Seite wird in 10 Sekunden neu geladen!');
+      $('#waipModal').modal('show');
+      setTimeout(function () {
+        location.reload();
+      }, 10000);
+    }, 1000);    
   };
 });
 
@@ -523,7 +523,7 @@ function calcSpeed(prev, next) {
 /* ####### Rückmeldung ####### */
 /* ########################### */
 
-$('#rueckmeldung').each(function (index) {
+/*$('#rueckmeldung').each(function (index) {
   $(this).on("click", function () {
     $('#responseModal').modal('show');
   });
@@ -537,7 +537,7 @@ $('#send_response').on('click', function () {
   respo.fuehrungskraft = $('#radios_res_fk').prop('checked');
   respo.atemschutz = $('#cb_res_agt').prop('checked');
   socket.emit('response', waip_id, respo);
-});
+});*/
 
 
 
