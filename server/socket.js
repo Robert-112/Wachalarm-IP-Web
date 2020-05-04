@@ -101,5 +101,10 @@ nsp_dbrd.on('connection', function (socket) {
 });
 
 
+// Socket.IO API
+
+// TODO: Schnittstelle zu weiterem Wachalarm-Web-Server um Einsätze und Rückmeldungen untereinander auszutauschen
+
+
 
 };

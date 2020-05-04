@@ -25,6 +25,8 @@ app_cfg.public = {
 	version: 'Version 1.2',
 	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	map_attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	// TODO: Link Impressium
+	// TODO: Link Datenschutzerklärung
 };
 
 app_cfg.remote = {

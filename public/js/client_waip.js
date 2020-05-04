@@ -489,14 +489,14 @@ setInterval(set_clock, 1000);
 
 // Uhrzeit verschieben
 $(document).ready(function () {
-  
-  
   setTimeout(function () {
+    // Position neu setzen
     var newq = makeNewPosition();
-  $('.clock_y').css('top', newq[0]);
-  $('.clock_y').css('left', newq[1]);
+    $('.clock_y').css('top', newq[0]);
+    $('.clock_y').css('left', newq[1]);
+    // langsam verschieben
     animateDiv();
-  }, 1000);
+  }, 500);
 });
 
 // neue Random-Position fuer Uhrzeit ermitteln

@@ -2,10 +2,12 @@ module.exports = function (io, sql, tw, async, app_cfg) {
 
   // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(einsatz_rohdaten) {
+    // TODO: Einsatzdaten auf Validität prüfen
     // Einsatzmeldung (JSON) speichern
     sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
       sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
-      // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln      
+      // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
+      // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
       sql.db_get_einsatz_rooms(waip_id, function (socket_rooms) {
         if (socket_rooms) {
           socket_rooms.forEach(function (rooms) {
@@ -303,13 +305,13 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           };          
         });
         // TODO: an Dashboard senden, das der Einsatz gelöscht wurde
-        // TODO: Rueckmeldung löschen, und vorher backup
+        // FIXME: Rueckmeldung löschen, und vorher backup
         // Einsatz löschen
         sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird gelöscht');
         sql.db_einsatz_loeschen(waip_id);
       };
     });
-    // TODO: löschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
+    // löschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
     const fs = require('fs');
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
       // nur die mp3s von alten clients loeschen

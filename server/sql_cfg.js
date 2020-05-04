@@ -1,6 +1,7 @@
 module.exports = function (fs, bcrypt, app_cfg) {
 
   // TODO: gegen better-sqlite3 ersetzen
+  // BUG: Zeit von UTC auf lokale Zeit anpassen
 
   // Datenbank einrichten
   const sqlite3 = require('sqlite3').verbose();
