@@ -489,7 +489,12 @@ setInterval(set_clock, 1000);
 
 // Uhrzeit verschieben
 $(document).ready(function () {
+  
+  
   setTimeout(function () {
+    var newq = makeNewPosition();
+  $('.clock_y').css('top', newq[0]);
+  $('.clock_y').css('left', newq[1]);
     animateDiv();
   }, 1000);
 });
