@@ -115,7 +115,8 @@ function do_on_Inactive() {
   $(".navbar").fadeOut("slow");
   $(".footer").fadeOut("slow");
   $(".fullheight").css({
-    height: 'calc(100vh - 2rem)'
+    height: 'calc(100vh - 2rem)',
+    cursor: 'none'
   });
   $("body").css({
     paddingTop: "1rem",
@@ -136,7 +137,8 @@ function do_on_Active() {
     paddingBottom: '0'
   });
   $(".fullheight").css({
-    height: 'calc(100vh - 60px - 5rem)'
+    height: 'calc(100vh - 60px - 5rem)',
+    cursor: 'auto'
   });
   resize_text();
 };

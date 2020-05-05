@@ -1,14 +1,28 @@
 // BUG: Darstellung in Safari-Mobil fehlerhaft (generell Mobil, ggf. extra Darstellung)
 #waiptableau.fullheight.row.no-gutters
+  .col-12.h-5.d-flex.py-1.text-muted
+    button#replay.btn.btn-outline-light.h-100.py-1
+      .ion-md-play-circle
+    button#volume.btn.btn-outline-light.h-100.mx-1
+      .ion-md-volume-high
+    #date-time.align-middle || -Datum- - -Uhrzeit-  
+    .flex-grow-1.bg-warning.text-right
+      #wachenname.ion-md-business=data_wache || ' -Wachenname-'
+  //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
+    // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
+    
+
+
   // BUG: Buttons für Sounds werden fehlerhaft dargestellt
-  .col-6.h-5.d-flex.align-items-center.py-1.text-muted.tf_singleline 
+  //.col-6.h-5.d-flex.align-items-center.py-1.text-muted.tf_singleline 
     button#replay.btn.btn-outline-light.h-100.py-1
       .ion-md-play-circle
     button#volume.btn.btn-outline-light.h-100.mx-1
       .ion-md-volume-high
     #date-time 
       div -Datum- - -Uhrzeit-  
-  .col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
+  //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
+    // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
     #wachenname.ion-md-business=data_wache || ' -Wachenname-'
   .col-10.h-15.h-20_ls.pr-3
     #einsatz_art.h-100.w-100.d-flex.align-items-center.font-weight-bold.p-3.rounded.bg-dark.tf_singleline
