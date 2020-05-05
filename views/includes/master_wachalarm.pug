@@ -1,14 +1,15 @@
 // BUG: Darstellung in Safari-Mobil fehlerhaft (generell Mobil, ggf. extra Darstellung)
 #waiptableau.fullheight.row.no-gutters
-  #headline.col-12.h-5.d-flex.py-1.text-muted
+  .col-12.h-5.d-flex.py-1.text-muted
     .btn-group.h-100.mr-1
       label#replay.btn.btn-outline-light
         .ion-md-play-circle
       label#volume.btn.btn-outline-light
         .ion-md-volume-high
-    #date-time.my-auto || -Datum- - -Uhrzeit-  
-    .flex-grow-1.text-right.my-auto
-      #wachenname.ion-md-business= data_wache || ' -Wachenname-'
+    .flex-grow-1.h-100
+      #headline.d-flex.justify-content-between
+        #date-time.align-self-center || -Datum- - -Uhrzeit-  
+        #wachenname.ion-md-business= data_wache || ' -Wachenname-'
   //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
     // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
     
