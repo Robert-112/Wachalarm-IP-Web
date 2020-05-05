@@ -310,7 +310,7 @@ socket.on('io.standby', function (data) {
 // Einsatzdaten laden, Wachalarm anzeigen
 socket.on('io.neuerEinsatz', function (data) {
   // DEBUG
-  //console.log(data);
+  console.log(data);
   // Einsatz-ID speichern
   waip_id = data.id;
   // Hintergrund der Einsatzart zunächst entfernen
@@ -319,8 +319,6 @@ socket.on('io.neuerEinsatz', function (data) {
   });
   // Icon der Einsatzart enfernen
   $('#einsatz_stichwort').removeClass();
-  // Rückmeldung ausblenden
-  $('#rueckmeldung').addClass("d-none");
   // Art und Stichwort festlegen hinterlegen
   switch (data.einsatzart) {
     case 'Brandeinsatz':
@@ -383,12 +381,6 @@ socket.on('io.neuerEinsatz', function (data) {
     var tmp = data_em_alarmiert[i].name.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
     $('#em_alarmiert').append('<div id="cn_' + tmp + '" class="rounded bg-secondary d-flex justify-content-between flex-fill p-2 m-1"></div>');
     $('#cn_' + tmp).append('<div class="pr-2">' + data_em_alarmiert[i].name + '</div>');
-
-//<div class="p-2 badge badge-success">2</div>
-  //  div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-    //      div.pr-2 FL CB 01/42-01
-      //    div.p-2.badge.badge-success 2
-    //$('#em_alarmiert').append('<li class="list-group-item d-flex justify-content-between align-items-center">' + data_em_alarmiert[i].name + '</li>');
   };
   // weitere alarmierte Einsatzmittel setzen
   $('#em_weitere').html('');
@@ -420,16 +412,20 @@ socket.on('io.neuerEinsatz', function (data) {
     map.fitBounds(geojson.getBounds());
     map.setZoom(13);
   };
+  // Hilfsfrist setzen
+  start_counter(data.zeitstempel, data.ablaufzeit);
+    // alte Rückmeldung entfernen
+  //$('#rueckmeldung').addClass("d-none");
+
+
   // Rueckmeldung leeren
-  $('#pg-ek').empty();
+  /*$('#pg-ek').empty();
   $('#pg-ma').empty();
   $('#pg-fk').empty();
   $('#ek-counter').text(0);
   $('#ma-counter').text(0);
   $('#fk-counter').text(0);
-  $('#agt-counter').text(0);
-  // Hilfsfrist setzen
-  start_counter(data.zeitstempel, data.ablaufzeit);
+  $('#agt-counter').text(0);*/
   // Uhr ausblenden
   $("#waipclock").addClass("d-none");
   $("#waiptableau").removeClass("d-none");
@@ -598,8 +594,10 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
 
     $('#pg-' + p_id).append('<div id="pg-bar' + p_id + '" class="progress-bar progress-bar-striped ' + bar_background + '" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>');
     $('#pg-bar' + p_id).append('<small id="pg-text' + p_id + '" class="justify-content-center d-flex position-absolute w-100"></small>');
-  };
+  } else {
 
+  };
+  // TODO PG-Bar ändern falls neue Rückmeldung
 
 
   clearInterval(counter_tmld[p_id]);
@@ -645,13 +643,14 @@ function do_rmld_bar(p_id, start, end) {
 };
 
 socket.on('io.response', function (data) {
+  // DEBUG
   console.log(data);
+  // Neue Rueckmeldung hinterlegen
   data.forEach(function (arrayItem) {
-    //var x = arrayItem.prop1 + 2;
-    //console.log(x);
+    // HTML festlegen
     var item_content = '';
     var item_classname = '';
-    var item_type = "";
+    var item_type = '';
     if (arrayItem.einsatzkraft) {
       item_content = 'Einsatzkraft';
       item_classname = 'ek';
