@@ -370,6 +370,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
         // je nach laenge andere SQL ausfuehren
         db.get(`SELECT
           e.id,
+          e.uuid,
           DATETIME(e.zeitstempel, 'localtime') zeitstempel,
         	DATETIME(e.zeitstempel,	'+' || (
             SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?

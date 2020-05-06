@@ -5,7 +5,7 @@ $(document).ready(function () {
   set_clock();
 });
 
-$(window).on("resize", function () {
+$(window).on('resize', function () {
   resize_text();
 });
 
@@ -17,11 +17,11 @@ $(window).on("resize", function () {
 var waipAudio = document.getElementById('audio');
 
 waipAudio.addEventListener('ended', function(){
-  $('.ion-md-pause').toggleClass("ion-md-play-circle");
+  $('.ion-md-pause').toggleClass('ion-md-play-circle');
 });
 
-waipAudio.addEventListener("play", function () {
-  $('.ion-md-play-circle').toggleClass("ion-md-pause");
+waipAudio.addEventListener('play', function () {
+  $('.ion-md-play-circle').toggleClass('ion-md-pause');
 });
 
 $('#replay').on('click', function (event) {
@@ -60,17 +60,17 @@ function resize_text() {
 // Text nach bestimmter Laenge, in Abhaengigkeit von Zeichen, umbrechen
 function break_text_15(text) {
   var new_text;
-  new_text = text.replace(/.{15}(\s+|\-+)+/g, "$&@")
+  new_text = text.replace(/.{15}(\s+|\-+)+/g, '$&@')
   new_text = new_text.split(/@/);
-  new_text = new_text.join("<br>");
+  new_text = new_text.join('<br>');
   //console.log(new_text);
   return new_text;
 };
 
 function break_text_35(text) {
   var new_text;
-  new_text = text.replace(/.{50}\S*\s+/g, "$&@").split(/\s+@/);
-  new_text = new_text.join("<br>");
+  new_text = text.replace(/.{50}\S*\s+/g, '$&@').split(/\s+@/);
+  new_text = new_text.join('<br>');
   //console.log(new_text);
   return new_text;
 };
@@ -83,15 +83,15 @@ var timeoutID;
 
 // Inactivitaet auswerten
 function setup_inactivcheck() {
-  this.addEventListener("mousemove", resetActivTimer, false);
-  this.addEventListener("mousedown", resetActivTimer, false);
-  this.addEventListener("keypress", resetActivTimer, false);
-  this.addEventListener("DOMMouseScroll", resetActivTimer, false);
-  this.addEventListener("mousewheel", resetActivTimer, {
+  this.addEventListener('mousemove', resetActivTimer, false);
+  this.addEventListener('mousedown', resetActivTimer, false);
+  this.addEventListener('keypress', resetActivTimer, false);
+  this.addEventListener('DOMMouseScroll', resetActivTimer, false);
+  this.addEventListener('mousewheel', resetActivTimer, {
     passive: true
   }, false);
-  this.addEventListener("touchmove", resetActivTimer, false);
-  this.addEventListener("MSPointerMove", resetActivTimer, false);
+  this.addEventListener('touchmove', resetActivTimer, false);
+  this.addEventListener('MSPointerMove', resetActivTimer, false);
   start_inactivtimer();
 };
 
@@ -408,11 +408,11 @@ socket.on('io.neuerEinsatz', function (data) {
   start_counter(data.zeitstempel, data.ablaufzeit);
   // alte Rückmeldung entfernen
   reset_rmld(data.uuid);
-  //recount_rmld(pg_waip_uuid);//, item_type, item_agt);
+  recount_rmld(data.uuid);
   // TODO: Einzeige vergrößern wenn Felder nicht angezeigt werden
   // Uhr ausblenden
-  $("#waipclock").addClass("d-none");
-  $("#waiptableau").removeClass("d-none");
+  $('#waipclock').addClass('d-none');
+  $('#waiptableau').removeClass('d-none');
   // Text anpassen
   resize_text();
 });
@@ -448,7 +448,7 @@ socket.on('io.response', function (data) {
     // Progressbar hinterlegen
     add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);  
     // Anzahl der Rückmeldung zählen
-    recount_rmld(pg_waip_uuid);//, item_type, item_agt);
+    recount_rmld(pg_waip_uuid);
   }); 
   // Text anpassen
   resize_text();
@@ -463,6 +463,16 @@ var counter_rmld = [];
 function reset_rmld(p_uuid) {
   var bar_uuid = 'bar-' + p_uuid;
   $('#pg-ek').children().each(function(i) { 
+    if (!$(this).hasClass(bar_uuid)) {
+      $(this).remove;
+    };
+  });
+  $('#pg-ma').children().each(function(i) { 
+    if (!$(this).hasClass(bar_uuid)) {
+      $(this).remove;
+    };
+  });
+  $('#pg-fk').children().each(function(i) { 
     if (!$(this).hasClass(bar_uuid)) {
       $(this).remove;
     };
@@ -529,60 +539,63 @@ function do_rmld_bar(p_id, start, end) {
     secondsDifference = '0' + secondsDifference;
   };
   var minutes = minutesDifference + ':' + secondsDifference;
-
   // Progressbar anpassen
   if (current_progress >= 100) {
-    $("#pg-bar-" + p_id)
-      .css("width", "100%")
-      .attr("aria-valuenow", 100)
-      .addClass("ion-md-checkmark-circle");
-    $("#pg-text" + p_id).text("");
+    $('#pg-bar-' + p_id)
+      .css('width', '100%')
+      .attr('aria-valuenow', 100)
+      .addClass('ion-md-checkmark-circle');
+    $('#pg-text-' + p_id).text('');
     clearInterval(counter_ID[p_id]);
   } else {
-    $("#pg-bar-" + p_id)
-      .css("width", current_progress + "%")
-      .attr("aria-valuenow", current_progress);
-    $("#pg-text-" + p_id).text(minutes);
+    $('#pg-bar-' + p_id)
+      .css('width', current_progress + '%')
+      .attr('aria-valuenow', current_progress);
+    $('#pg-text-' + p_id).text(minutes);
   };
 };
 
 function recount_rmld(p_uuid) {
   var bar_uuid = 'bar-' + p_uuid;
+  var agt_count = 0;
   // Zähler auf 0 Setzen
   $('#ek-counter').text(0);
   $('#ma-counter').text(0);
   $('#fk-counter').text(0);
-
+  $('#agt-counter').text(0);
+  // EK zählen
   $('#pg-ek').children().each(function(i) { 
     if ($(this).hasClass(bar_uuid)) {
       var tmp_count = parseInt($('#ek-counter').text());
       $('#ek-counter').text(tmp_count + 1);
+      if ($(this).hasClass('border-warning')) {
+        agt_count++;
+      };
     };    
   });
-
+  // MA zählen
   $('#pg-ma').children().each(function(i) { 
     if ($(this).hasClass(bar_uuid)) {
       var tmp_count = parseInt($('#ma-counter').text());
       $('#ma-counter').text(tmp_count + 1);
+      if ($(this).hasClass('border-warning')) {
+        agt_count++;
+      };
     };    
   });
-
+  // FK zählen
   $('#pg-fk').children().each(function(i) { 
     if ($(this).hasClass(bar_uuid)) {
       var tmp_count = parseInt($('#fk-counter').text());
       $('#fk-counter').text(tmp_count + 1);
+      if ($(this).hasClass('border-warning')) {
+        agt_count++;
+      };
     };    
   });
-
-
-/*    var tmp_count = parseInt($('#' + item_type + '-counter').text());
-    $('#' + item_type + '-counter').text(tmp_count + 1);
-
-    if (pg_agt) {
-      var tmp_agt = parseInt($('#agt-counter').text());
-      $('#agt-counter').text(tmp_agt + 1);
-    };*/
-  };
+  // AGT setzen
+  $('#agt-counter').text(agt_count);
+};
 
 /* ########################### */
 /* ####### SCREENSAVER ####### */
