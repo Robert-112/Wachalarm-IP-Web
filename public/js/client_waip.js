@@ -407,20 +407,9 @@ socket.on('io.neuerEinsatz', function (data) {
   // Ablaufzeit setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // alte Rückmeldung entfernen
-  //reset_rmld(data.uuid);
+  reset_rmld(data.uuid);
   //recount_rmld(pg_waip_uuid);//, item_type, item_agt);
-
-  /////////uuid prüfen
-
-
-
-  //$('#rueckmeldung').addClass("d-none");
-
-
-  // Rueckmeldung leeren
-
   // TODO: Einzeige vergrößern wenn Felder nicht angezeigt werden
-
   // Uhr ausblenden
   $("#waipclock").addClass("d-none");
   $("#waiptableau").removeClass("d-none");
@@ -472,6 +461,12 @@ socket.on('io.response', function (data) {
 var counter_rmld = [];
 
 function reset_rmld(p_uuid) {
+  var bar_uuid = 'bar-' + p_uuid;
+  $('#pg-ek').children().each(function(i) { 
+    if (!$(this).hasClass(bar_uuid)) {
+      $(this).remove;
+    };
+  });
   /*$('#pg-ek').empty();
   $('#pg-ma').empty();
   $('#pg-fk').empty();
@@ -480,7 +475,6 @@ function reset_rmld(p_uuid) {
   $('#fk-counter').text(0);
   $('#agt-counter').text(0);*/
 };
-
 
 function add_resp_progressbar(p_uuid, p_id, p_type, p_agt, p_start, p_end) {
   // Hintergrund der Progressbar festlegen
@@ -552,15 +546,42 @@ function do_rmld_bar(p_id, start, end) {
   };
 };
 
-function recount_rmld(p_uuid, item_type, pg_agt) {
+function recount_rmld(p_uuid) {
   var bar_uuid = 'bar-' + p_uuid;
-    var tmp_count = parseInt($('#' + item_type + '-counter').text());
+  // Zähler auf 0 Setzen
+  $('#ek-counter').text(0);
+  $('#ma-counter').text(0);
+  $('#fk-counter').text(0);
+
+  $('#pg-ek').children().each(function(i) { 
+    if ($(this).hasClass(bar_uuid)) {
+      var tmp_count = parseInt($('#ek-counter').text());
+      $('#ek-counter').text(tmp_count + 1);
+    };    
+  });
+
+  $('#pg-ma').children().each(function(i) { 
+    if ($(this).hasClass(bar_uuid)) {
+      var tmp_count = parseInt($('#ma-counter').text());
+      $('#ma-counter').text(tmp_count + 1);
+    };    
+  });
+
+  $('#pg-fk').children().each(function(i) { 
+    if ($(this).hasClass(bar_uuid)) {
+      var tmp_count = parseInt($('#fk-counter').text());
+      $('#fk-counter').text(tmp_count + 1);
+    };    
+  });
+
+
+/*    var tmp_count = parseInt($('#' + item_type + '-counter').text());
     $('#' + item_type + '-counter').text(tmp_count + 1);
 
     if (pg_agt) {
       var tmp_agt = parseInt($('#agt-counter').text());
       $('#agt-counter').text(tmp_agt + 1);
-    };
+    };*/
   };
 
 /* ########################### */
