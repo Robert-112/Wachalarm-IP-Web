@@ -226,6 +226,7 @@ var socket = io('/waip');
 socket.on('connect', function () {
   socket.emit('WAIP', wachen_id);
   $('#waipModal').modal('hide');
+  // TODO: bei Reconnect des Clients durch Verbindungsabbruch, erneut Daten anfordern
 });
 
 socket.on('connect_error', function (err) {
@@ -406,7 +407,8 @@ socket.on('io.neuerEinsatz', function (data) {
   // Ablaufzeit setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
   // alte Rückmeldung entfernen
-
+  //reset_rmld(data.uuid);
+  //recount_rmld(pg_waip_uuid);//, item_type, item_agt);
 
   /////////uuid prüfen
 
@@ -457,7 +459,7 @@ socket.on('io.response', function (data) {
     // Progressbar hinterlegen
     add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);  
     // Anzahl der Rückmeldung zählen
-    recount_rmld(pg_waip_uuid, item_type, item_agt);
+    recount_rmld(pg_waip_uuid);//, item_type, item_agt);
   }); 
   // Text anpassen
   resize_text();
@@ -469,7 +471,7 @@ socket.on('io.response', function (data) {
 
 var counter_rmld = [];
 
-function reset_rmld() {
+function reset_rmld(p_uuid) {
   /*$('#pg-ek').empty();
   $('#pg-ma').empty();
   $('#pg-fk').empty();
@@ -597,6 +599,10 @@ function set_clock() {
   var element_time = curr_hour + ':' + curr_min;
   var element_day = d_names[curr_day] + ', ' + curr_date + '. ' + m_names[curr_month];
   var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time;
+  // Easter-Egg :-)
+  if (element_time == '13:37') {
+    element_time = '1337'
+  };  
   // nur erneuern wenn sich Zeit geändert hat
   if ($('#time').text() !== element_time) {
     // Uhrzeit anzeigen
