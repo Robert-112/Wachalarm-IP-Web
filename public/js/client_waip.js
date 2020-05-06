@@ -449,6 +449,8 @@ socket.on('io.response', function (data) {
     var item_agt = arrayItem.agt;
     // Variablen für Anzeige vorbereiten
     var pg_waip_uuid = arrayItem.waip_uuid;
+    console.log(arrayItem.waip_uuid);
+    console.log(pg_waip_uuid);
     var pg_rmld_uuid = arrayItem.rmld_uuid;    
     var pg_start = new Date(arrayItem.set_time);
     var pg_end = new Date(arrayItem.arrival_time);
@@ -499,34 +501,28 @@ function add_resp_progressbar(p_uuid, p_id, p_type, p_agt, p_start, p_end) {
       bar_background = '';
       break;
   };
-
+  var bar_uuid = 'bar-' + p_uuid;
   // pruefen ob div mit id 'pg-'+p_id schon vorhanden ist
   var pgbar = document.getElementById('pg-' + p_id);
   if (!pgbar) {
-    //$('#pg-' + p_type).append('<div id="pg-uuid-' + p_uuid + '"></div>');
-    $('#pg-' + p_type).append('<div class="progress mt-1 position-relative ' + bar_border + '" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>');
+    $('#pg-' + p_type).append('<div class="progress mt-1 position-relative ' + bar_border + ' ' + bar_uuid + '" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>');
     $('#pg-' + p_id).append('<div id="pg-bar-' + p_id + '" class="progress-bar progress-bar-striped ' + bar_background + '" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>');
     $('#pg-bar-' + p_id).append('<small id="pg-text-' + p_id + '" class="justify-content-center d-flex position-absolute w-100"></small>');
   } else {
-
+    // TODO PG-Bar ändern falls neue/angepasste Rückmeldung
   };
-  // TODO PG-Bar ändern falls neue Rückmeldung
-
-
+  // Zeitschiene Anpassen
   clearInterval(counter_rmld[p_id]);
   counter_rmld[p_id] = 0;
-
   counter_rmld[p_id] = setInterval(function () {
     do_rmld_bar(p_id, p_start, p_end);
   }, 1000);
 };
 
-
 function do_rmld_bar(p_id, start, end) {
   //console.log(p_id);
   today = new Date();
   // restliche Zeit ermitteln
-  //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
   var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
 
   var diff = Math.abs(end - today);
@@ -537,7 +533,6 @@ function do_rmld_bar(p_id, start, end) {
     secondsDifference = '0' + secondsDifference;
   };
   var minutes = minutesDifference + ':' + secondsDifference;
-
 
   // Progressbar anpassen
   if (current_progress >= 100) {
@@ -555,10 +550,8 @@ function do_rmld_bar(p_id, start, end) {
   };
 };
 
-
-
-
-function recount_rmld(pg_waip_uuid, item_type, pg_agt) {
+function recount_rmld(p_uuid, item_type, pg_agt) {
+  var bar_uuid = 'bar-' + p_uuid;
     var tmp_count = parseInt($('#' + item_type + '-counter').text());
     $('#' + item_type + '-counter').text(tmp_count + 1);
 
