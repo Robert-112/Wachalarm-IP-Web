@@ -9,17 +9,14 @@ $(window).on("resize", function () {
   resize_text();
 });
 
-$('#replay').on('click', function (event) {
-  audio.play();
-});
-
 /* ############################ */
 /* ######### BUTTONS ########## */
 /* ############################ */
 
+
 var waipAudio = document.getElementById('audio');
 
-waipAudio.addEventListener('ended', function () {
+waipAudio.addEventListener('ended', function(){
   $('.ion-md-pause').toggleClass("ion-md-play-circle");
 });
 
@@ -27,11 +24,15 @@ waipAudio.addEventListener("play", function () {
   $('.ion-md-play-circle').toggleClass("ion-md-pause");
 });
 
+$('#replay').on('click', function (event) {
+  $('#audio').play();
+});
+
 /* ############################ */
 /* ####### TEXT-RESIZE ######## */
 /* ############################ */
 
-// Textgröße dynamisch anpassen, Hintergrundfarbe ggf. anpassen
+// Größen dynamisch anpassen, Hintergrundfarbe ggf. anpassen
 function resize_text() {
   // Uhr-Text nur Anpassen wenn sichtbar
   if ($('#waipclock').is(':visible')) {
@@ -39,9 +40,9 @@ function resize_text() {
       minFontSize: 3,
       maxFontSize: 500
     });
-    $("body").css("background-color", "#000");
+    $('body').css('background-color', '#000');
   };
-  // Tableau-Text nur Anpassen wenn sichtbar
+  // Tableau nur Anpassen wenn sichtbar
   if ($('#waiptableau').is(':visible')) {
     textFit(document.getElementsByClassName('tf_singleline'), {
       minFontSize: 1,
@@ -50,17 +51,11 @@ function resize_text() {
     textFit(document.getElementsByClassName('tf_multiline'), {
       detectMultiLine: false
     });
-    textFit(document.getElementsByClassName('tf_test'), {
-      minFontSize: 1,
-      maxFontSize: 500,
-      reProcess: true,
-      alignVertWithFlexbox: false
-    });
+    // Karte neu setzen
     map.invalidateSize();
-    $("body").css("background-color", "#222");
+    $('body').css('background-color', '#222');
   };
 };
-
 
 // Text nach bestimmter Laenge, in Abhaengigkeit von Zeichen, umbrechen
 function break_text_15(text) {
@@ -71,7 +66,6 @@ function break_text_15(text) {
   //console.log(new_text);
   return new_text;
 };
-
 
 function break_text_35(text) {
   var new_text;
@@ -112,14 +106,14 @@ function start_inactivtimer() {
 // bei Inaktivitaet Header/Footer ausblenden
 function do_on_Inactive() {
   // do something
-  $(".navbar").fadeOut("slow");
-  $(".footer").fadeOut("slow");
-  $(".fullheight").css({
+  $('.navbar').fadeOut('slow');
+  $('.footer').fadeOut('slow');
+  $('.fullheight').css({
     height: 'calc(100vh - 2rem)',
     cursor: 'none'
   });
-  $("body").css({
-    paddingTop: "1rem",
+  $('body').css({
+    paddingTop: '1rem',
     margin: 0
   });
   resize_text();
@@ -129,14 +123,14 @@ function do_on_Inactive() {
 function do_on_Active() {
   start_inactivtimer();
   // do something
-  $(".navbar").fadeIn('slow');
-  $(".footer").fadeIn('slow');
-  $("body").css({
+  $('.navbar').fadeIn('slow');
+  $('.footer').fadeIn('slow');
+  $('body').css({
     marginBottom: '60px',
     paddingTop: '5rem',
     paddingBottom: '0'
   });
-  $(".fullheight").css({
+  $('.fullheight').css({
     height: 'calc(100vh - 60px - 5rem)',
     cursor: 'auto'
   });
@@ -182,10 +176,10 @@ function do_progressbar(start, end) {
   };
   var minutes = minutesDifference + ':' + secondsDifference;
   // Progressbar anpassen
-  $("#hilfsfrist")
-    .css("width", current_progress + "%")
-    .attr("aria-valuenow", current_progress)
-    .text(minutes + " min");
+  $('#hilfsfrist')
+    .css('width', current_progress + '%')
+    .attr('aria-valuenow', current_progress)
+    .text(minutes + ' min');
 };
 
 /* ########################### */
@@ -217,6 +211,8 @@ var redIcon = new L.Icon({
 var marker = L.marker(new L.LatLng(0, 0), {
   icon: redIcon
 }).addTo(map);
+
+// GeoJSON vordefinieren
 var geojson = L.geoJSON().addTo(map);
 
 /* ########################### */
@@ -240,17 +236,16 @@ socket.on('connect_error', function (err) {
 
 // ID von Server und Client vergleichen, falls ungleich -> Seite neu laden
 socket.on('io.version', function (server_id) {
-  // TODO: socket.emit(lade client xxx neu)
   if (client_id != server_id) {
     $('#waipModal').modal('hide');
-    setTimeout(function () {      
+    setTimeout(function () {
       $('#waipModalTitle').html('ACHTUNG');
       $('#waipModalBody').html('Neue Server-Version. Seite wird in 10 Sekunden neu geladen!');
       $('#waipModal').modal('show');
       setTimeout(function () {
         location.reload();
       }, 10000);
-    }, 1000);    
+    }, 1000);
   };
 });
 
@@ -261,13 +256,12 @@ socket.on('io.error', function (data) {
 
 // Sounds stoppen
 socket.on('io.stopaudio', function (data) {
-  var audio = document.getElementById('audio');
-  audio.pause;
+  $('#audio').pause;
 });
 
 // Sounds abspielen
 socket.on('io.playtts', function (data) {
-  var audio = document.getElementById('audio');
+  var audio = $('#audio');
   audio.src = (data);
   // Audio-Blockade des Browsers erkennen
   var promise = document.querySelector('audio').play();
@@ -275,11 +269,8 @@ socket.on('io.playtts', function (data) {
     promise.then(function (_) {
       audio.play();
     }).catch(function (error) {
-      //$('#waipModalTitle').html('Audio-Fehler');
-      //$('#waipModalBody').html('Die automatische Audio-Wiedergabe wird durch Ihren Browser blockiert! Fehlermeldung: ' + error.message);
-      //$('#waipModal').modal('show');
-      $('#volume').addClass("btn-danger");
-      $('.ion-md-volume-high').toggleClass("ion-md-volume-off");
+      $('#volume').addClass('btn-danger');
+      $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
     });
   };
 });
@@ -299,10 +290,11 @@ socket.on('io.standby', function (data) {
   $('#besonderheiten').html('');
   $('#em_alarmiert').empty();
   $('#em_weitere').html('');
+  reset_rmld();
   map.setView(new L.LatLng(0, 0), 14);
-  // Tableau ausblenden
-  $("#waiptableau").addClass("d-none");
-  $("#waipclock").removeClass("d-none");
+  // Tareset_responsebleau ausblenden
+  $('#waiptableau').addClass('d-none');
+  $('#waipclock').removeClass('d-none');
   // Text anpassen
   resize_text();
 });
@@ -322,26 +314,26 @@ socket.on('io.neuerEinsatz', function (data) {
   // Art und Stichwort festlegen hinterlegen
   switch (data.einsatzart) {
     case 'Brandeinsatz':
-      $('#einsatz_art').addClass("bg-danger");
-      $('#einsatz_stichwort').addClass("ion-md-flame");
-      $('#rueckmeldung').removeClass("d-none");
+      $('#einsatz_art').addClass('bg-danger');
+      $('#einsatz_stichwort').addClass('ion-md-flame');
+      $('#rueckmeldung').removeClass('d-none');
       break;
     case 'Hilfeleistungseinsatz':
-      $('#einsatz_art').addClass("bg-info");
-      $('#einsatz_stichwort').addClass("ion-md-construct");
-      $('#rueckmeldung').removeClass("d-none");
+      $('#einsatz_art').addClass('bg-info');
+      $('#einsatz_stichwort').addClass('ion-md-construct');
+      $('#rueckmeldung').removeClass('d-none');
       break;
     case 'Rettungseinsatz':
-      $('#einsatz_art').addClass("bg-warning");
-      $('#einsatz_stichwort').addClass("ion-md-medkit");
+      $('#einsatz_art').addClass('bg-warning');
+      $('#einsatz_stichwort').addClass('ion-md-medkit');
       break;
     case 'Krankentransport':
-      $('#einsatz_art').addClass("bg-success");
-      $('#einsatz_stichwort').addClass("ion-md-medical");
+      $('#einsatz_art').addClass('bg-success');
+      $('#einsatz_stichwort').addClass('ion-md-medical');
       break;
     default:
-      $('#einsatz_art').addClass("bg-secondary");
-      $('#einsatz_stichwort').addClass("ion-md-information-circle");
+      $('#einsatz_art').addClass('bg-secondary');
+      $('#einsatz_stichwort').addClass('ion-md-information-circle');
   };
   $('#einsatz_stichwort').html(' ' + data.stichwort);
   // Sondersignal setzen
@@ -385,9 +377,7 @@ socket.on('io.neuerEinsatz', function (data) {
   // weitere alarmierte Einsatzmittel setzen
   $('#em_weitere').html('');
   var data_em_weitere = JSON.parse(data.em_weitere);
-  if (data_em_weitere == null) {
-    // TODO: Einzeige vergrößern (-.h-5) wenn keine weiteren Einsatzmittel beteiligt
-  } else {
+  if (!data_em_weitere == null) {
     var tmp;
     for (var i in data_em_weitere) {
       if (tmp) {
@@ -398,9 +388,10 @@ socket.on('io.neuerEinsatz', function (data) {
     };
     $('#em_weitere').html(tmp);
   };
-  // Karte setzen
+  // Karte leeren
   map.removeLayer(marker);
   map.removeLayer(geojson);
+  // Karte setzen
   if (data.wgs84_x && data.wgs84_y) {
     marker = L.marker(new L.LatLng(data.wgs84_x, data.wgs84_y), {
       icon: redIcon
@@ -412,20 +403,22 @@ socket.on('io.neuerEinsatz', function (data) {
     map.fitBounds(geojson.getBounds());
     map.setZoom(13);
   };
-  // Hilfsfrist setzen
+  // Ablaufzeit setzen
   start_counter(data.zeitstempel, data.ablaufzeit);
-    // alte Rückmeldung entfernen
+  // alte Rückmeldung entfernen
+
+
+  /////////uuid prüfen
+
+
+
   //$('#rueckmeldung').addClass("d-none");
 
 
   // Rueckmeldung leeren
-  /*$('#pg-ek').empty();
-  $('#pg-ma').empty();
-  $('#pg-fk').empty();
-  $('#ek-counter').text(0);
-  $('#ma-counter').text(0);
-  $('#fk-counter').text(0);
-  $('#agt-counter').text(0);*/
+
+  // TODO: Einzeige vergrößern wenn Felder nicht angezeigt werden
+
   // Uhr ausblenden
   $("#waipclock").addClass("d-none");
   $("#waiptableau").removeClass("d-none");
@@ -433,102 +426,7 @@ socket.on('io.neuerEinsatz', function (data) {
   resize_text();
 });
 
-/* ########################### */
-/* ####### SCREENSAVER ####### */
-/* ########################### */
 
-// Uhrzeit und Datum für Bildschirmschoner
-function set_clock() {
-  // Wochentage
-  var d_names = new Array('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag');
-  // Monate
-  var m_names = new Array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember');
-  // Aktuelle Zeit
-  var d = new Date();
-  var curr_day = d.getDay();
-  var curr_date = d.getDate();
-  var curr_month_id = d.getMonth();
-  curr_month_id = curr_month_id + 1;
-  var curr_year = d.getFullYear();
-  var curr_hour = d.getHours();
-  var curr_min = d.getMinutes();
-  // Tag und Monat Anpassen
-  if ((String(curr_date)).length == 1)
-    curr_date = '0' + curr_date;
-  if ((String(curr_month_id)).length == 1)
-    curr_month_id = '0' + curr_month_id;
-  // Uhrzeit und Minute anpassen
-  if (curr_min <= 9) {
-    curr_min = '0' + curr_min;
-  };
-  if (curr_hour <= 9) {
-    curr_hour = '0' + curr_hour;
-  };
-  var curr_month = d.getMonth();
-  var curr_year = d.getFullYear();
-  var element_time = curr_hour + ':' + curr_min;
-  var element_day = d_names[curr_day] + ', ' + curr_date + '. ' + m_names[curr_month];
-  var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time;
-  // nur erneuern wenn sich Zeit geändert hat
-  if (document.getElementById('time').textContent !== element_time) {
-    // Uhrzeit anzeigen
-    document.getElementById('time').innerHTML = element_time;
-    // Datum (Text) anzeigen
-    document.getElementById('day').innerHTML = element_day;
-    // Datum anzeigen, sofern sichtbar
-    document.getElementById('date-time').innerHTML = element_date_time;
-    // Textgröße neu setzen
-    resize_text();
-  };
-};
-
-// Uhrzeit jede Sekunden anpassen
-setInterval(set_clock, 1000);
-
-// Uhrzeit verschieben
-$(document).ready(function () {
-  setTimeout(function () {
-    // Position neu setzen
-    var newq = makeNewPosition();
-    $('.clock_y').css('top', newq[0]);
-    $('.clock_y').css('left', newq[1]);
-    // langsam verschieben
-    animateDiv();
-  }, 500);
-});
-
-// neue Random-Position fuer Uhrzeit ermitteln
-function makeNewPosition() {
-  // Get viewport dimensions 
-  var h = $('.fullheight').height() - $('.clock_y').height();
-  var w = $('.fullheight').width() - $('.clock_y').width();
-  var nh = Math.floor(Math.random() * h);
-  var nw = Math.floor(Math.random() * w);
-  return [nh, nw];
-};
-
-// Verschieben animieren
-function animateDiv() {
-  var newq = makeNewPosition();
-  var oldq = $('.clock_y').offset();
-  var speed = calcSpeed([oldq.top, oldq.left], newq);
-  $('.clock_y').animate({
-    top: newq[0],
-    left: newq[1]
-  }, speed, function () {
-    animateDiv();
-  });
-};
-
-// Verschiebe-Geschindigkeit berechnen
-function calcSpeed(prev, next) {
-  var x = Math.abs(prev[1] - next[1]);
-  var y = Math.abs(prev[0] - next[0]);
-  var greatest = x > y ? x : y;
-  var speedModifier = 0.001;
-  var speed = Math.ceil(greatest / speedModifier);
-  return speed;
-};
 
 /* ########################### */
 /* ####### Rückmeldung ####### */
@@ -550,11 +448,31 @@ $('#send_response').on('click', function () {
   socket.emit('response', waip_id, respo);
 });*/
 
+function reset_rmld() {
+  /*$('#pg-ek').empty();
+  $('#pg-ma').empty();
+  $('#pg-fk').empty();
+  $('#ek-counter').text(0);
+  $('#ma-counter').text(0);
+  $('#fk-counter').text(0);
+  $('#agt-counter').text(0);*/
+};
+
+/*$('#pg-ek').empty();
+  $('#pg-ma').empty();
+  $('#pg-fk').empty();
+  $('#ek-counter').text(0);
+  $('#ma-counter').text(0);
+  $('#fk-counter').text(0);
+  $('#agt-counter').text(0);*/
 
 
 var counter_tmld = [];
 
-function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
+
+
+
+function add_resp_progressbar(uuid, p_id, p_type, p_agt, p_start, p_end) {
   // Split timestamp into [ Y, M, D, h, m, s ]
   //var t1 = zeitstempel.split(/[- :]/),
   //t2 = ablaufzeit.split(/[- :]/);
@@ -648,43 +566,157 @@ socket.on('io.response', function (data) {
   // Neue Rueckmeldung hinterlegen
   data.forEach(function (arrayItem) {
     // HTML festlegen
-    var item_content = '';
-    var item_classname = '';
+    //var item_content = '';
+    //var item_classname = '';
     var item_type = '';
+    // wenn Einsatzkraft dann:
     if (arrayItem.einsatzkraft) {
-      item_content = 'Einsatzkraft';
-      item_classname = 'ek';
+      //item_content = 'Einsatzkraft';
+      //item_classname = 'ek';
       item_type = 'ek';
     };
+    // wenn Maschinist dann:
     if (arrayItem.maschinist) {
-      item_content = 'Maschinist';
-      item_classname = 'ma';
+      //item_content = 'Maschinist';
+      //item_classname = 'ma';
       item_type = 'ma';
     };
+    // wenn Fuehrungskraft dann:
     if (arrayItem.fuehrungskraft) {
-      item_content = 'Führungskraft';
-      item_classname = 'fk'
+      //item_content = 'Führungskraft';
+      //item_classname = 'fk'
       item_type = 'fk';
     };
+    // wenn AGT dann:
     if (arrayItem.agt) {
-      item_content = item_content + (' (AGT)');
-      item_classname = item_classname + ('-agt');
+      //item_content = item_content + (' (AGT)');
+      //item_classname = item_classname + ('-agt');
     };
-    //var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
+    // Variablen für Anzeige vorbereiten
+    var pg_waip_uuid = arrayItem.waip_uuid;
+    var pg_rmld_uuid = arrayItem.rmld_uuid;
+    var pg_agt = arrayItem.agt;
+    var pg_start = new Date(arrayItem.set_time);
+    var pg_end = new Date(arrayItem.arrival_time);
+    // Progressbar hinterlegen
+    add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, pg_agt, pg_start, pg_end);
+    recount_rmld(pg_waip_uuid, item_type, pg_agt);
+    
+    //add_resp_progressbar(arrayItem.rmld_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
 
 
-    add_resp_progressbar(arrayItem.rmld_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
 
-    var tmp_count = parseInt($('#' + item_type + '-counter').text());
-    $('#' + item_type + '-counter').text(tmp_count + 1);
-
-    if (arrayItem.agt) {
-      var tmp_agt = parseInt($('#agt-counter').text());
-      $('#agt-counter').text(tmp_agt + 1);
-    };
 
   });
 
 
   resize_text();
 });
+
+
+function recount_rmld(pg_waip_uuid, item_type, pg_agt) {
+    var tmp_count = parseInt($('#' + item_type + '-counter').text());
+    $('#' + item_type + '-counter').text(tmp_count + 1);
+
+    if (pg_agt) {
+      var tmp_agt = parseInt($('#agt-counter').text());
+      $('#agt-counter').text(tmp_agt + 1);
+    };
+  };
+
+/* ########################### */
+/* ####### SCREENSAVER ####### */
+/* ########################### */
+
+// Uhrzeit und Datum für Bildschirmschoner
+function set_clock() {
+  // Wochentage
+  var d_names = new Array('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag');
+  // Monate
+  var m_names = new Array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember');
+  // Aktuelle Zeit
+  var d = new Date();
+  var curr_day = d.getDay();
+  var curr_date = d.getDate();
+  var curr_month_id = d.getMonth();
+  curr_month_id = curr_month_id + 1;
+  var curr_year = d.getFullYear();
+  var curr_hour = d.getHours();
+  var curr_min = d.getMinutes();
+  // Tag und Monat Anpassen
+  if ((String(curr_date)).length == 1)
+    curr_date = '0' + curr_date;
+  if ((String(curr_month_id)).length == 1)
+    curr_month_id = '0' + curr_month_id;
+  // Uhrzeit und Minute anpassen
+  if (curr_min <= 9) {
+    curr_min = '0' + curr_min;
+  };
+  if (curr_hour <= 9) {
+    curr_hour = '0' + curr_hour;
+  };
+  var curr_month = d.getMonth();
+  var curr_year = d.getFullYear();
+  var element_time = curr_hour + ':' + curr_min;
+  var element_day = d_names[curr_day] + ', ' + curr_date + '. ' + m_names[curr_month];
+  var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time;
+  // nur erneuern wenn sich Zeit geändert hat
+  if ($('#time').text() !== element_time) {
+    // Uhrzeit anzeigen
+    $('#time').html(element_time);
+    // Datum (Text) anzeigen
+    $('#day').html(element_day);
+    // Datum anzeigen, sofern sichtbar
+    $('#date-time').html(element_date_time);
+    // Textgröße neu setzen
+    resize_text();
+  };
+};
+
+// Uhrzeit jede Sekunden anpassen
+setInterval(set_clock, 1000);
+
+// Uhrzeit verschieben
+$(document).ready(function () {
+  setTimeout(function () {
+    // Position neu setzen
+    var newq = makeNewPosition();
+    $('.clock_y').css('top', newq[0]);
+    $('.clock_y').css('left', newq[1]);
+    // langsam verschieben
+    animateDiv();
+  }, 500);
+});
+
+// neue Random-Position fuer Uhrzeit ermitteln
+function makeNewPosition() {
+  // Get viewport dimensions 
+  var h = $('.fullheight').height() - $('.clock_y').height();
+  var w = $('.fullheight').width() - $('.clock_y').width();
+  var nh = Math.floor(Math.random() * h);
+  var nw = Math.floor(Math.random() * w);
+  return [nh, nw];
+};
+
+// Verschieben animieren
+function animateDiv() {
+  var newq = makeNewPosition();
+  var oldq = $('.clock_y').offset();
+  var speed = calcSpeed([oldq.top, oldq.left], newq);
+  $('.clock_y').animate({
+    top: newq[0],
+    left: newq[1]
+  }, speed, function () {
+    animateDiv();
+  });
+};
+
+// Verschiebe-Geschwindigkeit berechnen
+function calcSpeed(prev, next) {
+  var x = Math.abs(prev[1] - next[1]);
+  var y = Math.abs(prev[0] - next[0]);
+  var greatest = x > y ? x : y;
+  var speedModifier = 0.001;
+  var speed = Math.ceil(greatest / speedModifier);
+  return speed;
+};
