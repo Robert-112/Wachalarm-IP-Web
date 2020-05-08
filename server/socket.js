@@ -80,16 +80,16 @@ nsp_dbrd.on('connection', function (socket) {
       // wenn die Wachennummer vorhanden dann weiter
       if (dbrd_uuid) {
         // Socket-Room beitreiten
-        socket.join(dbrd_uuid, function () {
-          sql.db_log('DBRD', 'Einsatz ' + dbrd_uuid + ' für Dashboard ' + dbrd_uuid + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
+        socket.join(dbrd_uuid.uuid, function () {
+          sql.db_log('DBRD', 'Einsatz ' + dbrd_uuid.uuid + ' für Dashboard ' + dbrd_uuid.uuid + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
           //letzten Einsatz verteilen
-          waip.dbrd_verteilen(dbrd_uuid, socket);
+          waip.dbrd_verteilen(dbrd_uuid.uuid, socket);
           // in Statusüberischt speichern
-          sql.db_update_client_status(socket, dbrd_uuid);
+          sql.db_update_client_status(socket, dbrd_uuid.uuid);
         });
       } else {
-        sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid + 'nicht (mehr) vorhanden!');
-        socket.emit('io.error', 'Fehler: Dashboard \'' + dbrd_uuid + '\' nicht (mehr) vorhanden!');
+        sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid.uuid + 'nicht (mehr) vorhanden!');
+        socket.emit('io.error', 'Fehler: Dashboard \'' + dbrd_uuid.uuid + '\' nicht (mehr) vorhanden!');
       };
     });
   });

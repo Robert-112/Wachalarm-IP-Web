@@ -329,6 +329,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
   }, 10000);
 
   function dbrd_verteilen(dbrd_uuid, socket) {
+    console.log(JSON.stringify(dbrd_uuid));
     sql.db_get_einsatzdaten_by_uuid(dbrd_uuid, function(einsatzdaten) {
       if (einsatzdaten) {        
         sql.db_check_permission(socket.request.user, einsatzdaten.id, function(valid) {
@@ -341,12 +342,13 @@ module.exports = function (io, sql, tw, async, app_cfg) {
           };
           socket.emit('io.Einsatz', einsatzdaten);
           sql.db_log('DBRD', 'Einsatzdaten für Dashboard' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
-          sql.db_update_client_status(socket, waip_id);
+          sql.db_update_client_status(socket, dbrd_uuid);
         });
       } else {
-        var err = new Error('Der angefragte Einsatz ist nicht - oder nicht mehr - vorhanden!');
-        err.status = 404;
-        next(err);
+        // Standby senden
+        socket.emit('io.standby', null);
+        sql.db_log('DBRD', 'Der angefragte Einsatz ' + dbrd_uuid + ' ist nicht - oder nicht mehr - vorhanden!, Standby an Socket ' + socket.id + ' gesendet.');
+        sql.db_update_client_status(socket, null);
       };
     });
   };

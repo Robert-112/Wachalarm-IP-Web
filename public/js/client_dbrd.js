@@ -431,7 +431,7 @@ socket.on('io.standby', function (data) {
 });
 
 // Einsatzdaten laden, Wachalarm anzeigen
-socket.on('io.neuerEinsatz', function (data) {
+socket.on('io.Einsatz', function (data) {
   // DEBUG
   console.log(data);
   // Einsatz-ID speichern
@@ -480,31 +480,31 @@ socket.on('io.neuerEinsatz', function (data) {
   var small_ortsdaten;
   small_ortsdaten = '';
   if (data.objekt) {
-    small_ortsdaten = small_ortsdaten + break_text_15(data.objekt) + '<br>';
+    small_ortsdaten = small_ortsdaten + (data.objekt) + '<br>';
   };
   if (data.ort) {
-    small_ortsdaten = small_ortsdaten + break_text_15(data.ort) + '<br>';
+    small_ortsdaten = small_ortsdaten + (data.ort) + '<br>';
   };
   if (data.ortsteil) {
-    small_ortsdaten = small_ortsdaten + break_text_15(data.ortsteil) + '<br>';
+    small_ortsdaten = small_ortsdaten + (data.ortsteil) + '<br>';
   };
   if (data.strasse) {
-    small_ortsdaten = small_ortsdaten + break_text_15(data.strasse) + '<br>';
+    small_ortsdaten = small_ortsdaten + (data.strasse) + '<br>';
   };
   if (small_ortsdaten.substr(small_ortsdaten.length - 4) == '<br>') {
     small_ortsdaten = small_ortsdaten.slice(0, -4);
   };
   $('#ortsdaten').html(small_ortsdaten);
   // Besonderheiten setzen
-  $('#besonderheiten').html(break_text_35(data.besonderheiten));
+  $('#besonderheiten').html((data.besonderheiten));
   // alarmierte Einsatzmittel setzen
   $('#em_alarmiert').empty();
-  var data_em_alarmiert = JSON.parse(data.em_alarmiert);
-  for (var i in data_em_alarmiert) {
-    var tmp = data_em_alarmiert[i].name.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
-    $('#em_alarmiert').append('<div id="cn_' + tmp + '" class="rounded bg-secondary d-flex justify-content-between flex-fill p-2 m-1"></div>');
-    $('#cn_' + tmp).append('<div class="pr-2">' + data_em_alarmiert[i].name + '</div>');
-  };
+  //var data_em_alarmiert = JSON.parse(data.em_alarmiert);
+  //for (var i in data_em_alarmiert) {
+    //var tmp = data_em_alarmiert[i].name.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
+    //$('#em_alarmiert').append('<div id="cn_' + tmp + '" class="rounded bg-secondary d-flex justify-content-between flex-fill p-2 m-1"></div>');
+    //$('#cn_' + tmp).append('<div class="pr-2">' + data_em_alarmiert[i].name + '</div>');
+  //};
   // weitere alarmierte Einsatzmittel setzen
   $('#em_weitere').html('');
   var data_em_weitere = JSON.parse(data.em_weitere);
