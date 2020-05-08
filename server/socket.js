@@ -94,7 +94,7 @@ nsp_dbrd.on('connection', function (socket) {
     });
   });
   // Disconnect
-  socket.on('disconnect', function () {
+  socket.on('disconnect', function (uuid) {
     sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') geschlossen.');
     sql.db_client_delete(socket);
   });
