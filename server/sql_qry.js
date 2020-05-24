@@ -51,7 +51,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
       var wgs_y = parseFloat(content.ortsdaten.wgs84_y);
       var point = turf.point([wgs_y, wgs_x]);
       var buffered = turf.buffer(point, 1, {
-        steps: 5,
+        steps: app_cfg.global.circumcircle,
         units: 'kilometers'
       });
       var bbox = turf.bbox(buffered);
@@ -59,7 +59,7 @@ module.exports = function (db, uuidv4, turf, app_cfg) {
         bbox: bbox
       });
       var new_buffer = turf.buffer(new_point, 1, {
-        steps: 5,
+        steps: app_cfg.global.circumcircle,
         units: 'kilometers'
       })
       content.ortsdaten.wgs84_area = JSON.stringify(new_buffer);

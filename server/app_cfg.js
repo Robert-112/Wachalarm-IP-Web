@@ -11,7 +11,7 @@ app_cfg.global = {
 	mediapath: '/media/',
 	time_to_delete_waip: 60,
 	default_time_for_standby: 10,
-	
+	circumcircle: 5, 
 	defaultuser: 'me',
 	defaultpass: '123',
 	defaultuserip: '127.0.0.1',

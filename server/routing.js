@@ -24,20 +24,28 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
 
   // Impressum
   app.get('/impressum', function(req, res) {
-    res.render('imprint', {
-      public: app_cfg.public,
-      title: 'Impressum',
-      user: req.user
-    });
+    if (app_cfg.public.ext_imprint) {
+      res.redirect(app_cfg.public.url_imprint);
+    } else {
+      res.render('imprint', {
+        public: app_cfg.public,
+        title: 'Impressum',
+        user: req.user
+      });
+    };
   });
 
   // Datenschutzerklaerung
   app.get('/datenschutz', function(req, res) {
-    res.render('privacy', {
-      public: app_cfg.public,
-      title: 'Datenschutzerklärung',
-      user: req.user
-    });
+    if (app_cfg.public.ext_privacy) {
+      res.redirect(app_cfg.public.url_privacy);
+    } else {
+      res.render('privacy', {
+        public: app_cfg.public,
+        title: 'Datenschutzerklärung',
+        user: req.user
+      });
+    };
   });
 
   /* ##################### */
