@@ -1,5 +1,6 @@
 var app_cfg = {};
 
+// Server-Einstellungen
 app_cfg.global = {
 	development: true,
 	http_port: 3000,
@@ -10,6 +11,7 @@ app_cfg.global = {
 	mediapath: '/media/',
 	time_to_delete_waip: 60,
 	default_time_for_standby: 10,
+	
 	defaultuser: 'me',
 	defaultpass: '123',
 	defaultuserip: '127.0.0.1',
@@ -21,32 +23,35 @@ app_cfg.global = {
 	app_id: process.pid
 };
 
+// Einstellungen zur Erscheinung der Seite
 app_cfg.public = {
 	app_name: 'Wachalarm IP-Web',
 	company: 'Leitstelle Lausitz',
 	version: 'Version 1.2',
 	map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	map_attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-	// TODO: Link Impressium
-	own_imprint: false,
+	ext_imprint: false,
 	url_imprint: 'https://www.nix.nix/impressium',
-	// TODO: Link Datenschutzerklärung, TLF-Sofort
-	own_privacy: false,
+	ext_privacy: false,
 	url_privacy: 'https://www.nix.nix/datenschutz'
 };
 
+// Daten von anderen Servern empfangen
 app_cfg.api = {
+	enabled: true,
 	secret: 'asdfwert1234567890#',
 	access_list: ['192.168.2.20', '192.168.2.30']
 };
 
-app_cfg.remote = {
-	endpoint_host: 'localhost',
-	endpoint_port: '8090',
-	endpoint_route: '/api',
+// Daten an andere Server senden
+app_cfg.endpoint = {
+	enabled: true,
+	host: '192.168.1.25',
+	port: '8090',
+	route: '/api',
 	secret: 'asdfwert1234567890#',
-	allow_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
-	allow_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']
+	send_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
+	send_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']
 };
 
 module.exports = app_cfg;
