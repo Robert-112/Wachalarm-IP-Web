@@ -1,8 +1,8 @@
-module.exports = function (io, sql, app_cfg, waip) {
+module.exports = function (io, io_api, sql, app_cfg, waip) {
 
   // Module laden
   //client.js
-  var io_api = require('socket.io-client');
+
   var socket_api = io_api.connect(app_cfg.global.remoteapi, {
     reconnect: true
   });

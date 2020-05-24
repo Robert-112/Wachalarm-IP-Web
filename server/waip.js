@@ -1,4 +1,4 @@
-module.exports = function (io, sql, tw, async, app_cfg) {
+module.exports = function (io, sql, brk, async, app_cfg) {
 
   // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(einsatz_rohdaten) {
@@ -29,9 +29,9 @@ module.exports = function (io, sql, tw, async, app_cfg) {
       sql.db_get_vmtl_list(waip_id, function (vmtl_data) {
         if (vmtl_data) {
           if (app_cfg.global.development) {
-            console.log('Daten Twitter: ' + JSON.stringify(vmtl_data));
+            console.log('Daten Vermittlung: ' + JSON.stringify(vmtl_data));
           };                                                                                     
-          tw.alert_vmtl_list(vmtl_data, function (result) {
+          brk.alert_vmtl_list(vmtl_data, function (result) {
             if (!result) {
               sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
             } else {
@@ -341,7 +341,7 @@ module.exports = function (io, sql, tw, async, app_cfg) {
             delete einsatzdaten.wgs84_y;
           };
           socket.emit('io.Einsatz', einsatzdaten);
-          sql.db_log('DBRD', 'Einsatzdaten für Dashboard' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
+          sql.db_log('DBRD', 'Einsatzdaten für Dashboard ' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
           sql.db_update_client_status(socket, dbrd_uuid);
         });
       } else {

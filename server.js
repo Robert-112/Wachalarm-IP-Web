@@ -2,13 +2,14 @@
 const fs = require('fs');
 const express = require('express');
 const app = express();
-const http = require('http') //.Server(app);
-const https = require('https'); //.Server(app);
+const http = require('http');
+const https = require('https'); 
 const webserver = https.createServer({
   key: fs.readFileSync('./misc/server.key', 'utf8'),
   cert: fs.readFileSync('./misc/server.cert', 'utf8')
 }, app);
 const io = require('socket.io').listen(webserver);
+const io_api = require('socket.io-client');
 const async = require('async');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -39,9 +40,9 @@ app.use(bodyParser.urlencoded({
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, uuidv4, turf, app_cfg);
-var tw = require('./server/twitter')(twit, uuidv4, app_cfg);
-var waip = require('./server/waip')(io, sql, tw, async, app_cfg);
-var socket = require('./server/socket')(io, sql, app_cfg, waip);
+var brk = require('./server/broker')(twit, uuidv4, app_cfg);
+var waip = require('./server/waip')(io, sql, brk, async, app_cfg);
+var socket = require('./server/socket')(io, io_api, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
 var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp);
