@@ -37,6 +37,16 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
+// Endpoint-API
+if (app_cfg.endpoint.enabled) {
+  const remote_api = io_api.connect(app_cfg.global.remoteapi, {
+    reconnect: true
+  });
+} else {
+  const remote_api;
+};
+
+
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, uuidv4, turf, app_cfg);
