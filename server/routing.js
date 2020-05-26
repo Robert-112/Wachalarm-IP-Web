@@ -1,11 +1,11 @@
-module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) {
+module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp) {
 
   /* ########################### */
   /* ##### Statische Seiten #### */
   /* ########################### */
 
   // Startseite
-  app.get('/', function(req, res) {
+  app.get('/', function (req, res) {
     res.render('home', {
       public: app_cfg.public,
       title: 'Startseite',
@@ -14,7 +14,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Ueber die Anwendung
-  app.get('/about', function(req, res) {
+  app.get('/about', function (req, res) {
     res.render('about', {
       public: app_cfg.public,
       title: 'Über',
@@ -23,7 +23,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Impressum
-  app.get('/impressum', function(req, res) {
+  app.get('/impressum', function (req, res) {
     if (app_cfg.public.ext_imprint) {
       res.redirect(app_cfg.public.url_imprint);
     } else {
@@ -36,7 +36,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Datenschutzerklaerung
-  app.get('/datenschutz', function(req, res) {
+  app.get('/datenschutz', function (req, res) {
     if (app_cfg.public.ext_privacy) {
       res.redirect(app_cfg.public.url_privacy);
     } else {
@@ -53,7 +53,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ##################### */
 
   // Loginseite
-  app.get('/login', function(req, res) {
+  app.get('/login', function (req, res) {
     res.render('login', {
       public: app_cfg.public,
       title: 'Login',
@@ -65,9 +65,9 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   // Login-Formular verarbeiten
   app.post('/login', passport.authenticate('local', {
     failureRedirect: '/login',
-		failureFlash: 'Login fehlgeschlagen! Bitte prüfen Sie Benutzername und Passwort.'
-  }), function(req, res) {
-    if(req.body.rememberme){
+    failureFlash: 'Login fehlgeschlagen! Bitte prüfen Sie Benutzername und Passwort.'
+  }), function (req, res) {
+    if (req.body.rememberme) {
       // der Benutzer muss sich fuer 5 Jahre nicht anmelden
       req.session.cookie.maxAge = 5 * 365 * 24 * 60 * 60 * 1000;
     };
@@ -77,16 +77,16 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   // Login mit IP verarbeiten
   app.post('/login_ip', passport.authenticate('ip', {
     failureRedirect: '/login',
-		failureFlash: 'Login mittels IP-Adresse fehlgeschlagen!'
-  }), function(req, res) {
+    failureFlash: 'Login mittels IP-Adresse fehlgeschlagen!'
+  }), function (req, res) {
     // der Benutzer muss sich fuer 5 Jahre nicht anmelden
     req.session.cookie.maxAge = 5 * 365 * 24 * 60 * 60 * 1000;
     res.redirect('/');
   });
 
   // Logout verarbeiten
-  app.post('/logout', function(req, res) {
-    req.session.destroy(function(err) {
+  app.post('/logout', function (req, res) {
+    req.session.destroy(function (err) {
       res.redirect('/');
     })
   });
@@ -96,8 +96,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ######################### */
 
   // Einstellungen anzeigen
-  app.get('/config', auth.ensureAuthenticated, function(req, res) {
-    sql.db_get_userconfig(req.user.id, function(data) {
+  app.get('/config', auth.ensureAuthenticated, function (req, res) {
+    sql.db_get_userconfig(req.user.id, function (data) {
       res.render('user/user_config', {
         public: app_cfg.public,
         title: 'Einstellungen',
@@ -108,8 +108,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Einstellungen speichern
-  app.post('/config', auth.ensureAuthenticated, function(req, res) {
-    sql.db_set_userconfig(req.user.id, req.body.set_reset_counter, function(data) {
+  app.post('/config', auth.ensureAuthenticated, function (req, res) {
+    sql.db_set_userconfig(req.user.id, req.body.set_reset_counter, function (data) {
       res.redirect('/config');
     });
   });
@@ -119,8 +119,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ##################### */
 
   // /waip nach /waip/0 umleiten
-  app.get('/waip', function(req, res) {
-     sql.db_get_alle_wachen(function(data) {
+  app.get('/waip', function (req, res) {
+    sql.db_get_alle_wachen(function (data) {
       res.render('overviews/overview_waip', {
         public: app_cfg.public,
         title: 'Alarmmonitor',
@@ -131,9 +131,9 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Alarmmonitor aufloesen /waip/<wachennummer>
-  app.get('/waip/:wachen_id', function(req, res, next) {
+  app.get('/waip/:wachen_id', function (req, res, next) {
     var parmeter_id = req.params.wachen_id;
-    sql.db_wache_vorhanden(parmeter_id, function(wache) {
+    sql.db_wache_vorhanden(parmeter_id, function (wache) {
       if (wache) {
         res.render('waip', {
           public: app_cfg.public,
@@ -156,8 +156,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ######################## */
 
   // Dasboard-Uebersicht
-  app.get('/dbrd', function(req, res) {
-    sql.db_get_active_waips(function(data) {
+  app.get('/dbrd', function (req, res) {
+    sql.db_get_active_waips(function (data) {
       res.render('overviews/overview_dbrd', {
         public: app_cfg.public,
         title: 'Dashboard',
@@ -168,9 +168,9 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Dasboard fuer einen Einsatz
-  app.get('/dbrd/:dbrd_uuid', function(req, res, next) {
+  app.get('/dbrd/:dbrd_uuid', function (req, res, next) {
     var dbrd_uuid = req.params.dbrd_uuid;
-    sql.db_einsatz_uuid_vorhanden(dbrd_uuid, function(wache) {
+    sql.db_einsatz_uuid_vorhanden(dbrd_uuid, function (wache) {
       if (wache) {
         res.render('dbrd', {
           public: app_cfg.public,
@@ -192,31 +192,31 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ######################## */
 
   // Rueckmeldungs-Aufruf ohne waip_uuid eblehnen
-  app.get('/rmld', function(req, res, next) {
+  app.get('/rmld', function (req, res, next) {
     var err = new Error('Rückmeldungen sind nur mit gültiger Einsatz-ID erlaubt!');
     err.status = 404;
     next(err);
   });
 
   // Rueckmeldungs-Aufruf mit waip_uuid aber ohne rmld_uuid an zufällige rmld_uuid weiterleiten
-  app.get('/rmld/:waip_uuid', function(req, res, next) {
+  app.get('/rmld/:waip_uuid', function (req, res, next) {
     res.redirect('/rmld/' + req.params.waip_uuid + '/' + uuidv4());
   });
 
   // Rueckmeldung anzeigen /rueckmeldung/waip_uuid/rmld_uuid
-  app.get('/rmld/:waip_uuid/:rmld_uuid', function(req, res, next) {
-    
+  app.get('/rmld/:waip_uuid/:rmld_uuid', function (req, res, next) {
+
     var waip_uuid = req.params.waip_uuid;
     var rmld_uuid = req.params.rmld_uuid;
-    sql.db_get_einsatzdaten_by_uuid(waip_uuid, function(einsatzdaten) {
-      if (einsatzdaten) {        
-        sql.db_check_permission(req.user, einsatzdaten.id, function(valid) {
+    sql.db_get_einsatzdaten_by_uuid(waip_uuid, function (einsatzdaten) {
+      if (einsatzdaten) {
+        sql.db_check_permission(req.user, einsatzdaten.id, function (valid) {
           if (!valid) {
             delete einsatzdaten.objekt;
             delete einsatzdaten.besonderheiten;
             delete einsatzdaten.strasse;
             delete einsatzdaten.wgs84_x;
-  			    delete einsatzdaten.wgs84_y;
+            delete einsatzdaten.wgs84_y;
           };
           einsatzdaten.rmld_uuid = rmld_uuid;
           res.render('rmld', {
@@ -237,17 +237,17 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Rueckmeldung entgegennehmen
-  app.post('/rmld/:waip_uuid/:rmld_uuid', function(req, res) {
+  app.post('/rmld/:waip_uuid/:rmld_uuid', function (req, res) {
     var waip_uuid = req.body.waip_uuid;
     var rmld_uuid = req.body.rmld_uuid;
-    sql.db_save_rmld(req.body, function(result){
+    sql.db_save_rmld(req.body, function (result) {
       if (result) {
         req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
-        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid );
+        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
         waip.rmld_verteilen_by_uuid(waip_uuid, rmld_uuid);
       } else {
         req.flash('errorMessage', 'Fehler beim Senden der Rückmeldung!');
-        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid );
+        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
       };
     });
   });
@@ -257,8 +257,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ########################## */
 
   // verbundene Clients anzeigen
-  app.get('/adm_show_clients', auth.ensureAdmin, function(req, res) {
-    sql.db_get_active_clients(function(data) {
+  app.get('/adm_show_clients', auth.ensureAdmin, function (req, res) {
+    sql.db_get_active_clients(function (data) {
       res.render('admin/adm_show_clients', {
         public: app_cfg.public,
         title: 'Verbundene PCs/Benutzer',
@@ -269,9 +269,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // laufende Einsaetze anzeigen
-  // TODO: eventuell unter Dashboard oder Startseite anzeigen
-  app.get('/adm_show_missions', auth.ensureAdmin, function(req, res) {
-    sql.db_get_active_waips(function(data) {
+  app.get('/adm_show_missions', auth.ensureAdmin, function (req, res) {
+    sql.db_get_active_waips(function (data) {
       res.render('admin/adm_show_missions', {
         public: app_cfg.public,
         title: 'Akutelle Einsätze',
@@ -282,8 +281,8 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Logdatei
-  app.get('/adm_show_log', auth.ensureAdmin, function(req, res) {
-    sql.db_get_log(function(data) {
+  app.get('/adm_show_log', auth.ensureAdmin, function (req, res) {
+    sql.db_get_log(function (data) {
       res.render('admin/adm_show_log', {
         public: app_cfg.public,
         title: 'Log-Datei',
@@ -294,7 +293,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // direkten Alarm ausloesen
-  app.get('/adm_run_alert', auth.ensureAdmin, function(req, res) {
+  app.get('/adm_run_alert', auth.ensureAdmin, function (req, res) {
     res.render('admin/adm_run_alert', {
       public: app_cfg.public,
       title: 'Test-Alarm',
@@ -302,14 +301,14 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
     });
   });
 
-  app.post('/adm_run_alert', auth.ensureAdmin, function(req, res) {
+  app.post('/adm_run_alert', auth.ensureAdmin, function (req, res) {
     udp.send_message(req.body.test_alert);
-	res.redirect('/adm_run_alert');
+    res.redirect('/adm_run_alert');
   });
 
   // Benutzer editieren
-  app.get('/adm_edit_users', auth.ensureAdmin, function(req, res) {
-    sql.db_get_users(function(data) {
+  app.get('/adm_edit_users', auth.ensureAdmin, function (req, res) {
+    sql.db_get_users(function (data) {
       res.render('admin/adm_edit_users', {
         public: app_cfg.public,
         title: 'Benutzer und Rechte verwalten',
@@ -321,7 +320,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
     });
   });
 
-  app.post('/adm_edit_users', auth.ensureAdmin, function(req, res) {
+  app.post('/adm_edit_users', auth.ensureAdmin, function (req, res) {
     if (req.user && req.user.permissions == "admin") {
       switch (req.body["modal_method"]) {
         case "DELETE":
@@ -344,7 +343,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   /* ###################### */
 
   // Wachalarm-Uhr testen
-  app.get('/test_clock', function(req, res) {
+  app.get('/test_clock', function (req, res) {
     res.render('tests/test_clock', {
       public: app_cfg.public,
       title: 'Test Uhr',
@@ -353,7 +352,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Alarmmonitor testen
-  app.get('/test_wachalarm', function(req, res) {
+  app.get('/test_wachalarm', function (req, res) {
     res.render('tests/test_wachalarm', {
       public: app_cfg.public,
       title: 'Test Wachalarm',
@@ -362,7 +361,7 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Rueckmeldung testen
-  app.get('/test_rueckmeldung', function(req, res) {
+  app.get('/test_rueckmeldung', function (req, res) {
     res.render('tests/test_rueckmeldung', {
       public: app_cfg.public,
       title: 'Test Einsatz-Rückmeldung',
@@ -371,31 +370,30 @@ module.exports = function(app, sql, uuidv4, app_cfg, passport, auth, waip, udp) 
   });
 
   // Dashboard testen
-  app.get('/test_dashboard', function(req, res) {
+  app.get('/test_dashboard', function (req, res) {
     res.render('tests/test_dashboard', {
       public: app_cfg.public,
       title: 'Test Dashboard',
       user: req.user
     });
   });
-  
+
   /* ######################## */
   /* ##### Fehlerseiten ##### */
   /* ######################## */
 
   // 404 abfangen und an error handler weiterleiten
-  app.use(function(req, res, next) {
+  app.use(function (req, res, next) {
     var err = new Error('Seite nicht gefunden!');
     err.status = 404;
     next(err);
   });
 
   // error handler
-  app.use(function(err, req, res, next) {
+  app.use(function (err, req, res, next) {
     // set locals, only providing error in development
-    // TODO: Development Modus abfangen
     res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.locals.error = app_cfg.global.development ? err : {};
     // render the error page
     res.status(err.status || 500);
     res.render('error', {
