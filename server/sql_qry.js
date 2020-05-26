@@ -1,5 +1,8 @@
 module.exports = function (db, uuidv4, app_cfg) {
   
+
+// TODO: welche Abfragen noch notwendig?
+
   // Module laden
   const turf = require('@turf/turf');
 
@@ -514,7 +517,11 @@ module.exports = function (db, uuidv4, app_cfg) {
         VALUES (
         \'` + typ + `\',
         \'` + text + `\')`);
-    //TODO: Log auf 20.000 Datensätze begrenzen
+    // Log auf 50.000 Datensätze begrenzen
+    db.run(`DELETE FROM waip_log WHERE id IN
+    (
+      SELECT id FROM waip_log ORDER BY id DESC LIMIT 50000, 100
+    )`);
   };
 
   function db_get_log(callback) {
