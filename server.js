@@ -1,4 +1,4 @@
-// Module laden
+
 const fs = require('fs');
 const express = require('express');
 const app = express();
@@ -9,16 +9,13 @@ const webserver = https.createServer({
   cert: fs.readFileSync('./misc/server.cert', 'utf8')
 }, app);
 const io = require('socket.io').listen(webserver);
-const io_api = require('socket.io-client');
 const async = require('async');
 const path = require('path');
 const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
-const twit = require('twit');
 const uuidv4 = require('uuid/v4');
-const turf = require('@turf/turf');
 
 // Basis-Konfiguration laden
 var app_cfg = require('./server/app_cfg.js');
@@ -37,22 +34,12 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-// Endpoint-API
-if (app_cfg.endpoint.enabled) {
-  const remote_api = io_api.connect(app_cfg.global.remoteapi, {
-    reconnect: true
-  });
-} else {
-  const remote_api;
-};
-
-
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
-var sql = require('./server/sql_qry')(sql_cfg, uuidv4, turf, app_cfg);
-var brk = require('./server/broker')(twit, uuidv4, app_cfg);
+var sql = require('./server/sql_qry')(sql_cfg, uuidv4, app_cfg);
+var brk = require('./server/broker')(uuidv4, sql);
 var waip = require('./server/waip')(io, sql, brk, async, app_cfg);
-var socket = require('./server/socket')(io, io_api, sql, app_cfg, waip);
+var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
 var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp);

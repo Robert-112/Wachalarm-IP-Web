@@ -1,4 +1,4 @@
-module.exports = function (io, io_api, sql, app_cfg, waip) {
+module.exports = function (io, sql, app_cfg, waip) {
 
   // Socket.IO Alarmmonitor
 
@@ -10,7 +10,7 @@ module.exports = function (io, io_api, sql, app_cfg, waip) {
     //zuerst Server-Version senden, damit der Client diese prueft und die Seite ggf. neu laedt
     socket.emit('io.version', app_cfg.global.app_id);
     // Aufruf des Alarmmonitors einer bestimmten Wache verarbeiten
-    socket.on('WAIP', function (wachen_id) {      
+    socket.on('WAIP', function (wachen_id) {
       sql.db_log('DEBUG', 'Alarmmonitor Nr. ' + wachen_id + ' von ' + client_ip + ' (' + socket.id + ') aufgerufen.');
       // prüfen ob Wachenummer in der Datenbank hinterlegt ist
       sql.db_wache_vorhanden(wachen_id, function (result) {
@@ -50,98 +50,41 @@ module.exports = function (io, io_api, sql, app_cfg, waip) {
     });
   });
 
-// Socket.IO Dashboard
+  // Socket.IO Dashboard
 
-var nsp_dbrd = io.of('/dbrd');
+  var nsp_dbrd = io.of('/dbrd');
 
-nsp_dbrd.on('connection', function (socket) {
-  // versuche Client-IP zu ermitteln
-  var client_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
-  //zuerst Server-Version senden, damit der Client diese prueft und die Seite ggf. neu laedt
-  socket.emit('io.version', app_cfg.global.app_id);
-  // Aufruf des Dashboards eines bestimmten Einsatzes verarbeiten
-  socket.on('dbrd', function (uuid) {      
-    sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') aufgerufen.');
-    // prüfen ob Dashboard/Einsatz vorhanden
-    sql.db_einsatz_uuid_vorhanden(uuid, function(dbrd_uuid) {
-      // wenn die Wachennummer vorhanden dann weiter
-      if (dbrd_uuid) {
-        // Socket-Room beitreiten
-        socket.join(dbrd_uuid.uuid, function () {
-          sql.db_log('DBRD', 'Einsatz ' + dbrd_uuid.uuid + ' für Dashboard ' + dbrd_uuid.uuid + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
-          //letzten Einsatz verteilen
-          waip.dbrd_verteilen(dbrd_uuid.uuid, socket);
-          // in Statusüberischt speichern
-          sql.db_update_client_status(socket, dbrd_uuid.uuid);
-        });
-      } else {
-        sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid.uuid + 'nicht (mehr) vorhanden!');
-        socket.emit('io.error', 'Fehler: Dashboard \'' + dbrd_uuid.uuid + '\' nicht (mehr) vorhanden!');
-      };
-    });
-  });
-  // Disconnect
-  socket.on('disconnect', function (uuid) {
-    sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') geschlossen.');
-    sql.db_client_delete(socket);
-  });
-});
-
-
-// Socket.IO API
-
-if (app_cfg.api.enabled) {
-  var nsp_api = io.of('/api');
-
-  nsp_api.on('connection', function (socket) {
-    // versuche Remote-IP zu ermitteln
-    var remote_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
-    //FIXME pruefen ob Verbindung mit passendem Secret und aus IP-Bereich
-  	//secret: 'asdfwert1234567890#',
-    //access_list: ['192.168.2.20', '192.168.2.30']
-    
-    // in Liste der Clients mit aufnehmen
-    sql.db_update_client_status(socket, 'api');
-    // Neuen Einsatz speichern
-    socket.on('new_waip', function (data) {   
-      sql.db_log('API', 'Neuer Einsatz von ' + remote_ip + ': ' + data);
-      waip.einsatz_speichern(data);
-    });
-    socket.on('new_rmld', function (data) {  
-      sql.db_save_rmld(data, function(result){
-        if (result) {
-          waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
-          sql.db_log('API', 'Rückmeldung von ' + remote_ip + ' gespeichert: ' + data); 
+  nsp_dbrd.on('connection', function (socket) {
+    // versuche Client-IP zu ermitteln
+    var client_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+    //zuerst Server-Version senden, damit der Client diese prueft und die Seite ggf. neu laedt
+    socket.emit('io.version', app_cfg.global.app_id);
+    // Aufruf des Dashboards eines bestimmten Einsatzes verarbeiten
+    socket.on('dbrd', function (uuid) {
+      sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') aufgerufen.');
+      // prüfen ob Dashboard/Einsatz vorhanden
+      sql.db_einsatz_uuid_vorhanden(uuid, function (dbrd_uuid) {
+        // wenn die Wachennummer vorhanden dann weiter
+        if (dbrd_uuid) {
+          // Socket-Room beitreiten
+          socket.join(dbrd_uuid.uuid, function () {
+            sql.db_log('DBRD', 'Einsatz ' + dbrd_uuid.uuid + ' für Dashboard ' + dbrd_uuid.uuid + ' vorhanden, wird jetzt an Client ' + socket.id + ' gesendet.');
+            //letzten Einsatz verteilen
+            waip.dbrd_verteilen(dbrd_uuid.uuid, socket);
+            // in Statusüberischt speichern
+            sql.db_update_client_status(socket, dbrd_uuid.uuid);
+          });
         } else {
-          sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + remote_ip + ': ' + data); 
+          sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid.uuid + 'nicht (mehr) vorhanden!');
+          socket.emit('io.error', 'Fehler: Dashboard \'' + dbrd_uuid.uuid + '\' nicht (mehr) vorhanden!');
         };
       });
-   });
+    });
     // Disconnect
-    socket.on('disconnect', function () {
-      sql.db_log('API', 'Schnittstelle von ' + remote_ip + ' (' + socket.id + ') geschlossen.');
+    socket.on('disconnect', function (uuid) {
+      sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') geschlossen.');
       sql.db_client_delete(socket);
     });
-  });  
-};
-
-  // Module laden
-  //client.js
-
-
-
-  // Add a connect listener
-  remote_api.on('connect', function (remote_api) {
-    console.log('Connected!');
   });
-
-  socket.on('connect_error', function (err) {
-    $('#waipModalTitle').html('FEHLER');
-    $('#waipModalBody').html('Verbindung zum Server getrennt!');
-    $('#waipModal').modal('show');
-  });
-
-  remote_api.emit('CH01', 'me', 'test msg');
-
 
 };

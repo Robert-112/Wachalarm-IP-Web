@@ -1,4 +1,7 @@
-module.exports = function (db, uuidv4, turf, app_cfg) {
+module.exports = function (db, uuidv4, app_cfg) {
+  
+  // Module laden
+  const turf = require('@turf/turf');
 
   // ermittelt den letzten vorhanden Einsatz zu einer Wache
   function db_einsatz_ermitteln(wachen_id, socket, callback) {
