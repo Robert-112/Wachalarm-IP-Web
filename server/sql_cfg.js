@@ -1,14 +1,11 @@
 module.exports = function (fs, bcrypt, app_cfg) {
 
-  // TODO: gegen better-sqlite3 ersetzen
-  // BUG: Zeit von UTC auf lokale Zeit anpassen
-
   // Datenbank einrichten
   const sqlite3 = require('sqlite3').verbose();
   var dbFile = app_cfg.global.database;
   var dbExists = fs.existsSync(dbFile);
 
-  // Datenbank erstellen
+  // Datenbank erstellen, falls nicht vorhanden
   var db = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
       console.error(err.message);
@@ -31,7 +28,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
       db.run(`CREATE TABLE waip_einsaetze (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         uuid TEXT, 
-        zeitstempel DATETIME DEFAULT CURRENT_TIMESTAMP,
+        zeitstempel DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),
         einsatznummer TEXT,
         alarmzeit TEXT,
         einsatzart TEXT,
@@ -50,7 +47,6 @@ module.exports = function (fs, bcrypt, app_cfg) {
         wgs84_area TEXT,
         UNIQUE (id, uuid))`);
       // Einsatzmittel-Tabelle erstellen
-      // TODO: Erweitern um Status, Staerke, AGT
       db.run(`CREATE TABLE waip_einsatzmittel (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_einsaetze_ID INTEGER NOT NULL,
@@ -77,7 +73,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Client-Tabelle erstellen
       db.run(`CREATE TABLE waip_clients (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        connect_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        connect_time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),
         socket_id TEXT,
         client_ip TEXT,
         room_name TEXT,
@@ -126,8 +122,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
         tw_consumer_secret TEXT,
         tw_access_token_key TEXT,
         tw_access_token_secret TEXT)`);
-      // Twitter-Listen-Tabelle erstellen
-      db.run(`CREATE TABLE waip_twitter_wachen (
+      // Vermittlungs-Tabelle erstellen
+      db.run(`CREATE TABLE waip_vmtl_tw_wachen (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_wachen_id INTEGER,
         tw_account_id INTEGER,
@@ -137,7 +133,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Log erstellen
       db.run(`CREATE TABLE waip_log (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        log_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        log_time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),
         log_typ TEXT,
         log_text TEXT)`);
       // Default-Wachen speichern
@@ -147,6 +143,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (0,\'0\',0,\'Global - Alle Einsätze\',\'Global\',\'Global\',\'0\',\'0\'),
         (520101,\'01\',52,\'CB FW Cottbus 1\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7329037496\',\'14.3377829699\'),
         (520201,\'02\',52,\'CB FW Cottbus 2\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7654389234\',\'14.3352138763\'),
+        (520301,\'03\',52,\'CB FW Cottbus 3\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.743946\',\'14.320619\'),
         (521101,\'11\',52,\'CB FW Branitz\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7363607074\',\'14.3673504518\'),
         (521102,\'11\',52,\'CB FW Dissenchen\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7628368787\',\'14.3925021325\'),
         (521103,\'11\',52,\'CB FW Kahren\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7226384039\',\'14.409874149\'),
@@ -163,6 +160,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (521402,\'14\',52,\'CB FW Groß Gaglow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7125349362\',\'14.3200961957\'),
         (521403,\'14\',52,\'CB FW Madlow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7204777791\',\'14.3457788456\'),
         (521404,\'14\',52,\'CB FW Sachsendorf\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7328922537\',\'14.3192552006\'),
+        (521501,\'15\',52,\'CB FW Gerätehaus Süd\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.718385\',\'14.337278\'),
         (610101,\'01\',61,\'LDS FW Lübben\',\'Stadt Lübben\',\'Landkreis Dahme-Spreewald\',\'51.9430718379\',\'13.8955064944\'),
         (610102,\'01\',61,\'LDS FW Lubolz\',\'Stadt Lübben\',\'Landkreis Dahme-Spreewald\',\'51.9631954482\',\'13.8277078818\'),
         (610104,\'01\',61,\'LDS FW Neuendorf (Lübben)\',\'Stadt Lübben\',\'Landkreis Dahme-Spreewald\',\'51.9080633268\',\'13.8557762577\'),
@@ -339,6 +337,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (619002,\'90\',61,\'LDS RW Bestensee\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.2393402333\',\'13.6651219943\'),
         (619004,\'90\',61,\'LDS RW Königs Wusterhausen\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.3038264488\',\'13.6298907439\'),
         (619005,\'90\',61,\'LDS RW Schulzendorf\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.3595783918\',\'13.6008186158\'),
+        (619008,\'90\',61,\'LDS RW Bindow\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.283327\',\'13.743823\'),
         (619009,\'90\',61,\'LDS RW Golßen\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'51.9799257518\',\'13.5771941984\'),
         (619012,\'90\',61,\'LDS RW Luckau\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'51.8504295155\',\'13.7130790573\'),
         (619015,\'90\',61,\'LDS RW Goyatz\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.014304731\',\'14.1786723155\'),

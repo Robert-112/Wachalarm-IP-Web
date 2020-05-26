@@ -512,16 +512,25 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_log(typ, text) {
-    //TODO: Debug Eintraege nur bei Development speichern 
-    db.run(`INSERT INTO waip_log (log_typ, log_text)
+    // Debug Eintraege nur bei Development speichern 
+    var do_log = true;
+    if (typ.match(/debug/i)) {
+      do_log = app_cfg.global.development;
+    } else {
+      do_log = app_cfg.global.development;
+    };  
+    // Log-Eintrag 
+    if (do_log) {
+      db.run(`INSERT INTO waip_log (log_typ, log_text)
         VALUES (
         \'` + typ + `\',
         \'` + text + `\')`);
+    };
     // Log auf 50.000 Datensätze begrenzen
     db.run(`DELETE FROM waip_log WHERE id IN
-    (
-      SELECT id FROM waip_log ORDER BY id DESC LIMIT 50000, 100
-    )`);
+      (
+        SELECT id FROM waip_log ORDER BY id DESC LIMIT 50000, 100
+      )`);
   };
 
   function db_get_log(callback) {
