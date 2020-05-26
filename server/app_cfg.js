@@ -47,9 +47,7 @@ app_cfg.api = {
 // Daten an andere Server senden
 app_cfg.endpoint = {
 	enabled: true,
-	host: '192.168.1.25',
-	port: '8090',
-	nsp: '/api',
+	host: 'https://192.168.1.25:8090/api',
 	secret: 'asdfwert1234567890#',
 	send_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
 	send_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']

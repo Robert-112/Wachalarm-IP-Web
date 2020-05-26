@@ -1,16 +1,20 @@
-module.exports = function (io, io_api, sql, app_cfg, waip) {
+module.exports = function (io, sql, app_cfg, waip) {
 
   // Module laden
   const io_api = require('socket.io-client');
 
-  // Socket.IO API (anderer Server stellt Verbindung her und sendet Daten)
+  // Namespace API festlegen
+  var nsp_api = io.of('/api');
 
-  if (app_cfg.api.enabled) {
-    // Namespace API
-    var nsp_api = io.of('/api');
+  // Socket.IO Empfangs-API (anderer Server stellt Verbindung her und sendet Daten)
+
+  if (app_cfg.api.enabled) {    
     nsp_api.on('connection', function (socket) {
       // versuche Remote-IP zu ermitteln
       var remote_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+
+
+// TODO Connect loggen
 
       //TODO pruefen ob Verbindung mit passendem Geheimnis und aus IP-Bereich
 
@@ -40,75 +44,41 @@ module.exports = function (io, io_api, sql, app_cfg, waip) {
     });
   };
 
+  // Socket.IO Sende-API (Daten an Server senden, die Verbindung hergestellt haben)
 
-
-    // Endpoint-API
-    if (app_cfg.endpoint.enabled) {
-        const remote_api = io_api.connect(app_cfg.global.remoteapi, {
-            reconnect: true
-        });
-    } else {
-        const remote_api;
-    };
-
-
-
-    // Module laden
-    //client.js
-
-
+  if (app_cfg.endpoint.enabled) {
+    var remote_api = io_api.connect(app_cfg.endpoint.host, {
+        reconnect: true
+    });
 
     // Add a connect listener
-    remote_api.on('connect', function (remote_api) {
+    remote_api.on('connect', function () {
         console.log('Connected!');
     });
 
-    socket.on('connect_error', function (err) {
-        $('#waipModalTitle').html('FEHLER');
-        $('#waipModalBody').html('Verbindung zum Server getrennt!');
-        $('#waipModal').modal('show');
+    remote_api.on('connect_error', function (err) {
+        console.log('Fehler! ' + err);
     });
 
-    remote_api.emit('CH01', 'me', 'test msg');
+
+    // Funktio daraus machen
+    remote_api.emit('new_waip', data);
+
+    //send_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
+	//send_data_type: ['uuid', 'n
+            // data so wie bei udp
+    remote_api.emit('new_rmld', data);
+            // gibts nur im routing
+
+} else {
+    const remote_api;
+};
 
 
 
-    // Funktion um zu pruefen, ob Nachricht im JSON-Format ist
-    function isValidJSON(text) {
-        try {
-            JSON.parse(text);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    };
-
-    //client.js
-
-
-
-    // Add a connect listener
-    remote_api.on('connect', function (remote_api) {
-        console.log('Connected!');
-    });
-
-    socket.on('connect_error', function (err) {
-        $('#waipModalTitle').html('FEHLER');
-        $('#waipModalBody').html('Verbindung zum Server getrennt!');
-        $('#waipModal').modal('show');
-    });
-
-    remote_api.emit('CH01', 'me', 'test msg');
-
-    return {
-        einsatz_speichern: einsatz_speichern,
-        waip_verteilen: waip_verteilen,
-        dbrd_verteilen: dbrd_verteilen,
-        rmld_verteilen_for_one_client: rmld_verteilen_for_one_client,
-        rmld_verteilen_by_uuid: rmld_verteilen_by_uuid
-    };
-
-
-
+  return {
+    send_new_waip: send_new_waip,
+    send_new_rmld: send_new_rmld
+  };
 
 };
