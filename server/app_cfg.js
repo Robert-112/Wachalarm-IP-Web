@@ -25,6 +25,7 @@ app_cfg.global = {
 
 // Einstellungen zur Erscheinung der Seite
 app_cfg.public = {
+	url: 'https://wachalarm.info.tm',
 	app_name: 'Wachalarm IP-Web',
 	company: 'Leitstelle Lausitz',
 	version: 'Version 1.2',

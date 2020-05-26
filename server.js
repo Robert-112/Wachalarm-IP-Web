@@ -37,7 +37,7 @@ app.use(bodyParser.urlencoded({
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, uuidv4, app_cfg);
-var brk = require('./server/broker')(uuidv4, sql);
+var brk = require('./server/broker')(app_cfg, sql, uuidv4);
 var waip = require('./server/waip')(io, sql, brk, async, app_cfg);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
