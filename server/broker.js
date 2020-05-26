@@ -21,28 +21,28 @@ module.exports = function (uuidv4, sql) {
       screen_name: vmtl_data.tw_screen_name
     };
 
-    // Twitter-Liste
+    // Twitter-Liste beschicken
     T.get('lists/list', params, function (error, lists, response) {
       if (!error) {
-
         var list_obj = lists.filter(function (o) {
           return o.name == vmtl_data.list;
         });
-        //console.log(JSON.stringify(list_obj));
-        console.log(list_obj[0].id_str);
         var member_params = {
           list_id: list_obj[0].id_str,
           count: 50
         };
         T.get('lists/members', member_params, function (error, members, response) {
           if (!error) {
-            console.log(JSON.stringify(members));
-
+            if (app_cfg.global.development) {
+              console.log('Mitglieder der Twitter-Liste: ' + JSON.stringify(members));
+            };  
+            // an jedes Mitglied der Liste eine Meldung senden
             var arrayLength = members.users.length;
             for (var i = 0; i < arrayLength; i++) {
-              console.log(members.users[i].screen_name);
-
-              var tw_text = 'Neuer Einsatz für ' + vmtl_data.name_wache + ', bitte um Rückmeldung: https://wachalarm.info.tm/rmld/' + vmtl_data.uuid + '/' + uuidv4();
+           
+              var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + vmtl_data.einsatzart + ' für ' + vmtl_data.name_wache + ', bitte um Rückmeldung: ' app_cfg.public.url + '/rmld/' + vmtl_data.uuid + '/' + uuidv4();
+              
+              
               //Do something
 
               var msg_params = {
@@ -61,6 +61,8 @@ module.exports = function (uuidv4, sql) {
               T.post('direct_messages/events/new', msg_params, function (error, members, response) {
                 if (!error) {
                   console.log('OK');
+                  console.log(members.users[i].screen_name);
+                  sql.db_log('VMTL', 'Fehler beim lesen der Twitter-Liste: ' + error);
                   callback && callback(members);
                 } else {
                   console.log(error);
@@ -69,7 +71,7 @@ module.exports = function (uuidv4, sql) {
               });
             };
           } else {
-            console.log(error);
+            sql.db_log('VMTL', 'Fehler beim lesen der Mitglieder der Twitter-Liste: ' + error);
             callback && callback(null);
           };
         });
