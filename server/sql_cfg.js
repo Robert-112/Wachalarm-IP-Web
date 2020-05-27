@@ -856,7 +856,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (\'82\',\'NEF\'),
         (\'83\',\'RTW\'),
         (\'85\',\'KTW\'),
-        (\'88\',\'Rettungsboot\')`);
+        (\'88\',\'Rettungsboot\'),
+        (\'91\',\'Gerätewagen Dekontamination Personal\')`);
       // Benutzer-Tabelle mit Standard-Admin befuellen
       bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function (err, hash) {
         db.run(`INSERT INTO waip_users ( user, password, permissions, ip_address ) VALUES( ?, ?, 'admin', ? )`,
