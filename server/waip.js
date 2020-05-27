@@ -2,7 +2,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
 
   // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(einsatz_rohdaten) {
-    // TODO: Einsatzdaten auf Validität prüfen
+    // FIXME: Einsatzdaten auf Validität prüfen
     // Einsatzmeldung (JSON) speichern
     sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
       sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);

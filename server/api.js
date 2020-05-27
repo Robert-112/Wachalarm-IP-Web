@@ -46,7 +46,12 @@ module.exports = function (io, sql, app_cfg, waip) {
 
   // Socket.IO Sende-API (Daten an Server senden, die Verbindung hergestellt haben)
 
-  if (app_cfg.endpoint.enabled) {
+  /*if (app_cfg.endpoint.enabled) {
+ 
+  } else {
+    const remote_api;
+  };*/
+
     var remote_api = io_api.connect(app_cfg.endpoint.host, {
         reconnect: true
     });
@@ -70,9 +75,18 @@ module.exports = function (io, sql, app_cfg, waip) {
     remote_api.emit('new_rmld', data);
             // gibts nur im routing
 
-} else {
-    const remote_api;
-};
+
+
+            
+            function db_get_waipid_by_uuid(waip_uuid, callback) {
+              db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
+                if (err == null && row) {
+                  callback && callback(row.id);
+                } else {
+                  callback && callback(null);
+                };
+              });
+            };
 
 
 
