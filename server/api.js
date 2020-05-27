@@ -6,24 +6,23 @@ module.exports = function (io, sql, app_cfg, waip) {
   // Namespace API festlegen
   var nsp_api = io.of('/api');
 
+  // ###
   // Socket.IO Empfangs-API (anderer Server stellt Verbindung her und sendet Daten)
+  // ###
 
-  if (app_cfg.api.enabled) {    
+  if (app_cfg.api.enabled) {
     nsp_api.on('connection', function (socket) {
       // versuche Remote-IP zu ermitteln
       var remote_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
 
-
-// TODO Connect loggen
-
-      //TODO pruefen ob Verbindung mit passendem Geheimnis und aus IP-Bereich
+      //TODO pruefen ob Verbindung mit passendem Geheimnis und aus IP-Bereich, das Ergebnis loggen
 
       // in Liste der Clients mit aufnehmen
       sql.db_update_client_status(socket, 'api');
       // Neuen Einsatz speichern
       socket.on('new_waip', function (data) {
         waip.einsatz_speichern(data);
-        sql.db_log('API', 'Neuer Einsatz von ' + remote_ip + ': ' + data);        
+        sql.db_log('API', 'Neuer Einsatz von ' + remote_ip + ': ' + data);
       });
       // neue externe Rueckmeldung speichern 
       socket.on('new_rmld', function (data) {
@@ -44,51 +43,49 @@ module.exports = function (io, sql, app_cfg, waip) {
     });
   };
 
+  // ###
   // Socket.IO Sende-API (Daten an Server senden, die Verbindung hergestellt haben)
+  // ###
 
-  /*if (app_cfg.endpoint.enabled) {
- 
-  } else {
-    const remote_api;
-  };*/
-
+  if (app_cfg.endpoint.enabled) {
+    // Verbindung zu anderem Server aufbauen
+    // TODO Verbindungsaufbau mit passendem Geheimnis absichern
     var remote_api = io_api.connect(app_cfg.endpoint.host, {
-        reconnect: true
+      reconnect: true
     });
 
-    // Add a connect listener
+    // Verbindungsaufbau protokollieren
     remote_api.on('connect', function () {
-        console.log('Connected!');
+      sql.db_log('API', 'Verbindung mit ' + app_cfg.endpoint.host + ' ergestellt');
     });
 
+    // Fehler protokollieren
     remote_api.on('connect_error', function (err) {
-        console.log('Fehler! ' + err);
+      sql.db_log('API', 'Verbindung zu ' + app_cfg.endpoint.host + ' verloren, Fehler: ' + err);
     });
 
+    // Verbindungsabbau protokollieren
+    remote_api.on('disconnect', function (reason) {
+      sql.db_log('API', 'Verbindung zu ' + app_cfg.endpoint.host + ' verloren, Fehler: ' + reason);
+    });
 
-    // Funktio daraus machen
-    remote_api.emit('new_waip', data);
+  };
 
-    //send_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
-	//send_data_type: ['uuid', 'n
-            // data so wie bei udp
-    remote_api.emit('new_rmld', data);
-            // gibts nur im routing
+  function send_new_waip(data) {
+    // Alarm an Remote-Server senden, falls funktion aktiviert
+    if (app_cfg.endpoint.enabled) {
+      remote_api.emit('new_waip', data);
+      sql.db_log('API', 'Neuen Wachalarm an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+    };
+  };
 
-
-
-            
-            function db_get_waipid_by_uuid(waip_uuid, callback) {
-              db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
-                if (err == null && row) {
-                  callback && callback(row.id);
-                } else {
-                  callback && callback(null);
-                };
-              });
-            };
-
-
+  function send_new_rmld(data) {
+    // Rückmeldung an Remote-Server senden, falls funktion aktiviert
+    if (app_cfg.endpoint.enabled) {
+      remote_api.emit('new_rmld', data);
+      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+    };
+  };
 
   return {
     send_new_waip: send_new_waip,
