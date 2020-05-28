@@ -35,7 +35,7 @@ module.exports = function (io, sql, app_cfg, waip) {
               };
             });
             // in Statusüberischt speichern
-            sql.db_update_client_status(socket, null);
+            sql.db_client_update_status(socket, null);
           });
         } else {
           sql.db_log('ERROR', 'Fehler: Wachnnummer ' + wachen_id + 'nicht vorhanden!');
@@ -63,7 +63,7 @@ module.exports = function (io, sql, app_cfg, waip) {
     socket.on('dbrd', function (uuid) {
       sql.db_log('DEBUG', 'Dashboard ' + uuid + ' von ' + client_ip + ' (' + socket.id + ') aufgerufen.');
       // prüfen ob Dashboard/Einsatz vorhanden
-      sql.db_einsatz_uuid_vorhanden(uuid, function (dbrd_uuid) {
+      sql.db_einsatz_check_uuid(uuid, function (dbrd_uuid) {
         // wenn die Wachennummer vorhanden dann weiter
         if (dbrd_uuid) {
           // Socket-Room beitreiten
@@ -72,7 +72,7 @@ module.exports = function (io, sql, app_cfg, waip) {
             //letzten Einsatz verteilen
             waip.dbrd_verteilen(dbrd_uuid.uuid, socket);
             // in Statusüberischt speichern
-            sql.db_update_client_status(socket, dbrd_uuid.uuid);
+            sql.db_client_update_status(socket, dbrd_uuid.uuid);
           });
         } else {
           sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid.uuid + 'nicht (mehr) vorhanden!');

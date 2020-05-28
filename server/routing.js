@@ -120,7 +120,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // /waip nach /waip/0 umleiten
   app.get('/waip', function (req, res) {
-    sql.db_get_alle_wachen(function (data) {
+    sql.db_wache_get_all(function (data) {
       res.render('overviews/overview_waip', {
         public: app_cfg.public,
         title: 'Alarmmonitor',
@@ -157,7 +157,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Dasboard-Uebersicht
   app.get('/dbrd', function (req, res) {
-    sql.db_get_active_waips(function (data) {
+    sql.db_einsatz_get_active(function (data) {
       res.render('overviews/overview_dbrd', {
         public: app_cfg.public,
         title: 'Dashboard',
@@ -170,7 +170,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
   // Dasboard fuer einen Einsatz
   app.get('/dbrd/:dbrd_uuid', function (req, res, next) {
     var dbrd_uuid = req.params.dbrd_uuid;
-    sql.db_einsatz_uuid_vorhanden(dbrd_uuid, function (wache) {
+    sql.db_einsatz_check_uuid(dbrd_uuid, function (wache) {
       if (wache) {
         res.render('dbrd', {
           public: app_cfg.public,
@@ -208,7 +208,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
     var waip_uuid = req.params.waip_uuid;
     var rmld_uuid = req.params.rmld_uuid;
-    sql.db_get_einsatzdaten_by_uuid(waip_uuid, function (einsatzdaten) {
+    sql.db_einsatz_get_by_uuid(waip_uuid, function (einsatzdaten) {
       if (einsatzdaten) {
         sql.db_user_check_permission(req.user, einsatzdaten.id, function (valid) {
           if (!valid) {
@@ -258,7 +258,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // verbundene Clients anzeigen
   app.get('/adm_show_clients', auth.ensureAdmin, function (req, res) {
-    sql.db_get_active_clients(function (data) {
+    sql.db_client_get_connected(function (data) {
       res.render('admin/adm_show_clients', {
         public: app_cfg.public,
         title: 'Verbundene PCs/Benutzer',
@@ -270,7 +270,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // laufende Einsaetze anzeigen
   app.get('/adm_show_missions', auth.ensureAdmin, function (req, res) {
-    sql.db_get_active_waips(function (data) {
+    sql.db_einsatz_get_active(function (data) {
       res.render('admin/adm_show_missions', {
         public: app_cfg.public,
         title: 'Akutelle Einsätze',

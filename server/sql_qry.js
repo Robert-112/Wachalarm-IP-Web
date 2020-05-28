@@ -149,24 +149,180 @@ module.exports = function (db, uuidv4, app_cfg) {
       });
   };
 
-  function db_einsatz_laden(waip_id, wachen_id, callback) {
-    db.get('SELECT e.id, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, ' +
-      'e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE FROM WAIP_EINSAETZE e ' +
-      'left join ' +
-      '(SELECT waip_einsaetze_id, waip_wachen_id, group_concat(einsatzmittel) AS em_alarmiert FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id = ? GROUP BY waip_wachen_id, waip_einsaetze_id) em1 ' +
-      'ON em1.waip_einsaetze_id = e.ID ' +
-      'LEFT JOIN ' +
-      '(SELECT waip_einsaetze_id, group_concat(einsatzmittel) AS em_weitere FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id <> ? GROUP BY waip_einsaetze_id) em0 ' +
-      'ON em0.waip_einsaetze_id = e.ID ' +
-      'WHERE e.id LIKE ? ' +
-      'ORDER BY e.id DESC LIMIT 1', [waip_id, wachen_id, waip_id, wachen_id, waip_id],
-      function (err, row) {
-        if (err == null && row) {
-          callback && callback(row);
+  function db_einsatz_check_uuid(uuid, callback) {
+    // Einsatz mit dieser UUID vorhanden?        
+    db.get('select uuid from waip_einsaetze where uuid like ?', [uuid], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+
+  };
+
+  function db_einsatz_get_by_waipid(waip_id, wachen_nr, user_id, callback) {
+    // vorsichtshalber nochmals id pruefen
+    if (isNaN(waip_id) || isNaN(wachen_nr)) {
+      callback && callback(null);
+    } else {
+      var len = wachen_nr.toString().length
+      // wachen_nr muss 2, 4 oder 6 Zeichen lang sein
+      if (parseInt(wachen_nr) != 0 && len != 2 && len != 4 && len != 6 && len == null) {
+        callback && callback(null);
+      } else {
+        if (parseInt(wachen_nr) == 0) {
+          wachen_nr = '%'
+        };
+        if (isNaN(user_id)) {
+          user_id = app_cfg.global.default_time_for_standby;
+        };
+        // je nach laenge andere SQL ausfuehren
+        db.get(`SELECT
+          e.id,
+          e.uuid,
+          DATETIME(e.zeitstempel, 'localtime') zeitstempel,
+        	DATETIME(e.zeitstempel,	'+' || (
+            SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?
+            ) || ' minutes', 'localtime') ablaufzeit,
+          e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
+          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area, em1.EM_ALARMIERT, em0.EM_WEITERE
+          FROM WAIP_EINSAETZE e
+          LEFT JOIN (
+            SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_alarmiert
+            FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id in (
+              select id from waip_wachen where nr_wache like ?||\'%\')
+              GROUP BY waip_einsaetze_id
+            ) em1 ON em1.waip_einsaetze_id = e.ID
+          LEFT JOIN (
+            SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_weitere
+            FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id not in (
+              select id from waip_wachen where nr_wache like ?||\'%\')
+              GROUP BY waip_einsaetze_id
+            ) em0 ON em0.waip_einsaetze_id = e.ID
+          WHERE e.id LIKE ?
+          ORDER BY e.id DESC LIMIT 1`,
+          [app_cfg.global.default_time_for_standby, user_id, waip_id, wachen_nr, waip_id, wachen_nr, waip_id],
+          function (err, row) {
+            if (err == null && row) {
+              callback && callback(row);
+            } else {
+              callback && callback(null);
+            }
+          });
+      };
+    };
+  };
+
+  function db_einsatz_get_by_uuid(waip_uuid, callback) {
+    db.get(`SELECT e.id, e.uuid, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
+      e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area FROM WAIP_EINSAETZE e 
+      WHERE e.uuid like ?`, [waip_uuid], function (err, row) {
+      if (err == null && row) {
+        console.log(row.uuid);
+        console.log(row.id);
+        db.all(`SELECT e.einsatzmittel, e.status FROM waip_einsatzmittel e 
+          WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, rows) {
+          if (err == null && rows) {
+            var einsatzdaten = row;
+            einsatzdaten.einsatzmittel = rows;
+            db.all(`SELECT DISTINCT e.waip_wachen_ID, e.wachenname FROM waip_einsatzmittel e 
+              WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, wachen) {
+              if (err == null && wachen) {
+                einsatzdaten.wachen = wachen;
+                callback && callback(einsatzdaten);
+              } else {
+                callback && callback(null);
+              };
+            });
+          } else {
+            callback && callback(null);
+          };
+        });
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_einsatz_get_waipid_by_uuid(waip_uuid, callback) {
+    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row.id);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_einsatz_get_active(callback) {
+    db.all(`select we.uuid, we.einsatzart, we.stichwort, we.ort, we.ortsteil, we.wgs84_area,
+    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
+    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
+    GROUP_concat(DISTINCT wa.nr_wache) c
+    from waip_einsaetze we
+    left join waip_einsatzmittel em on em.waip_einsaetze_ID = we.id
+    left join waip_wachen wa on wa.id = em.waip_wachen_ID
+    GROUP by we.id
+    ORDER by we.einsatzart, we.stichwort`, function (err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_einsatz_get_rooms(waip_id, callback) {
+    db.all(`select '0' room
+      union all
+      select w.nr_kreis room from waip_wachen w
+      left join waip_einsatzmittel em on em.wachenname = w.name_wache
+      where em.waip_einsaetze_ID = ? group by w.nr_kreis
+      union all
+      select w.nr_kreis || w.nr_traeger room from waip_wachen w
+      left join waip_einsatzmittel em on em.wachenname = w.name_wache
+      where em.waip_einsaetze_ID = ? group by w.nr_kreis || w.nr_traeger
+      union all
+      select w.nr_wache room from waip_wachen w
+      left join waip_einsatzmittel em on em.wachenname = w.name_wache
+      where em.waip_einsaetze_ID = ? group by w.nr_wache`, [waip_id, waip_id, waip_id],
+      function (err, rows) {
+        if (err == null && rows.length > 0) {
+          callback && callback(rows);
         } else {
           callback && callback(null);
-        }
+        };
       });
+  };
+
+  function db_einsatz_get_old(minuten, callback) {
+    db.each('SELECT id FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
+      if (err == null && row) {
+        callback && callback(row.id);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_einsatz_loeschen(id) {
+    db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
+  };
+
+  function db_wache_get_all(callback) {
+    db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen
+      union all
+      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen group by name_traeger
+      union all
+      select 'kreis' typ, nr_kreis nr, name_kreis name from waip_wachen group by name_kreis 
+      order by typ, name`, function (err, rows) {
+      if (err == null && rows.length > 0) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
   };
 
   function db_wache_vorhanden(content, callback) {
@@ -222,140 +378,6 @@ module.exports = function (db, uuidv4, app_cfg) {
     };
   };
 
-  function db_einsatz_uuid_vorhanden(uuid, callback) {
-    // Einsatz mit dieser UUID vorhanden?        
-    db.get('select uuid from waip_einsaetze where uuid like ?', [uuid], function (err, row) {
-      if (err == null && row) {
-        callback && callback(row);
-      } else {
-        callback && callback(null);
-      };
-    });
-
-  };
-
-  function db_wache_id_ermitteln(content, callback) {
-    db.each('select waip_wachen_ID from waip_einsatzmittel where waip_einsaetze_ID = ? ' +
-      'and waip_wachen_ID not null group by waip_wachen_ID', [content],
-      function (err, row) {
-        if (err == null && row) {
-          callback && callback(row.waip_wachen_ID);
-        } else {
-          callback && callback(null);
-        };
-      });
-  };
-
-  function db_get_einsatz_rooms(waip_id, callback) {
-    db.all(`select '0' room
-      union all
-      select w.nr_kreis room from waip_wachen w
-      left join waip_einsatzmittel em on em.wachenname = w.name_wache
-      where em.waip_einsaetze_ID = ? group by w.nr_kreis
-      union all
-      select w.nr_kreis || w.nr_traeger room from waip_wachen w
-      left join waip_einsatzmittel em on em.wachenname = w.name_wache
-      where em.waip_einsaetze_ID = ? group by w.nr_kreis || w.nr_traeger
-      union all
-      select w.nr_wache room from waip_wachen w
-      left join waip_einsatzmittel em on em.wachenname = w.name_wache
-      where em.waip_einsaetze_ID = ? group by w.nr_wache`, [waip_id, waip_id, waip_id],
-      function (err, rows) {
-        if (err == null && rows.length > 0) {
-          callback && callback(rows);
-        } else {
-          callback && callback(null);
-        };
-      });
-  };
-
-  function db_get_alte_einsaetze(minuten, callback) {
-    db.each('SELECT id FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
-      if (err == null && row) {
-        callback && callback(row.id);
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_einsatz_loeschen(id) {
-    db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
-  };
-
-  function db_get_alle_wachen(callback) {
-    db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen
-      union all
-      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen group by name_traeger
-      union all
-      select 'kreis' typ, nr_kreis nr, name_kreis name from waip_wachen group by name_kreis 
-      order by typ, name`, function (err, rows) {
-      if (err == null && rows.length > 0) {
-        callback && callback(rows);
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_get_einsatzdaten(waip_id, wachen_nr, user_id, callback) {
-    // vorsichtshalber nochmals id pruefen
-    if (isNaN(waip_id) || isNaN(wachen_nr)) {
-      callback && callback(null);
-    } else {
-      var len = wachen_nr.toString().length
-      // wachen_nr muss 2, 4 oder 6 Zeichen lang sein
-      if (parseInt(wachen_nr) != 0 && len != 2 && len != 4 && len != 6 && len == null) {
-        callback && callback(null);
-      } else {
-        if (parseInt(wachen_nr) == 0) {
-          wachen_nr = '%'
-        };
-        if (isNaN(user_id)) {
-          user_id = app_cfg.global.default_time_for_standby;
-        };
-        // je nach laenge andere SQL ausfuehren
-        db.get(`SELECT
-          e.id,
-          e.uuid,
-          DATETIME(e.zeitstempel, 'localtime') zeitstempel,
-        	DATETIME(e.zeitstempel,	'+' || (
-            SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?
-            ) || ' minutes', 'localtime') ablaufzeit,
-          e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
-          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area, em1.EM_ALARMIERT, em0.EM_WEITERE
-          FROM WAIP_EINSAETZE e
-          LEFT JOIN (
-            SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_alarmiert
-            FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id in (
-              select id from waip_wachen where nr_wache like ?||\'%\')
-              GROUP BY waip_einsaetze_id
-            ) em1 ON em1.waip_einsaetze_id = e.ID
-          LEFT JOIN (
-            SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_weitere
-            FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id not in (
-              select id from waip_wachen where nr_wache like ?||\'%\')
-              GROUP BY waip_einsaetze_id
-            ) em0 ON em0.waip_einsaetze_id = e.ID
-          WHERE e.id LIKE ?
-          ORDER BY e.id DESC LIMIT 1`,
-          [app_cfg.global.default_time_for_standby, user_id, waip_id, wachen_nr, waip_id, wachen_nr, waip_id],
-          function (err, row) {
-            if (err == null && row) {
-              callback && callback(row);
-            } else {
-              callback && callback(null);
-            }
-          });
-      };
-    };
-  };
-
-  function db_client_delete(socket) {
-    db.run('DELETE FROM waip_clients ' +
-      'WHERE socket_id = ?', socket.id);
-  };
-
   function db_tts_einsatzmittel(einsatzmittel, callback) {
     //{"name": "FL CB 16/23-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"}
     var tmp = einsatzmittel.name.match(/(\d\d\-\d\d)/g);
@@ -375,17 +397,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     };
   };
 
-  function db_socket_get_by_id(content, callback) {
-    db.get('select * from waip_clients where socket_id = ? ', [content], function (err, row) {
-      if (err == null && row) {
-        callback && callback(row);
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_update_client_status(socket, client_status) {
+  function db_client_update_status(socket, client_status) {
     //console.log(socket);
     var user_name = socket.request.user.user;
     var user_permissions = socket.request.user.permissions;
@@ -427,7 +439,22 @@ module.exports = function (db, uuidv4, app_cfg) {
       WHERE socket_id=\'` + socket_id + `\'`);*/
   };
 
-  function db_check_client_waipid(socketId, waip_id, callback) {
+  function db_client_get_connected(callback) {
+    db.all(`select * from waip_clients`, function (err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_client_delete(socket) {
+    db.run('DELETE FROM waip_clients ' +
+      'WHERE socket_id = ?', socket.id);
+  };
+
+  function db_client_check_waip_id(socketId, waip_id, callback) {
     db.get('SELECT client_status id from waip_clients where socket_id like ?', [socketId], function (err, row) {
       if (err == null && row) {
         if (row.id == waip_id) {
@@ -473,8 +500,19 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_active_clients(callback) {
-    db.all(`select * from waip_clients`, function (err, rows) {
+  function db_socket_get_by_id(content, callback) {
+    db.get('select * from waip_clients where socket_id = ? ', [content], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_socket_get_all_to_standby(callback) {
+    db.all(`select socket_id from waip_clients
+      where reset_timestamp < DATETIME(\'now\')`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
@@ -483,18 +521,30 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_active_waips(callback) {
-    db.all(`select we.uuid, we.einsatzart, we.stichwort, we.ort, we.ortsteil, we.wgs84_area,
-    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
-    GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
-    GROUP_concat(DISTINCT wa.nr_wache) c
-    from waip_einsaetze we
-    left join waip_einsatzmittel em on em.waip_einsaetze_ID = we.id
-    left join waip_wachen wa on wa.id = em.waip_wachen_ID
-    GROUP by we.id
-    ORDER by we.einsatzart, we.stichwort`, function (err, rows) {
-      if (err == null && rows) {
-        callback && callback(rows);
+  function db_user_set_config(user_id, reset_counter, callback) {
+    // reset_counter validieren, ansonsten default setzen
+    if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
+      reset_counter = app_cfg.global.default_time_for_standby;
+    };
+    db.run((`INSERT OR REPLACE INTO waip_user_config
+      (id, user_id, reset_counter)
+      VALUES (
+      (select ID from waip_user_config where user_id like \'` + user_id + `\'),
+      \'` + user_id + `\',
+      \'` + reset_counter + `\')`), function (err) {
+      if (err == null) {
+        callback && callback();
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_user_get_config(user_id, callback) {
+    db.get(`SELECT reset_counter FROM waip_user_config
+      WHERE user_id = ?`, [user_id], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row.reset_counter);
       } else {
         callback && callback(null);
       };
@@ -509,7 +559,7 @@ module.exports = function (db, uuidv4, app_cfg) {
         callback && callback(null);
       };
     });
-  };
+  };  
 
   function db_user_check_permission(user_obj, waip_id, callback) {
     if (user_obj && user_obj.permissions) {
@@ -537,47 +587,6 @@ module.exports = function (db, uuidv4, app_cfg) {
     } else {
       callback && callback(false);
     };
-  };
-
-  function db_user_get_config(user_id, callback) {
-    db.get(`SELECT reset_counter FROM waip_user_config
-      WHERE user_id = ?`, [user_id], function (err, row) {
-      if (err == null && row) {
-        callback && callback(row.reset_counter);
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_user_set_config(user_id, reset_counter, callback) {
-    // reset_counter validieren, ansonsten default setzen
-    if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
-      reset_counter = app_cfg.global.default_time_for_standby;
-    };
-    db.run((`INSERT OR REPLACE INTO waip_user_config
-      (id, user_id, reset_counter)
-      VALUES (
-      (select ID from waip_user_config where user_id like \'` + user_id + `\'),
-      \'` + user_id + `\',
-      \'` + reset_counter + `\')`), function (err) {
-      if (err == null) {
-        callback && callback();
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_socket_get_all_to_standby(callback) {
-    db.all(`select socket_id from waip_clients
-      where reset_timestamp < DATETIME(\'now\')`, function (err, rows) {
-      if (err == null && rows) {
-        callback && callback(rows);
-      } else {
-        callback && callback(null);
-      };
-    });
   };
 
   function db_rmld_save(responseobj, callback) {
@@ -759,47 +768,6 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_einsatzdaten_by_uuid(waip_uuid, callback) {
-    db.get(`SELECT e.id, e.uuid, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
-      e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area FROM WAIP_EINSAETZE e 
-      WHERE e.uuid like ?`, [waip_uuid], function (err, row) {
-      if (err == null && row) {
-        console.log(row.uuid);
-        console.log(row.id);
-        db.all(`SELECT e.einsatzmittel, e.status FROM waip_einsatzmittel e 
-          WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, rows) {
-          if (err == null && rows) {
-            var einsatzdaten = row;
-            einsatzdaten.einsatzmittel = rows;
-            db.all(`SELECT DISTINCT e.waip_wachen_ID, e.wachenname FROM waip_einsatzmittel e 
-              WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, wachen) {
-              if (err == null && wachen) {
-                einsatzdaten.wachen = wachen;
-                callback && callback(einsatzdaten);
-              } else {
-                callback && callback(null);
-              };
-            });
-          } else {
-            callback && callback(null);
-          };
-        });
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
-  function db_get_waipid_by_uuid(waip_uuid, callback) {
-    db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
-      if (err == null && row) {
-        callback && callback(row.id);
-      } else {
-        callback && callback(null);
-      };
-    });
-  };
-
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache in diesem Einsatz ein Twitter-Account mit Liste hinterlegt ist
     db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmlt_tw_wachen t 
@@ -829,56 +797,30 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   return {
     db_einsatz_speichern: db_einsatz_speichern,
-    db_einsatz_laden: db_einsatz_laden,
     db_einsatz_ermitteln: db_einsatz_ermitteln,
-    db_get_alte_einsaetze: db_get_alte_einsaetze,
-
-    db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
-    db_get_einsatz_rooms: db_get_einsatz_rooms,  
-    
-
-    db_einsatz_uuid_vorhanden: db_einsatz_uuid_vorhanden,
-       
-    db_get_einsatzdaten: db_get_einsatzdaten,
-    db_get_waipid_by_uuid: db_get_waipid_by_uuid,
-
-
-    db_get_active_waips: db_get_active_waips,
-
-
-    db_get_alle_wachen: db_get_alle_wachen,  
-    db_wache_vorhanden: db_wache_vorhanden,
-    db_wache_id_ermitteln: db_wache_id_ermitteln, 
-
-      
-      
+    db_einsatz_check_uuid: db_einsatz_check_uuid,
+    db_einsatz_get_by_waipid: db_einsatz_get_by_waipid,
+    db_einsatz_get_by_uuid: db_einsatz_get_by_uuid,
+    db_einsatz_get_waipid_by_uuid: db_einsatz_get_waipid_by_uuid,
+    db_einsatz_get_active: db_einsatz_get_active,    
+    db_einsatz_get_rooms: db_einsatz_get_rooms, 
+    db_einsatz_get_old: db_einsatz_get_old,
     db_einsatz_loeschen: db_einsatz_loeschen,
-    
-
-    db_update_client_status: db_update_client_status,
-    db_get_active_clients: db_get_active_clients,
+    db_wache_get_all: db_wache_get_all,  
+    db_wache_vorhanden: db_wache_vorhanden,    
+    db_tts_einsatzmittel: db_tts_einsatzmittel,    
+    db_client_update_status: db_client_update_status,
+    db_client_get_connected: db_client_get_connected,
     db_client_delete: db_client_delete,
-
-
-    db_tts_einsatzmittel: db_tts_einsatzmittel,
-
-    
-
-    db_check_client_waipid: db_check_client_waipid,
+    db_client_check_waip_id: db_client_check_waip_id,
     db_log: db_log,
-    db_log_get_all: db_log_get_all,
-    
-    
-
-
+    db_log_get_all: db_log_get_all,    
     db_socket_get_by_id: db_socket_get_by_id,
-    db_socket_get_all_to_standby: db_socket_get_all_to_standby,
-        
+    db_socket_get_all_to_standby: db_socket_get_all_to_standby,        
     db_user_set_config: db_user_set_config,
     db_user_get_config: db_user_get_config,
     db_user_get_all: db_user_get_all,
     db_user_check_permission: db_user_check_permission,
-    
     db_rmld_save: db_rmld_save,
     db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,     
     db_rmld_get_by_rmlduuid: db_rmld_get_by_rmlduuid,
@@ -890,7 +832,7 @@ module.exports = function (db, uuidv4, app_cfg) {
 /* alte abfragen
 
 
-
+    db_einsatz_laden: db_einsatz_laden,
 db_list_wachen: db_list_wachen,
     db_wache_nr_ermitteln: db_wache_nr_ermitteln,
     db_list_traeger: db_list_traeger,
@@ -899,9 +841,21 @@ db_list_wachen: db_list_wachen,
     db_get_response_gesamter_einsatz: db_get_response_gesamter_einsatz,
     db_update_response: db_update_response,
     db_client_save: db_client_save,
+    db_wache_id_ermitteln: db_wache_id_ermitteln, 
 
-
-
+    
+    
+    function db_wache_id_ermitteln(content, callback) {
+    db.each('select waip_wachen_ID from waip_einsatzmittel where waip_einsaetze_ID = ? ' +
+      'and waip_wachen_ID not null group by waip_wachen_ID', [content],
+      function (err, row) {
+        if (err == null && row) {
+          callback && callback(row.waip_wachen_ID);
+        } else {
+          callback && callback(null);
+        };
+      });
+  };
 
 
   function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback) {
@@ -915,6 +869,26 @@ db_list_wachen: db_list_wachen,
   });
 };
 
+
+  function db_einsatz_laden(waip_id, wachen_id, callback) {
+    db.get('SELECT e.id, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, ' +
+      'e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE FROM WAIP_EINSAETZE e ' +
+      'left join ' +
+      '(SELECT waip_einsaetze_id, waip_wachen_id, group_concat(einsatzmittel) AS em_alarmiert FROM WAIP_EINSATZMITTEL WHERE waip_einsaetze_id = ? and waip_wachen_id = ? GROUP BY waip_wachen_id, waip_einsaetze_id) em1 ' +
+      'ON em1.waip_einsaetze_id = e.ID ' +
+      'LEFT JOIN ' +
+      '(SELECT waip_einsaetze_id, group_concat(einsatzmittel) AS em_weitere FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id <> ? GROUP BY waip_einsaetze_id) em0 ' +
+      'ON em0.waip_einsaetze_id = e.ID ' +
+      'WHERE e.id LIKE ? ' +
+      'ORDER BY e.id DESC LIMIT 1', [waip_id, wachen_id, waip_id, wachen_id, waip_id],
+      function (err, row) {
+        if (err == null && row) {
+          callback && callback(row);
+        } else {
+          callback && callback(null);
+        }
+      });
+  };
 
 */
 

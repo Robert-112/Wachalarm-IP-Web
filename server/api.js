@@ -18,7 +18,7 @@ module.exports = function (io, sql, app_cfg, waip) {
       //TODO pruefen ob Verbindung mit passendem Geheimnis und aus IP-Bereich, das Ergebnis loggen
 
       // in Liste der Clients mit aufnehmen
-      sql.db_update_client_status(socket, 'api');
+      sql.db_client_update_status(socket, 'api');
       // Neuen Einsatz speichern
       socket.on('new_waip', function (data) {
         waip.einsatz_speichern(data);

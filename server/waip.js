@@ -8,7 +8,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
       sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
       // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
       // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
-      sql.db_get_einsatz_rooms(waip_id, function (socket_rooms) {
+      sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
         if (socket_rooms) {
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
@@ -46,7 +46,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
   function waip_verteilen(waip_id, socket, wachen_nr) {
     // Einsatzdaten für eine Wache aus Datenbank laden
     var user_obj = socket.request.user;
-    sql.db_get_einsatzdaten(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
+    sql.db_einsatz_get_by_waipid(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
         sql.db_user_check_permission(user_obj, waip_id, function (valid) {
@@ -60,7 +60,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
           // Einsatz senden
           socket.emit('io.neuerEinsatz', einsatzdaten);
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
-          sql.db_update_client_status(socket, waip_id);
+          sql.db_client_update_status(socket, waip_id);
           // Sound erstellen
           tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
             if (tts) {
@@ -75,16 +75,16 @@ module.exports = function (io, sql, brk, async, app_cfg) {
         // Standby senden
         socket.emit('io.standby', null);
         sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket.id + ' gesendet.');
-        sql.db_update_client_status(socket, null);
+        sql.db_client_update_status(socket, null);
       };
     });
   };
 
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
     // Einsatz-ID mittels Einsatz-UUID ermitteln
-    sql.db_get_waipid_by_uuid(waip_uuid, function (waip_id) {
+    sql.db_einsatz_get_waipid_by_uuid(waip_uuid, function (waip_id) {
       // am Einsatz beteilite Socket-Räume ermitteln
-      sql.db_get_einsatz_rooms(waip_id, function (socket_rooms) {
+      sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
         if (socket_rooms) {
           socket_rooms.forEach(function (row) {
             // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
@@ -95,7 +95,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
                 sql.db_rmld_get_by_rmlduuid(rmld_uuid, function (rmld_obj) {
                   if (rmld_obj) {
                     // Rückmeldung an Clients/Räume senden, wenn richtiger Einsatz angezeigt wird
-                    sql.db_check_client_waipid(socket_id, waip_id, function (same_id) {
+                    sql.db_client_check_waip_id(socket_id, waip_id, function (same_id) {
                       if (same_id) {
                         var socket = io.of('/waip').connected[socket_id];
                         socket.emit('io.response', rmld_obj);
@@ -270,16 +270,16 @@ module.exports = function (io, sql, brk, async, app_cfg) {
           socket.emit('io.standby', null);
           socket.emit('io.stopaudio', null);
           sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
-          sql.db_update_client_status(socket, null);
+          sql.db_client_update_status(socket, null);
         });
       };
     });
     // Nach alten Einsaetzen suchen und diese ggf. loeschen
-    sql.db_get_alte_einsaetze(app_cfg.global.time_to_delete_waip, function (waip_id) {
+    sql.db_einsatz_get_old(app_cfg.global.time_to_delete_waip, function (waip_id) {
       if (waip_id) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip_id + ' ist veraltet und kann gelöscht werden.')
         //beteiligte Wachen ermitteln
-        sql.db_get_einsatz_rooms(waip_id, function (data) {
+        sql.db_einsatz_get_rooms(waip_id, function (data) {
           if (data) {
             data.forEach(function (row) {
               // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
@@ -288,12 +288,12 @@ module.exports = function (io, sql, brk, async, app_cfg) {
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
                   var socket = io.of('/waip').connected[socket_id];              
-                  sql.db_check_client_waipid(socket.id, waip_id, function (same_id) {
+                  sql.db_client_check_waip_id(socket.id, waip_id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
                       socket.emit('io.stopaudio', null);
                       sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
-                      sql.db_update_client_status(socket, null);
+                      sql.db_client_update_status(socket, null);
                     };
                   });
                 });
@@ -327,7 +327,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
 
   function dbrd_verteilen(dbrd_uuid, socket) {
     console.log(JSON.stringify(dbrd_uuid));
-    sql.db_get_einsatzdaten_by_uuid(dbrd_uuid, function(einsatzdaten) {
+    sql.db_einsatz_get_by_uuid(dbrd_uuid, function(einsatzdaten) {
       if (einsatzdaten) {        
         sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function(valid) {
           if (!valid) {
@@ -339,13 +339,13 @@ module.exports = function (io, sql, brk, async, app_cfg) {
           };
           socket.emit('io.Einsatz', einsatzdaten);
           sql.db_log('DBRD', 'Einsatzdaten für Dashboard ' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
-          sql.db_update_client_status(socket, dbrd_uuid);
+          sql.db_client_update_status(socket, dbrd_uuid);
         });
       } else {
         // Standby senden
         socket.emit('io.standby', null);
         sql.db_log('DBRD', 'Der angefragte Einsatz ' + dbrd_uuid + ' ist nicht - oder nicht mehr - vorhanden!, Standby an Socket ' + socket.id + ' gesendet.');
-        sql.db_update_client_status(socket, null);
+        sql.db_client_update_status(socket, null);
       };
     });
   };
