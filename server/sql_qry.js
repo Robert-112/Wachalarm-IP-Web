@@ -233,6 +233,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_waipid_by_uuid(waip_uuid, callback) {
+    // mit uuid die zugehoerige id des Einsatzes finden
     db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
       if (err == null && row) {
         callback && callback(row.id);
@@ -243,6 +244,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_active(callback) {
+    // alle aktivieren Einsaetze finden
     db.all(`select we.uuid, we.einsatzart, we.stichwort, we.ort, we.ortsteil, we.wgs84_area,
     GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 3 )) a,
     GROUP_concat(DISTINCT substr( wa.nr_wache, 0, 5 )) b,
@@ -261,6 +263,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_rooms(waip_id, callback) {
+    // alle potenziellen Socket-Rooms fuer einen Einsatz finden
     db.all(`select '0' room
       union all
       select w.nr_kreis room from waip_wachen w
@@ -284,6 +287,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_old(minuten, callback) {
+    // veraltete Einsaetze finden
     db.each('SELECT id FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
       if (err == null && row) {
         callback && callback(row.id);
@@ -294,6 +298,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_loeschen(id) {
+    // Einsatz loeschen
     db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
   };
 
@@ -312,21 +317,21 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_wache_vorhanden(content, callback) {
-    // wenn content keine Nummer ist, abbrechen
-    if (isNaN(content)) {
+  function db_wache_vorhanden(wachen_nr, callback) {
+    // Prueffunktion um zu erkennen ob wachen_nr valide ist
+    if (isNaN(wachen_nr)) {
       // Fehler: Wachennummer nicht korrekt.
       callback && callback(null);
     } else {
-      var len = content.toString().length
-      // content muss 2, 4 oder 6 Zeichen lang sein
-      if (parseInt(content) != 0 && len != 2 && len != 4 && len != 6) {
+      var len = wachen_nr.toString().length
+      // wachen_nr muss 2, 4 oder 6 Zeichen lang sein
+      if (parseInt(wachen_nr) != 0 && len != 2 && len != 4 && len != 6) {
         // Fehler: Wachennummer nicht plausibel.
         callback && callback(null);
       } else {
         // je nach laenge andere SQL ausfuehren
-        if (parseInt(content) == 0) {
-          db.get('select \'1\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function (err, row) {
+        if (parseInt(wachen_nr) == 0) {
+          db.get('select \'1\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [wachen_nr], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -335,7 +340,7 @@ module.exports = function (db, uuidv4, app_cfg) {
           });
         };
         if (len == 2) {
-          db.get('select \'2\' length, nr_kreis nr, name_kreis name from waip_wachen where nr_kreis like SUBSTR(?,-2, 2) group by name_kreis LIMIT 1', [content], function (err, row) {
+          db.get('select \'2\' length, nr_kreis nr, name_kreis name from waip_wachen where nr_kreis like SUBSTR(?,-2, 2) group by name_kreis LIMIT 1', [wachen_nr], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -353,7 +358,7 @@ module.exports = function (db, uuidv4, app_cfg) {
           });
         };
         if (len == 6) {
-          db.get('select \'6\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [content], function (err, row) {
+          db.get('select \'6\' length, nr_wache nr, name_wache name from waip_wachen where nr_wache like ?', [wachen_nr], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
@@ -366,17 +371,20 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_tts_einsatzmittel(einsatzmittel, callback) {
-    //{"name": "FL CB 16/23-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"},{"name": "FL CB 16/11-01", "zeit": "17:16"}
+    // Funkkenner der Einsatzmittel in gesprochen Text umwandeln, wenn Nomierung mit xx xx 00/00-00
     var tmp = einsatzmittel.name.match(/(\d\d\-\d\d)/g);
     if (tmp) {
+      // Einsatzmittel-Typ ermitteln
       var typ = tmp.toString().substring(0, 2);
+      // Einsatzmittel-Nr ermitteln
       var nr = tmp.toString().slice(4);
       nr = nr.toString().replace(/^0+/, '');
+      // hinterlegte Ersetzungen finden
       db.get('SELECT einsatzmittel_rufname name FROM waip_ttsreplace WHERE einsatzmittel_typ = ?', [typ], function (err, row) {
         if (err == null && row) {
           callback(null, row.name + ' ' + nr);
         } else {
-          callback(null, einsatzmittel.name); // + err + typ + nr + '_ ' + tmp);
+          callback(null, einsatzmittel.name);
         };
       });
     } else {
@@ -385,25 +393,29 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_client_update_status(socket, client_status) {
-    //console.log(socket);
+    // Client-Status aktualisieren / speichern
     var user_name = socket.request.user.user;
     var user_permissions = socket.request.user.permissions;
     var user_agent = socket.request.headers['user-agent'];
     var client_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
     var reset_timestamp = socket.request.user.reset_counter;
+    // Standby wenn Client-Status keine Nummer oder Null
     if (isNaN(client_status) || client_status == null) {
       client_status = 'Standby';
     };
+    // wenn User-Name nicht bekannt
     if (typeof user_name === "undefined") {
       user_name = '';
     };
+    // wenn User-Berechtigung nicht bekannt
     if (typeof user_permissions === "undefined") {
       user_permissions = '';
     };
+    // wenn Anzeigezeit nicht bekannt, Wert aus App-Cfg setzen
     if ((typeof reset_timestamp === "undefined") || (reset_timestamp == null)) {
       reset_timestamp = app_cfg.global.default_time_for_standby;
     };
-
+    // Daten speichern
     db.run(`insert or replace into waip_clients 
       (id, socket_id, client_ip, room_name, client_status, user_name, user_permissions, user_agent, reset_timestamp ) values (
       (select id from waip_clients where socket_id = \'` + socket.id + `\'),
@@ -415,18 +427,10 @@ module.exports = function (db, uuidv4, app_cfg) {
       \'` + user_permissions + `\',
       \'` + user_agent + `\',
       (select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\'));`);
-
-    /*db.run(`UPDATE waip_clients
-      SET client_status=\'` + client_status + `\',
-      client_ip=\'` + client_ip + `\',
-      user_name=\'` + user_name + `\',
-      user_permissions=\'` + user_permissions + `\',
-      user_agent=\'` + user_agent + `\',
-      reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\')
-      WHERE socket_id=\'` + socket_id + `\'`);*/
   };
 
   function db_client_get_connected(callback) {
+    // Verbunden Clients ermitteln
     db.all(`select * from waip_clients`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
@@ -437,11 +441,13 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_client_delete(socket) {
+    // Client aus Liste entfernen
     db.run('DELETE FROM waip_clients ' +
       'WHERE socket_id = ?', socket.id);
   };
 
   function db_client_check_waip_id(socketId, waip_id, callback) {
+    // Pruefen ob fuer Client eine Einsatz vorhanden ist
     db.get('SELECT client_status id from waip_clients where socket_id like ?', [socketId], function (err, row) {
       if (err == null && row) {
         if (row.id == waip_id) {
@@ -463,21 +469,22 @@ module.exports = function (db, uuidv4, app_cfg) {
     } else {
       do_log = app_cfg.global.development;
     };
-    // Log-Eintrag 
+    // Log-Eintrag schreiben
     if (do_log) {
       db.run(`INSERT INTO waip_log (log_typ, log_text)
         VALUES (
         \'` + typ + `\',
         \'` + text + `\')`);
     };
-    // Log auf 50.000 Datensätze begrenzen
+    // Log auf 50.000 Datensätze begrenzen um Speicherplatz der DB zu begrenzen
     db.run(`DELETE FROM waip_log WHERE id IN
       (
         SELECT id FROM waip_log ORDER BY id DESC LIMIT 50000, 100
       )`);
   };
 
-  function db_log_get_all(callback) {
+  function db_log_get_5000(callback) {
+    // letzten 5000 Log-Eintraege
     db.all(`select * from waip_log order by id desc LIMIT 5000`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
@@ -801,7 +808,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_client_delete: db_client_delete,
     db_client_check_waip_id: db_client_check_waip_id,
     db_log: db_log,
-    db_log_get_all: db_log_get_all,    
+    db_log_get_5000: db_log_get_5000,    
     db_socket_get_by_id: db_socket_get_by_id,
     db_socket_get_all_to_standby: db_socket_get_all_to_standby,        
     db_user_set_config: db_user_set_config,
@@ -977,6 +984,15 @@ db_list_wachen: db_list_wachen,
       };
     });
   };
+
+      db.run(`UPDATE waip_clients
+      SET client_status=\'` + client_status + `\',
+      client_ip=\'` + client_ip + `\',
+      user_name=\'` + user_name + `\',
+      user_permissions=\'` + user_permissions + `\',
+      user_agent=\'` + user_agent + `\',
+      reset_timestamp=(select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\')
+      WHERE socket_id=\'` + socket_id + `\'`);
   
   
   */

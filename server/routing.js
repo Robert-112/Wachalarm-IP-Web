@@ -282,7 +282,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Logdatei
   app.get('/adm_show_log', auth.ensureAdmin, function (req, res) {
-    sql.db_log_get_all(function (data) {
+    sql.db_log_get_5000(function (data) {
       res.render('admin/adm_show_log', {
         public: app_cfg.public,
         title: 'Log-Datei',
