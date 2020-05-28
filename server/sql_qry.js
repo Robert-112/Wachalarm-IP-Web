@@ -484,7 +484,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_log_get_5000(callback) {
-    // letzten 5000 Log-Eintraege
+    // letzten 5000 Log-Eintraege ermitteln
     db.all(`select * from waip_log order by id desc LIMIT 5000`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
@@ -495,6 +495,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_socket_get_by_id(content, callback) {
+    // Client-Eintrag per Socket-ID finden
     db.get('select * from waip_clients where socket_id = ? ', [content], function (err, row) {
       if (err == null && row) {
         callback && callback(row);
@@ -505,6 +506,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_socket_get_all_to_standby(callback) {
+    // alle Sockets/Clients finden, die auf Standby gesetzt werden koennen 
     db.all(`select socket_id from waip_clients
       where reset_timestamp < DATETIME(\'now\')`, function (err, rows) {
       if (err == null && rows) {
@@ -515,11 +517,12 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_user_set_config(user_id, reset_counter, callback) {
+  function db_user_set_config(user_id, reset_counter, callback) {    
     // reset_counter validieren, ansonsten default setzen
     if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
       reset_counter = app_cfg.global.default_time_for_standby;
     };
+    // Benutzer-Einstellungen speichern
     db.run((`INSERT OR REPLACE INTO waip_user_config
       (id, user_id, reset_counter)
       VALUES (
@@ -535,6 +538,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_user_get_config(user_id, callback) {
+    // Benutzer-Einstellungen laden
     db.get(`SELECT reset_counter FROM waip_user_config
       WHERE user_id = ?`, [user_id], function (err, row) {
       if (err == null && row) {
@@ -546,6 +550,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_user_get_all(callback) {
+    // alle Benutzer laden
     db.all('SELECT id, user, permissions, ip_address FROM waip_users', function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
@@ -556,17 +561,19 @@ module.exports = function (db, uuidv4, app_cfg) {
   };  
 
   function db_user_check_permission(user_obj, waip_id, callback) {
+    // Benutzer-Berechtigung pruefen
     if (user_obj && user_obj.permissions) {
+      // Admin?
       if (user_obj.permissions == 'admin') {
         callback && callback(true);
       } else {
-        //permissions -> 52,62,6690,....
+        // Berechtigungen -> 52,62,6690,....
         db.get(`select group_concat(DISTINCT wa.nr_wache) wache from waip_einsatzmittel em
           left join waip_wachen wa on wa.id = em.waip_wachen_ID
           where waip_einsaetze_ID = ?`, [waip_id], function (err, row) {
           if (err == null && row) {
+            // Berechtigung fuer diesen Einsatz (beteilgte Wache) gegeben?
             var permission_arr = user_obj.permissions.split(",");
-            var wachen_arr = row.wache.split(",");
             const found = permission_arr.some(r => row.wache.search(RegExp(',' + r + '|\\b' + r)) >= 0);
             if (found) {
               callback && callback(true);
@@ -584,8 +591,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_rmld_save(responseobj, callback) {
-
-    // Rueckmeldung aufarbeiten
+    // Rueckmeldung speichern
     var reuckmeldung = {};
     reuckmeldung.rmld_uuid = responseobj.rmld_uuid;
     reuckmeldung.waip_uuid = responseobj.waip_uuid;
@@ -623,21 +629,18 @@ module.exports = function (db, uuidv4, app_cfg) {
     var resp_time = new Date();
     resp_time.setMinutes(resp_time.getMinutes() + parseInt(responseobj.eintreffzeit));
     reuckmeldung.arrival_time = resp_time;
-    // Wache zuordnen
+    // Wache gesetzt?
     if (!isNaN(responseobj.wachenauswahl)) {
       reuckmeldung.wache_id = responseobj.wachenauswahl;
     } else {
       reuckmeldung.wache_id = null;
     };
-
-    console.log('reuckmeldung: ' + JSON.stringify(reuckmeldung));
-    console.log('responseobj: ' + JSON.stringify(responseobj));
-
+    // Rueckmeldung der Wache zuordnen
     db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function (err, row) {
       if (err == null && row) {
         reuckmeldung.wache_name = row.name_wache;
         reuckmeldung.wache_nr = row.nr_wache;
-
+        // Rueckmeldung in DB speichern
         db.run((`insert or replace into waip_response (id, waip_uuid, rmld_uuid, einsatzkraft, maschinist, fuehrungskraft, agt, set_time, arrival_time, wache_id, wache_nr, wache_name) 
         values
         ((select id from waip_response where rmld_uuid =  \'` + reuckmeldung.rmld_uuid + `\'), 
@@ -652,29 +655,23 @@ module.exports = function (db, uuidv4, app_cfg) {
         \'` + reuckmeldung.wache_id + `\', 
         \'` + reuckmeldung.wache_nr + `\', 
         \'` + reuckmeldung.wache_name + `\')`), function (err) {
-          //console.log(err);
           if (err == null) {
-            // TODO: Rueckmeldung-UUID zurückgeben
-            callback && callback('OK');
+            // Rueckmeldung-UUID zurückgeben
+            callback && callback(reuckmeldung.rmld_uuid);
           } else {
             callback && callback(null);
           };
         });
-
-
       } else {
         callback && callback(null);
       };
     });
-
-
-
   };
 
   function db_rmld_get_fuer_wache(waip_einsaetze_id, wachen_nr, callback) {
+    // Rueckmeldungen fuer eine Wache auslesen
     db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
-
         // temporaere Variablen
         var itemsProcessed = 0;
         var all_responses = [];
@@ -682,13 +679,9 @@ module.exports = function (db, uuidv4, app_cfg) {
         function loop_done(all_responses) {
           callback && callback(all_responses);
         };
-        // Zeilen einzelnen durchgehen
-        console.log('rows: ' + JSON.stringify(rows));
-        rows.forEach(function (item, index, array) {
-          // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
+        // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
+        rows.forEach(function (item, index, array) {          
           var tmp = JSON.stringify(item.wache_nr);
-
-
           if (tmp.startsWith(wachen_nr) || wachen_nr == 0) {
             if (item.einsatzkraft == 1) {
               item.einsatzkraft = true;
@@ -710,16 +703,12 @@ module.exports = function (db, uuidv4, app_cfg) {
             } else {
               item.agt = false;
             };
-            // response_wache aufsummieren
+            // Rueckmeldeobjekt aufsummieren
             all_responses.push(item)
           };
-
-
-
           // Schleife ggf. beenden
           itemsProcessed++;
           if (itemsProcessed === array.length) {
-            console.log('get_response_wache: ' + JSON.stringify(all_responses));
             loop_done(all_responses);
           };
         });
@@ -730,9 +719,9 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_rmld_get_by_rmlduuid(rmld_uuid, callback) {
+    // einzelne Rueckmeldung fuer eine Rueckmelde-UUID
     db.all(`SELECT * FROM waip_response WHERE rmld_uuid like ?`, [rmld_uuid], function (err, row) {
       if (err == null && row) {
-        console.log('single_rmld_uuid ' + row);
         if (row.einsatzkraft == 1) {
           row.einsatzkraft = true;
         } else {
@@ -753,9 +742,7 @@ module.exports = function (db, uuidv4, app_cfg) {
         } else {
           row.agt = false;
         };
-        // response_wache aufsummieren
         callback && callback(row);
-
       } else {
         callback && callback(null);
       };
@@ -763,22 +750,19 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_vmtl_get_list(waip_id, callback) {
-    // Pruefen ob fuer eine Wache in diesem Einsatz ein Twitter-Account mit Liste hinterlegt ist
+    // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
     db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmlt_tw_wachen t 
       where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, twitter_liste) {
       if (err == null && twitter_liste) {
-        console.log(twitter_liste);
-        // Falls Account und Liste hinterlegt ist, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
+        // Falls Account und Liste hinterlegt sind, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
         db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
         from waip_twitter_accounts tw, waip_einsaetze we, waip_wachen wa
-        where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function (err, twitter_daten) {
-          console.log(twitter_daten);
-          console.log(err);
-          if (err == null && twitter_daten) {
-            // liste zu SQL-Select hinzufuegen
-            twitter_daten.list = twitter_liste.tw_account_list;
-            callback && callback(twitter_daten);
+        where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function (err, vmtl_daten) {
+          if (err == null && vmtl_daten) {
+            // Listen-Name zur Daten hinzufuegen
+            vmtl_daten.list = twitter_liste.tw_account_list;
+            callback && callback(vmtl_daten);
           } else {
             callback && callback(null);
           };
