@@ -97,7 +97,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Einstellungen anzeigen
   app.get('/config', auth.ensureAuthenticated, function (req, res) {
-    sql.db_get_userconfig(req.user.id, function (data) {
+    sql.db_user_get_config(req.user.id, function (data) {
       res.render('user/user_config', {
         public: app_cfg.public,
         title: 'Einstellungen',
@@ -109,7 +109,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Einstellungen speichern
   app.post('/config', auth.ensureAuthenticated, function (req, res) {
-    sql.db_set_userconfig(req.user.id, req.body.set_reset_counter, function (data) {
+    sql.db_user_set_config(req.user.id, req.body.set_reset_counter, function (data) {
       res.redirect('/config');
     });
   });
@@ -210,7 +210,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
     var rmld_uuid = req.params.rmld_uuid;
     sql.db_get_einsatzdaten_by_uuid(waip_uuid, function (einsatzdaten) {
       if (einsatzdaten) {
-        sql.db_check_permission(req.user, einsatzdaten.id, function (valid) {
+        sql.db_user_check_permission(req.user, einsatzdaten.id, function (valid) {
           if (!valid) {
             delete einsatzdaten.objekt;
             delete einsatzdaten.besonderheiten;
@@ -240,7 +240,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
   app.post('/rmld/:waip_uuid/:rmld_uuid', function (req, res) {
     var waip_uuid = req.body.waip_uuid;
     var rmld_uuid = req.body.rmld_uuid;
-    sql.db_save_rmld(req.body, function (result) {
+    sql.db_rmld_save(req.body, function (result) {
       if (result) {
         req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
         res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
@@ -282,7 +282,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Logdatei
   app.get('/adm_show_log', auth.ensureAdmin, function (req, res) {
-    sql.db_get_log(function (data) {
+    sql.db_log_get_all(function (data) {
       res.render('admin/adm_show_log', {
         public: app_cfg.public,
         title: 'Log-Datei',
@@ -308,7 +308,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Benutzer editieren
   app.get('/adm_edit_users', auth.ensureAdmin, function (req, res) {
-    sql.db_get_users(function (data) {
+    sql.db_user_get_all(function (data) {
       res.render('admin/adm_edit_users', {
         public: app_cfg.public,
         title: 'Benutzer und Rechte verwalten',

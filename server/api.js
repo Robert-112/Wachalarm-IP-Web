@@ -26,7 +26,7 @@ module.exports = function (io, sql, app_cfg, waip) {
       });
       // neue externe Rueckmeldung speichern 
       socket.on('new_rmld', function (data) {
-        sql.db_save_rmld(data, function (result) {
+        sql.db_rmld_save(data, function (result) {
           if (result) {
             waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
             sql.db_log('API', 'Rückmeldung von ' + remote_ip + ' gespeichert: ' + data);

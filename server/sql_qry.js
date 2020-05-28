@@ -375,7 +375,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     };
   };
 
-  function db_get_socket_by_id(content, callback) {
+  function db_socket_get_by_id(content, callback) {
     db.get('select * from waip_clients where socket_id = ? ', [content], function (err, row) {
       if (err == null && row) {
         callback && callback(row);
@@ -463,7 +463,7 @@ module.exports = function (db, uuidv4, app_cfg) {
       )`);
   };
 
-  function db_get_log(callback) {
+  function db_log_get_all(callback) {
     db.all(`select * from waip_log order by id desc LIMIT 5000`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
@@ -501,7 +501,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_users(callback) {
+  function db_user_get_all(callback) {
     db.all('SELECT id, user, permissions, ip_address FROM waip_users', function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
@@ -511,7 +511,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_check_permission(user_obj, waip_id, callback) {
+  function db_user_check_permission(user_obj, waip_id, callback) {
     if (user_obj && user_obj.permissions) {
       if (user_obj.permissions == 'admin') {
         callback && callback(true);
@@ -539,7 +539,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     };
   };
 
-  function db_get_userconfig(user_id, callback) {
+  function db_user_get_config(user_id, callback) {
     db.get(`SELECT reset_counter FROM waip_user_config
       WHERE user_id = ?`, [user_id], function (err, row) {
       if (err == null && row) {
@@ -550,7 +550,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_set_userconfig(user_id, reset_counter, callback) {
+  function db_user_set_config(user_id, reset_counter, callback) {
     // reset_counter validieren, ansonsten default setzen
     if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
       reset_counter = app_cfg.global.default_time_for_standby;
@@ -569,7 +569,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_sockets_to_standby(callback) {
+  function db_socket_get_all_to_standby(callback) {
     db.all(`select socket_id from waip_clients
       where reset_timestamp < DATETIME(\'now\')`, function (err, rows) {
       if (err == null && rows) {
@@ -580,7 +580,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_save_rmld(responseobj, callback) {
+  function db_rmld_save(responseobj, callback) {
 
     // Rueckmeldung aufarbeiten
     var reuckmeldung = {};
@@ -668,7 +668,7 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   };
 
-  function db_get_response_for_wache(waip_einsaetze_id, wachen_nr, callback) {
+  function db_rmld_get_fuer_wache(waip_einsaetze_id, wachen_nr, callback) {
     db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
       if (err == null && rows) {
 
@@ -726,7 +726,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_single_response_by_rmlduuid(rmld_uuid, callback) {
+  function db_rmld_get_by_rmlduuid(rmld_uuid, callback) {
     db.all(`SELECT * FROM waip_response WHERE rmld_uuid like ?`, [rmld_uuid], function (err, row) {
       if (err == null && row) {
         console.log('single_rmld_uuid ' + row);
@@ -800,7 +800,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_get_vmtl_list(waip_id, callback) {
+  function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache in diesem Einsatz ein Twitter-Account mit Liste hinterlegt ist
     db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmlt_tw_wachen t 
       where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
@@ -831,41 +831,58 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_laden: db_einsatz_laden,
     db_einsatz_ermitteln: db_einsatz_ermitteln,
-    db_wache_vorhanden: db_wache_vorhanden,
-    db_einsatz_uuid_vorhanden: db_einsatz_uuid_vorhanden,
-    db_wache_id_ermitteln: db_wache_id_ermitteln,
-    
-    db_get_einsatzdaten: db_get_einsatzdaten,
-    db_get_einsatz_rooms: db_get_einsatz_rooms,
-    
-    db_get_alle_wachen: db_get_alle_wachen,
-    
-    db_einsatz_loeschen: db_einsatz_loeschen,
     db_get_alte_einsaetze: db_get_alte_einsaetze,
+
+    db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
+    db_get_einsatz_rooms: db_get_einsatz_rooms,  
     
-    db_client_delete: db_client_delete,
-    db_tts_einsatzmittel: db_tts_einsatzmittel,
-    db_get_socket_by_id: db_get_socket_by_id,
+
+    db_einsatz_uuid_vorhanden: db_einsatz_uuid_vorhanden,
+       
+    db_get_einsatzdaten: db_get_einsatzdaten,
+    db_get_waipid_by_uuid: db_get_waipid_by_uuid,
+
+
+    db_get_active_waips: db_get_active_waips,
+
+
+    db_get_alle_wachen: db_get_alle_wachen,  
+    db_wache_vorhanden: db_wache_vorhanden,
+    db_wache_id_ermitteln: db_wache_id_ermitteln, 
+
+      
+      
+    db_einsatz_loeschen: db_einsatz_loeschen,
+    
+
     db_update_client_status: db_update_client_status,
+    db_get_active_clients: db_get_active_clients,
+    db_client_delete: db_client_delete,
+
+
+    db_tts_einsatzmittel: db_tts_einsatzmittel,
+
+    
+
     db_check_client_waipid: db_check_client_waipid,
     db_log: db_log,
-    db_get_log: db_get_log,
-    db_get_active_clients: db_get_active_clients,
-    db_get_active_waips: db_get_active_waips,
-    db_get_users: db_get_users,
-    db_check_permission: db_check_permission,
-    db_get_userconfig: db_get_userconfig,
-    db_set_userconfig: db_set_userconfig,
-    db_get_sockets_to_standby: db_get_sockets_to_standby,
+    db_log_get_all: db_log_get_all,
     
-    db_save_rmld: db_save_rmld,
     
-    db_get_response_for_wache: db_get_response_for_wache,
-    db_get_einsatzdaten_by_uuid: db_get_einsatzdaten_by_uuid,
-    db_get_waipid_by_uuid: db_get_waipid_by_uuid,
-    db_get_single_response_by_rmlduuid,
-    db_get_single_response_by_rmlduuid,
-    db_get_vmtl_list: db_get_vmtl_list
+
+
+    db_socket_get_by_id: db_socket_get_by_id,
+    db_socket_get_all_to_standby: db_socket_get_all_to_standby,
+        
+    db_user_set_config: db_user_set_config,
+    db_user_get_config: db_user_get_config,
+    db_user_get_all: db_user_get_all,
+    db_user_check_permission: db_user_check_permission,
+    
+    db_rmld_save: db_rmld_save,
+    db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,     
+    db_rmld_get_by_rmlduuid: db_rmld_get_by_rmlduuid,
+    db_vmtl_get_list: db_vmtl_get_list
   };
 
 };
@@ -884,7 +901,7 @@ db_list_wachen: db_list_wachen,
     db_client_save: db_client_save,
 
 
-    
+
 
 
   function db_get_response_gesamter_einsatz(waip_einsaetze_id, callback) {

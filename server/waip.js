@@ -26,7 +26,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
         };
       });
       // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
-      sql.db_get_vmtl_list(waip_id, function (vmtl_data) {
+      sql.db_vmtl_get_list(waip_id, function (vmtl_data) {
         if (vmtl_data) {                                                                                   
           brk.alert_vmtl_list(vmtl_data, function (result) {
             if (!result) {
@@ -49,7 +49,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
     sql.db_get_einsatzdaten(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
-        sql.db_check_permission(user_obj, waip_id, function (valid) {
+        sql.db_user_check_permission(user_obj, waip_id, function (valid) {
           if (!valid) {
             einsatzdaten.objekt = '';
             einsatzdaten.besonderheiten = '';
@@ -92,7 +92,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
             if (typeof room_sockets !== 'undefined') { 
               Object.keys(room_sockets.sockets).forEach(function (socket_id) {
               // wenn Raum zum Einsatz aufgerufen ist, dann Rueckmeldung aus DB laden und an diesen versenden
-                sql.db_get_single_response_by_rmlduuid(rmld_uuid, function (rmld_obj) {
+                sql.db_rmld_get_by_rmlduuid(rmld_uuid, function (rmld_obj) {
                   if (rmld_obj) {
                     // Rückmeldung an Clients/Räume senden, wenn richtiger Einsatz angezeigt wird
                     sql.db_check_client_waipid(socket_id, waip_id, function (same_id) {
@@ -135,7 +135,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
 
   function rmld_verteilen_for_one_client(waip_id, socket, wachen_id) {
     if (typeof socket !== 'undefined') {
-      sql.db_get_response_for_wache(waip_id, wachen_id, function (rmld_obj) {
+      sql.db_rmld_get_fuer_wache(waip_id, wachen_id, function (rmld_obj) {
         if (rmld_obj) {
           // Rueckmeldung nur an den einen Socket senden
           socket.emit('io.response', rmld_obj);
@@ -263,7 +263,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
   // Aufräumen (alle 10 Sekunden)
   setInterval(function () {
     // alle User-Einstellungen prüfen und ggf. Standby senden
-    sql.db_get_sockets_to_standby(function (socket_ids) {
+    sql.db_socket_get_all_to_standby(function (socket_ids) {
       if (socket_ids) {
         socket_ids.forEach(function (row) {
           var socket = io.of('/waip').connected[row.socket_id];
@@ -313,7 +313,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
       // nur die mp3s von alten clients loeschen
       if (file.substring(0, 4) != 'bell' && file.substring(file.length - 3) == 'mp3' && file.substring(file.length - 8) != '_tmp.mp3') {
-        sql.db_get_socket_by_id(file.substring(0, file.length - 4), function (data) {
+        sql.db_socket_get_by_id(file.substring(0, file.length - 4), function (data) {
           if (!data) {
             fs.unlink(process.cwd() + app_cfg.global.soundpath + file, function (err) {
               if (err) return sql.db_log('Fehler-WAIP', err);
@@ -329,7 +329,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
     console.log(JSON.stringify(dbrd_uuid));
     sql.db_get_einsatzdaten_by_uuid(dbrd_uuid, function(einsatzdaten) {
       if (einsatzdaten) {        
-        sql.db_check_permission(socket.request.user, einsatzdaten.id, function(valid) {
+        sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function(valid) {
           if (!valid) {
             delete einsatzdaten.objekt;
             delete einsatzdaten.besonderheiten;
