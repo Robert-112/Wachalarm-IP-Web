@@ -3,6 +3,8 @@ module.exports = function (db, uuidv4, app_cfg) {
   // Module laden
   const turf = require('@turf/turf');
 
+  // SQL-Abfragen
+
   function db_einsatz_speichern(content, callback) {
     content = JSON.parse(content);
     // uuid erzeugen und zuweisen falls nicht vorhanden
@@ -28,9 +30,7 @@ module.exports = function (db, uuidv4, app_cfg) {
       })
       content.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
     };
-
-
-
+    // Einsatzdaten verarbeiten
     db.serialize(function () {
       // Einsatzdaten speichern
       db.run(`INSERT OR REPLACE INTO waip_einsaetze (
@@ -56,15 +56,14 @@ module.exports = function (db, uuidv4, app_cfg) {
         \'` + content.ortsdaten.wgs84_area + `\')`,
         function (err) {
           if (err == null) {
-            // Einsatzmittel zum Einsatz speichern
+            // letzte Einsatz-ID ermitteln
             var id = this.lastID;
-
+            // Schleife definieren
             function loop_done(waip_id) {
               callback && callback(waip_id);
-              console.log('all done');
-            };
-
+            };            
             var itemsProcessed = 0;
+            // Einsatzmittel zum Einsatz speichern
             content.alarmdaten.forEach(function (item, index, array) {
               db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
               VALUES (
@@ -76,17 +75,17 @@ module.exports = function (db, uuidv4, app_cfg) {
               \'` + item.zeit_a + `\')`,
                 function (err) {
                   if (err == null) {
+                    // Schleife erhoehen
                     itemsProcessed++;
-
                     if (itemsProcessed === array.length) {
+                      // Schleife beenden
                       loop_done(id);
                     };
                   } else {
                     callback && callback(err);
                   };
                 });
-            });
- 
+            }); 
           } else {
             callback && callback(err);
           };
@@ -95,7 +94,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_ermitteln(wachen_id, socket, callback) {
-    // ermittelt den letzten vorhanden Einsatz zu einer Wache
+    // ermittelt des letzten vorhanden Einsatz zu einer Wache
     var select_reset_counter;
     var user_id = socket.request.user.id;
     var dts = app_cfg.global.default_time_for_standby;
@@ -146,7 +145,8 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_by_waipid(waip_id, wachen_nr, user_id, callback) {
-    // vorsichtshalber nochmals id pruefen
+    
+    // falls waip_id oder wachen_nur keine zahlen sind, abbruch
     if (isNaN(waip_id) || isNaN(wachen_nr)) {
       callback && callback(null);
     } else {
@@ -155,13 +155,15 @@ module.exports = function (db, uuidv4, app_cfg) {
       if (parseInt(wachen_nr) != 0 && len != 2 && len != 4 && len != 6 && len == null) {
         callback && callback(null);
       } else {
+        // wenn wachen_nr 0, dann % fuer Abfrage festlegen
         if (parseInt(wachen_nr) == 0) {
           wachen_nr = '%'
         };
+        // wenn keine user_id, dann Default-Anzeige-Zeit setzen
         if (isNaN(user_id)) {
           user_id = app_cfg.global.default_time_for_standby;
         };
-        // je nach laenge andere SQL ausfuehren
+        // Einsatz mit ID finden, je nach laenge der wachen_nr andere SQL ausfuehren
         db.get(`SELECT
           e.id,
           e.uuid,
@@ -199,17 +201,18 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_by_uuid(waip_uuid, callback) {
+    // Einsatz mit UUID finden
     db.get(`SELECT e.id, e.uuid, e.ZEITSTEMPEL, e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT, 
       e.ORTSTEIL, e.STRASSE, e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area FROM WAIP_EINSAETZE e 
       WHERE e.uuid like ?`, [waip_uuid], function (err, row) {
       if (err == null && row) {
-        console.log(row.uuid);
-        console.log(row.id);
+        // Einsatzmittel zu dem Einsatz finden und hinzufuegen
         db.all(`SELECT e.einsatzmittel, e.status FROM waip_einsatzmittel e 
           WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, rows) {
           if (err == null && rows) {
             var einsatzdaten = row;
             einsatzdaten.einsatzmittel = rows;
+            // Wachen zum Einsatz finden und hinzufuegen
             db.all(`SELECT DISTINCT e.waip_wachen_ID, e.wachenname FROM waip_einsatzmittel e 
               WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, wachen) {
               if (err == null && wachen) {
