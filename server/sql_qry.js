@@ -86,23 +86,7 @@ module.exports = function (db, uuidv4, app_cfg) {
                   };
                 });
             });
-            /*async.concat(content.alarmdaten, function(item, done) {
-              db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
-                VALUES (
-                (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
-                \'` + id + `\',
-                (select id from waip_wachen where name_wache like \'` + item.wachenname + `\'),
-                \'` + item.wachenname + `\',
-                \'` + item.einsatzmittel + `\',
-                \'` + item.zeit_a + `\')`);
-              done();
-            }, function(err_) {
-              if (err_) {
-                console.error(err_.message);
-              } else {
-                callback && callback(id);
-              }
-            });*/
+ 
           } else {
             callback && callback(err);
           };
