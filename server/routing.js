@@ -48,6 +48,42 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
     };
   });
 
+  // API
+  app.get('/api', function (req, res) {
+    if (app_cfg.public.ext_privacy) {
+      res.redirect(app_cfg.public.url_privacy);
+    } else {
+      res.render('privacy', {
+        public: app_cfg.public,
+        title: 'Datenschutzerklärung',
+        user: req.user
+      });
+    };
+  });
+  
+    // 404 abfangen und an error handler weiterleiten
+  app.use(function (req, res, next) {
+    var err = new Error('Seite nicht gefunden!');
+    err.status = 404;
+    next(err);
+  });
+
+  // error handler
+  app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = app_cfg.global.development ? err : {};
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error', {
+      public: app_cfg.public,
+      user: req.user
+    });
+  });
+
+  
+  
+
   /* ##################### */
   /* ####### Login ####### */
   /* ##################### */
@@ -377,12 +413,6 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
       user: req.user
     });
   });
-
-  /* ######################## */
-  /* ##### Schnittstelle #### */
-  /* ######################## */
-
-  //TODO leere Seite fuer /api anfrage
 
   /* ######################## */
   /* ##### Fehlerseiten ##### */
