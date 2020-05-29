@@ -83,6 +83,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         user_agent TEXT,
         reset_timestamp DATETIME)`);
       // Rueckmelde-Tabelle erstellen
+      // TODO: ALIAS-Spalte hinterlegen, abfragen nochmals prüfen ob mit übermittelt, ggf. mit Konfig
       db.run(`CREATE TABLE waip_response (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_uuid TEXT,

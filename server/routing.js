@@ -379,6 +379,12 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
   });
 
   /* ######################## */
+  /* ##### Schnittstelle #### */
+  /* ######################## */
+
+  //TODO leere Seite fuer /api anfrage
+
+  /* ######################## */
   /* ##### Fehlerseiten ##### */
   /* ######################## */
 

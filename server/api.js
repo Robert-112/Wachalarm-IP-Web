@@ -6,6 +6,8 @@ module.exports = function (io, sql, app_cfg, waip) {
   // Namespace API festlegen
   var nsp_api = io.of('/api');
 
+  // TODO eventuellen Zirkel-Bezug abfangen
+
   // ###
   // Socket.IO Empfangs-API (anderer Server stellt Verbindung her und sendet Daten)
   // ###
