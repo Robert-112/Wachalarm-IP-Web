@@ -22,12 +22,12 @@ module.exports = function (io, sql, app_cfg, waip) {
       // in Liste der Clients mit aufnehmen
       sql.db_client_update_status(socket, 'api');
       // Neuen Einsatz speichern
-      socket.on('api_new_waip', function (data) {
+      socket.on('emit_new_waip', function (data) {
         waip.einsatz_speichern(data);
         sql.db_log('API', 'Neuer Einsatz von ' + remote_ip + ': ' + data);
       });
       // neue externe Rueckmeldung speichern 
-      socket.on('api_new_rmld', function (data) {
+      socket.on('emit_new_rmld', function (data) {
         sql.db_rmld_save(data, function (result) {
           if (result) {
             waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
@@ -73,12 +73,24 @@ module.exports = function (io, sql, app_cfg, waip) {
     
     // neuer Einsatz vom Endpoint-Server
     remote_api.on('res_new_waip', function (data) {
-      sql.db_log('API', 'Verbindung zu ' + app_cfg.endpoint.host + ' verloren, Fehler: ' + reason);
+      waip.einsatz_speichern(data);
+      sql.db_log('API', 'Neuer Einsatz von ' + app_cfg.endpoint.host + ': ' + data);
     });
 
+    // neue Rückmeldung vom Endpoint-Server
+    remote_api.on('res_new_rmld', function (data) {
+      sql.db_rmld_save(data, function (result) {
+        if (result) {
+          waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
+          sql.db_log('API', 'Rückmeldung von ' + app_cfg.endpoint.host + ' gespeichert: ' + result);
+        } else {
+          sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + app_cfg.endpoint.host + ': ' + data);
+        };
+      });
+    });
   };
 
-  function send_new_waip(data) {
+  function endpoint_emit_new_waip(data) {
     // Alarm an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
       remote_api.emit('emit_new_waip', data);
@@ -86,7 +98,7 @@ module.exports = function (io, sql, app_cfg, waip) {
     };
   };
 
-  function send_new_rmld(data) {
+  function endpoint_emit_new_rmld(data) {
     // Rückmeldung an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
       remote_api.emit('emit_new_rmld', data);
