@@ -22,12 +22,12 @@ module.exports = function (io, sql, app_cfg, waip) {
       // in Liste der Clients mit aufnehmen
       sql.db_client_update_status(socket, 'api');
       // Neuen Einsatz speichern
-      socket.on('new_waip', function (data) {
+      socket.on('api_new_waip', function (data) {
         waip.einsatz_speichern(data);
         sql.db_log('API', 'Neuer Einsatz von ' + remote_ip + ': ' + data);
       });
       // neue externe Rueckmeldung speichern 
-      socket.on('new_rmld', function (data) {
+      socket.on('api_new_rmld', function (data) {
         sql.db_rmld_save(data, function (result) {
           if (result) {
             waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
@@ -70,13 +70,18 @@ module.exports = function (io, sql, app_cfg, waip) {
     remote_api.on('disconnect', function (reason) {
       sql.db_log('API', 'Verbindung zu ' + app_cfg.endpoint.host + ' verloren, Fehler: ' + reason);
     });
+    
+    // neuer Einsatz vom Endpoint-Server
+    remote_api.on('res_new_waip', function (data) {
+      sql.db_log('API', 'Verbindung zu ' + app_cfg.endpoint.host + ' verloren, Fehler: ' + reason);
+    });
 
   };
 
   function send_new_waip(data) {
     // Alarm an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
-      remote_api.emit('new_waip', data);
+      remote_api.emit('emit_new_waip', data);
       sql.db_log('API', 'Neuen Wachalarm an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
     };
   };
@@ -84,7 +89,7 @@ module.exports = function (io, sql, app_cfg, waip) {
   function send_new_rmld(data) {
     // Rückmeldung an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
-      remote_api.emit('new_rmld', data);
+      remote_api.emit('emit_new_rmld', data);
       sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
     };
   };
