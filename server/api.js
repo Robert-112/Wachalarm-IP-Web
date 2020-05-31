@@ -90,7 +90,16 @@ module.exports = function (io, sql, app_cfg, waip) {
     });
   };
 
-  function endpoint_emit_new_waip(data) {
+
+  function emit_to_endpoint_new_rmld(data) {
+    // Rückmeldung an Remote-Server senden, falls funktion aktiviert
+    if (app_cfg.endpoint.enabled) {
+      remote_api.emit('emit_new_rmld', data);
+      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+    };
+  };
+
+  function emit_to_endpoint_new_waip(data) {
     // Alarm an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
       remote_api.emit('emit_new_waip', data);
@@ -98,7 +107,7 @@ module.exports = function (io, sql, app_cfg, waip) {
     };
   };
 
-  function endpoint_emit_new_rmld(data) {
+  function emit_to_endpoint_new_rmld(data) {
     // Rückmeldung an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
       remote_api.emit('emit_new_rmld', data);
@@ -107,8 +116,8 @@ module.exports = function (io, sql, app_cfg, waip) {
   };
 
   return {
-    send_new_waip: send_new_waip,
-    send_new_rmld: send_new_rmld
+    emit_to_endpoint_new_waip: emit_to_endpoint_new_waip,
+    emit_to_endpoint_new_rmld: emit_to_endpoint_new_rmld
   };
 
 };
