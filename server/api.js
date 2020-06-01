@@ -72,13 +72,13 @@ module.exports = function (io, sql, app_cfg, waip) {
     });
     
     // neuer Einsatz vom Endpoint-Server
-    remote_api.on('res_new_waip', function (data) {
+    remote_api.on('get_new_waip', function (data) {
       waip.einsatz_speichern(data);
       sql.db_log('API', 'Neuer Einsatz von ' + app_cfg.endpoint.host + ': ' + data);
     });
 
     // neue Rückmeldung vom Endpoint-Server
-    remote_api.on('res_new_rmld', function (data) {
+    remote_api.on('get_new_rmld', function (data) {
       sql.db_rmld_save(data, function (result) {
         if (result) {
           waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
