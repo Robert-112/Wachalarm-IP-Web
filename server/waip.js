@@ -80,6 +80,23 @@ module.exports = function (io, sql, brk, async, app_cfg) {
     });
   };
 
+
+  function rmld_speichern(rueckmeldung, host, callback) {
+    if (!host == null) {
+      host = ' von ' + host;
+    };
+    sql.db_rmld_save(rueckmeldung, function (result) {
+      if (result) {
+        waip.rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
+        sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + result);
+        callback && callback(result);
+      } else {
+        sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung' + host + ': ' + rueckmeldung);
+        callback && callback(result);
+      };
+    });
+  };
+
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
     // Einsatz-ID mittels Einsatz-UUID ermitteln
     sql.db_einsatz_get_waipid_by_uuid(waip_uuid, function (waip_id) {
@@ -358,6 +375,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
   return {
     einsatz_speichern: einsatz_speichern,
     waip_verteilen: waip_verteilen,
+    rmld_speichern: rmld_speichern,
     dbrd_verteilen: dbrd_verteilen,
     rmld_verteilen_for_one_client: rmld_verteilen_for_one_client,
     rmld_verteilen_by_uuid: rmld_verteilen_by_uuid

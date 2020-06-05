@@ -28,14 +28,11 @@ module.exports = function (io, sql, app_cfg, waip) {
       });
       // neue externe Rueckmeldung speichern 
       socket.on('emit_new_rmld', function (data) {
-        sql.db_rmld_save(data, function (result) {
-          if (result) {
-            waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
-            sql.db_log('API', 'Rückmeldung von ' + remote_ip + ' gespeichert: ' + result);
-          } else {
+        waip.rmld_speichern(data, remote_ip, function (result) {
+          if (!result) {
             sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + remote_ip + ': ' + data);
           };
-        });
+        }); 
       });
       // Disconnect
       socket.on('disconnect', function () {
@@ -79,17 +76,13 @@ module.exports = function (io, sql, app_cfg, waip) {
 
     // neue Rückmeldung vom Endpoint-Server
     remote_api.on('get_new_rmld', function (data) {
-      sql.db_rmld_save(data, function (result) {
-        if (result) {
-          waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
-          sql.db_log('API', 'Rückmeldung von ' + app_cfg.endpoint.host + ' gespeichert: ' + result);
-        } else {
+      waip.rmld_speichern(data, app_cfg.endpoint.host, function (result) {
+        if (!result) {
           sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + app_cfg.endpoint.host + ': ' + data);
         };
-      });
+      }); 
     });
   };
-
 
   function emit_to_endpoint_new_rmld(data) {
     // Rückmeldung an Remote-Server senden, falls funktion aktiviert
