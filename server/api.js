@@ -26,13 +26,13 @@ module.exports = function (io, sql, app_cfg, waip) {
       sql.db_client_update_status(socket, 'api');
       
       // Neuen Einsatz speichern
-      socket.on('emit_new_waip', function (data) {
+      socket.on('from_client_to_server_new_waip', function (data) {
         waip.einsatz_speichern(data);
-        sql.db_log('API', 'Neuer Einsatz von ' + remote_ip + ': ' + data);
+        sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data);
       });
       
       // neue externe Rueckmeldung speichern 
-      socket.on('emit_new_rmld', function (data) {
+      socket.on('from_client_to_server_new_rmld', function (data) {
         waip.rmld_speichern(data, remote_ip, function (result) {
           if (!result) {
             sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + remote_ip + ': ' + data);
