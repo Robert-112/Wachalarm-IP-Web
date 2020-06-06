@@ -19,8 +19,7 @@ app_cfg.global = {
 	saltRounds: 10,
 	sessionsecret: '0987654321abcdef#xyz',
 	backup_rmld: true,
-	backup_path: '/bkp/',
-	app_id: process.pid
+	backup_path: '/bkp/'
 };
 
 // Einstellungen zur Erscheinung der Seite

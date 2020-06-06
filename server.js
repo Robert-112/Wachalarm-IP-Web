@@ -17,8 +17,9 @@ const bcrypt = require('bcrypt');
 const passport = require('passport');
 const uuidv4 = require('uuid/v4');
 
-// Basis-Konfiguration laden
+// Basis-Konfiguration laden und genetische App-UUID erzeugen
 var app_cfg = require('./server/app_cfg.js');
+app_cfg.global.app_id = uuidv4();
 
 // Express-Einstellungen
 app.set('views', path.join(__dirname, 'views'));
