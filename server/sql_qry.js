@@ -6,6 +6,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   // SQL-Abfragen
 
   function db_einsatz_speichern(content, callback) {
+    // FIXME Einsatz nur speichern, wenn wachen fuer diesen hinterleget
     content = JSON.parse(content);
     // uuid erzeugen und zuweisen falls nicht vorhanden
     if (!content.einsatzdaten.uuid) {
