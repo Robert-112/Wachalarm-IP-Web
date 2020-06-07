@@ -1,7 +1,7 @@
 module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
 
-  // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(einsatz_rohdaten, app_id) {
+    // Einsatzmeldung in Datenbank speichern und verteilen
     proof.validate_waip(einsatz_rohdaten, function (valid) {
       if (valid) {
 
@@ -50,14 +50,15 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     });
   };
 
-  // Einsatz an Client verteilen
+  
   function waip_verteilen(waip_id, socket, wachen_nr) {
-    // Einsatzdaten für eine Wache aus Datenbank laden
+    // Einsatzdaten für eine Wache aus Datenbank laden und an Client verteilen
     var user_obj = socket.request.user;
     sql.db_einsatz_get_by_waipid(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
       if (einsatzdaten) {
         // Berechtigung ueberpruefen
         sql.db_user_check_permission(user_obj, waip_id, function (valid) {
+          // Wenn nutzer nicht angemeldet, Daten entfernen
           if (!valid) {
             einsatzdaten.objekt = '';
             einsatzdaten.besonderheiten = '';
@@ -65,17 +66,16 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             einsatzdaten.wgs84_x = '';
             einsatzdaten.wgs84_y = '';
           };
-          // Einsatz senden
-          socket.emit('io.neuerEinsatz', einsatzdaten);
+          // Einsatz an Client senden
+          socket.emit('io.new_waip', einsatzdaten);
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
           sql.db_client_update_status(socket, waip_id);
           // Sound erstellen
           tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
             if (tts) {
               // Sound senden
-              sql.db_log('WAIP', 'ttsfile: ' + tts);
-              //io.sockets.to(socket_id).emit('io.playtts', tts);
               socket.emit('io.playtts', tts);
+              sql.db_log('WAIP', 'ttsfile: ' + tts);
             };
           });
         });
@@ -88,23 +88,27 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     });
   };
 
-
   function rmld_speichern(rueckmeldung, host, app_id, callback) {
-    if (!host == null) {
-      host = ' von ' + host;
-    };
-    sql.db_rmld_save(rueckmeldung, function (result) {
-      if (result) {
-        waip.rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
-        sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + result);
-        callback && callback(result);
-      } else {
-        sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung' + host + ': ' + rueckmeldung);
-        callback && callback(result);
+    // Rueckmeldung speichern und verteilen
+    proof.validate_rmld(req.body, function (valid) {
+      if (valid) {
+        if (!host == null) {
+          host = ' von ' + host;
+        };
+        sql.db_rmld_save(rueckmeldung, function (result) {
+          if (result) {
+            waip.rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
+            sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + result);
+            callback && callback(result);
+          } else {
+            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung' + host + ': ' + rueckmeldung);
+            callback && callback(result);
+          };
+        });
+        api.server_to_client_new_rmld(rueckmeldung, app_id);
+        api.client_to_server_new_rmld(rueckmeldung, app_id);
       };
     });
-    api.server_to_client_new_rmld(rueckmeldung, app_id);
-    api.client_to_server_new_rmld(rueckmeldung, app_id);
   };
 
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
@@ -125,7 +129,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
                     sql.db_client_check_waip_id(socket_id, waip_id, function (same_id) {
                       if (same_id) {
                         var socket = io.of('/waip').connected[socket_id];
-                        socket.emit('io.response', rmld_obj);
+                        socket.emit('io.new_rmld', rmld_obj);
                         sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Wache ' + row.room + ' gesendet.');
                         sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
                       };
@@ -133,7 +137,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
 
 
                     /*socket_rooms.forEach(function (rooms) {
-                      io.of('/waip').to(rooms.room).emit('io.response', rmld_obj);
+                      io.of('/waip').to(rooms.room).emit('io.new_rmld', rmld_obj);
                       sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Wache ' + rooms.room + ' gesendet.');
                       sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
                     });*/
@@ -165,7 +169,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
       sql.db_rmld_get_fuer_wache(waip_id, wachen_id, function (rmld_obj) {
         if (rmld_obj) {
           // Rueckmeldung nur an den einen Socket senden
-          socket.emit('io.response', rmld_obj);
+          socket.emit('io.new_rmld', rmld_obj);
           sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket.id + ' gesendet.');
           sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
         } else {
@@ -175,15 +179,45 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     };
   };
 
+  
+  function dbrd_verteilen(dbrd_uuid, socket) {
+    sql.db_einsatz_get_by_uuid(dbrd_uuid, function (einsatzdaten) {
+      if (einsatzdaten) {
+        sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function (valid) {
+          if (!valid) {
+            delete einsatzdaten.objekt;
+            delete einsatzdaten.besonderheiten;
+            delete einsatzdaten.strasse;
+            delete einsatzdaten.wgs84_x;
+            delete einsatzdaten.wgs84_y;
+          };
+          socket.emit('io.Einsatz', einsatzdaten);
+          sql.db_log('DBRD', 'Einsatzdaten für Dashboard ' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
+          sql.db_client_update_status(socket, dbrd_uuid);
+        });
+      } else {
+        // Standby senden
+        socket.emit('io.standby', null);
+        sql.db_log('DBRD', 'Der angefragte Einsatz ' + dbrd_uuid + ' ist nicht - oder nicht mehr - vorhanden!, Standby an Socket ' + socket.id + ' gesendet.');
+        sql.db_client_update_status(socket, null);
+      };
+    });
+  };
+
+
+
+
+  // TODO: Funktion um Clients "neuzustarten" (Seite remote neu laden)
+
   function tts_erstellen(app_cfg, socket_id, einsatzdaten, callback) {
-    // unnoetige Zeichen aus socket_id entfernen
+    // unnoetige Zeichen aus socket_id entfernen, um diese als Dateinamen zu verwenden
     var id = socket_id.replace(/\W/g, '');
     // Pfade der Sound-Dateien defeinieren
     var wav_tts = process.cwd() + app_cfg.global.soundpath + id + '.wav';
     var mp3_tmp = process.cwd() + app_cfg.global.soundpath + id + '_tmp.mp3';
     var mp3_tts = process.cwd() + app_cfg.global.soundpath + id + '.mp3';
     var mp3_url = app_cfg.global.mediapath + id + '.mp3';
-    // Unterscheiden des Alarmgongs nach Einsatzart
+    // unterscheiden des Alarmgongs nach Einsatzart
     if (einsatzdaten.einsatzart == "Brandeinsatz" || einsatzdaten.einsatzart == "Hilfeleistungseinsatz") {
       var mp3_bell = process.cwd() + app_cfg.global.soundpath + 'bell_long.mp3';
     } else {
@@ -214,12 +248,12 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
       tts_text = tts_text.replace(/-/g, " ");
       // Sprachansage als mp3 erstellen
       switch (process.platform) {
-        //if (process.platform === "win32") {
+        // Windows
         case 'win32':
           // Powershell
           var proc = require('child_process');
           var commands = [
-            // TTS-Schnittstelle von Windows
+            // TTS-Schnittstelle von Windows ansprechen
             'Add-Type -AssemblyName System.speech;' +
             '$speak = New-Object System.Speech.Synthesis.SpeechSynthesizer;' +
             // Ausgabedatei und Sprachtext
@@ -248,6 +282,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           });
           childD.stdin.end();
           break;
+        // LINUX
         case 'linux':
           // bash
           var proc = require('child_process');
@@ -279,18 +314,19 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           });
           childD.stdin.end();
           break;
-          //  } else {
+        // anderes OS
         default:
-          sql.db_log('Fehler-TTS', 'TTS für dieses Server-Betriebssystem nicht verfügbar');
+          sql.db_log('Fehler-TTS', 'TTS für dieses Server-Betriebssystem nicht verfügbar!');
           callback && callback(null);
       };
     });
   };
 
-  // Aufräumen (alle 10 Sekunden)
   setInterval(function () {
-    // alle User-Einstellungen prüfen und ggf. Standby senden
+
+    // Aufräumen (alle 10 Sekunden)
     sql.db_socket_get_all_to_standby(function (socket_ids) {
+      // alle User-Einstellungen prüfen und ggf. Standby senden
       if (socket_ids) {
         socket_ids.forEach(function (row) {
           var socket = io.of('/waip').connected[row.socket_id];
@@ -301,21 +337,22 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
         });
       };
     });
-    // Nach alten Einsaetzen suchen und diese ggf. loeschen
-    sql.db_einsatz_get_old(app_cfg.global.time_to_delete_waip, function (waip_id) {
-      if (waip_id) {
-        sql.db_log('WAIP', 'Einsatz mit der ID ' + waip_id + ' ist veraltet und kann gelöscht werden.')
-        //beteiligte Wachen ermitteln
-        sql.db_einsatz_get_rooms(waip_id, function (data) {
+  
+    sql.db_einsatz_get_old(app_cfg.global.time_to_delete_waip, function (waip) {
+      // nach alten Einsaetzen suchen und diese ggf. loeschen
+      if (waip) {
+        sql.db_log('WAIP', 'Einsatz mit der ID ' + waip.id + ' ist veraltet und kann gelöscht werden.')
+        // beteiligte Wachen zum Einsatz ermitteln
+        sql.db_einsatz_get_rooms(waip.id, function (data) {
           if (data) {
             data.forEach(function (row) {
-              // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
+              // fuer jede Wache (row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
               if (typeof room_sockets !== 'undefined') {
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
                   var socket = io.of('/waip').connected[socket_id];
-                  sql.db_client_check_waip_id(socket.id, waip_id, function (same_id) {
+                  sql.db_client_check_waip_id(socket.id, waip.id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
                       socket.emit('io.stopaudio', null);
@@ -328,13 +365,24 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             });
           };
         });
-        // TODO: an Dashboard senden, das der Einsatz gelöscht wurde
+        // TODO: an Dashboard senden, das der Einsatz gelöscht wurde waip.uuid
+        sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
+          if (socket_ids) {
+            socket_ids.forEach(function (row) {
+              var socket = io.of('/dbrd').connected[row.socket_id];
+              socket.emit('io.standby', null);
+              sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
+              sql.db_client_update_status(socket, null);
+            });
+          };
+        )};
         // FIXME: Rueckmeldung löschen, und vorher backup
         // Einsatz löschen
-        sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird gelöscht');
-        sql.db_einsatz_loeschen(waip_id);
+        sql.db_log('WAIP', 'Einsatz ' + waip.id + ' wird gelöscht');
+        sql.db_einsatz_loeschen(waip.id);
       };
     });
+
     // löschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
     const fs = require('fs');
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
@@ -352,35 +400,6 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     })
   }, 10000);
 
-  function dbrd_verteilen(dbrd_uuid, socket) {
-    console.log(JSON.stringify(dbrd_uuid));
-    sql.db_einsatz_get_by_uuid(dbrd_uuid, function (einsatzdaten) {
-      if (einsatzdaten) {
-        sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function (valid) {
-          if (!valid) {
-            delete einsatzdaten.objekt;
-            delete einsatzdaten.besonderheiten;
-            delete einsatzdaten.strasse;
-            delete einsatzdaten.wgs84_x;
-            delete einsatzdaten.wgs84_y;
-          };
-          socket.emit('io.Einsatz', einsatzdaten);
-          sql.db_log('DBRD', 'Einsatzdaten für Dashboard ' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
-          sql.db_client_update_status(socket, dbrd_uuid);
-        });
-      } else {
-        // Standby senden
-        socket.emit('io.standby', null);
-        sql.db_log('DBRD', 'Der angefragte Einsatz ' + dbrd_uuid + ' ist nicht - oder nicht mehr - vorhanden!, Standby an Socket ' + socket.id + ' gesendet.');
-        sql.db_client_update_status(socket, null);
-      };
-    });
-  };
-
-
-
-
-  // TODO: Funktion um Clients "neuzustarten" (Seite remote neu laden)
 
   return {
     einsatz_speichern: einsatz_speichern,

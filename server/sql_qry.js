@@ -288,9 +288,9 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_einsatz_get_old(minuten, callback) {
     // veraltete Einsaetze finden
-    db.each('SELECT id FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
+    db.each('SELECT id, uuid FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
       if (err == null && row) {
-        callback && callback(row.id);
+        callback && callback(row);
       } else {
         callback && callback(null);
       };
@@ -497,6 +497,17 @@ module.exports = function (db, uuidv4, app_cfg) {
   function db_socket_get_by_id(content, callback) {
     // Client-Eintrag per Socket-ID finden
     db.get('select * from waip_clients where socket_id = ? ', [content], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_socket_get_by_room(content, callback) {
+    // Client-Eintrag per Socket-ID finden
+    db.get('select socket_id from waip_clients where room_name = ? ', [content], function (err, row) {
       if (err == null && row) {
         callback && callback(row);
       } else {
@@ -794,6 +805,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_log: db_log,
     db_log_get_5000: db_log_get_5000,
     db_socket_get_by_id: db_socket_get_by_id,
+    db_socket_get_by_room: db_socket_get_by_room,
     db_socket_get_all_to_standby: db_socket_get_all_to_standby,
     db_user_set_config: db_user_set_config,
     db_user_get_config: db_user_get_config,

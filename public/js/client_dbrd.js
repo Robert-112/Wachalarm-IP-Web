@@ -547,7 +547,7 @@ socket.on('io.Einsatz', function (data) {
   resize_text();
 });
 
-socket.on('io.response', function (data) {
+socket.on('io.new_rmld', function (data) {
   // DEBUG
   console.log(data);
   // Neue Rueckmeldung hinterlegen

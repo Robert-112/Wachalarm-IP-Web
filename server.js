@@ -1,9 +1,8 @@
-
 const fs = require('fs');
 const express = require('express');
 const app = express();
 const http = require('http');
-const https = require('https'); 
+const https = require('https');
 const webserver = https.createServer({
   key: fs.readFileSync('./misc/server.key', 'utf8'),
   cert: fs.readFileSync('./misc/server.cert', 'utf8')
@@ -17,7 +16,7 @@ const bcrypt = require('bcrypt');
 const passport = require('passport');
 const uuidv4 = require('uuid/v4');
 
-// Basis-Konfiguration laden und genetische App-UUID erzeugen
+// Basis-Konfiguration laden und generische App-UUID erzeugen
 var app_cfg = require('./server/app_cfg.js');
 app_cfg.global.app_id = uuidv4();
 
@@ -45,15 +44,15 @@ var waip = require('./server/waip')(io, sql, brk, async, app_cfg, api, proof);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
-var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp, proof);
+var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp);
 
 // Server starten
-webserver.listen(app_cfg.global.https_port, function() {
+webserver.listen(app_cfg.global.https_port, function () {
   sql.db_log('Anwendung', 'Wachalarm-IP-Webserver auf Port ' + app_cfg.global.https_port + ' gestartet');
 });
 
 // Redirect all HTTP traffic to HTTPS
-http.createServer(function(req, res) {
+http.createServer(function (req, res) {
   var host = req.headers.host;
   // prüfen ob host gesetzt, sonst 404
   if (typeof host !== 'undefined' && host) {
@@ -65,10 +64,10 @@ http.createServer(function(req, res) {
     res.end();
   } else {
     // HTTP status 404: NotFound
-	res.writeHead(404, {
-	  "Content-Type": "text/plain"
-	});
-	res.write("404 Not Found - use https instead!\n");
-	res.end();
+    res.writeHead(404, {
+      "Content-Type": "text/plain"
+    });
+    res.write("404 Not Found - use https instead!\n");
+    res.end();
   };
 }).listen(app_cfg.global.http_port);

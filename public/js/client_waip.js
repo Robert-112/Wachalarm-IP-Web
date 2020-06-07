@@ -301,7 +301,7 @@ socket.on('io.standby', function (data) {
 });
 
 // Einsatzdaten laden, Wachalarm anzeigen
-socket.on('io.neuerEinsatz', function (data) {
+socket.on('io.new_waip', function (data) {
   // DEBUG
   console.log(data);
   // Einsatz-ID speichern
@@ -417,7 +417,7 @@ socket.on('io.neuerEinsatz', function (data) {
   resize_text();
 });
 
-socket.on('io.response', function (data) {
+socket.on('io.new_rmld', function (data) {
   // DEBUG
   console.log(data);
   // Neue Rueckmeldung hinterlegen
