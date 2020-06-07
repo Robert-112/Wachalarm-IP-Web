@@ -1,4 +1,4 @@
-module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp) {
+module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp, proof) {
 
   /* ########################### */
   /* ##### Statische Seiten #### */
@@ -54,8 +54,8 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
     err.status = 403;
     next(err);
   });
-  
-  
+
+
 
   /* ##################### */
   /* ####### Login ####### */
@@ -247,16 +247,19 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Rueckmeldung entgegennehmen
   app.post('/rmld/:waip_uuid/:rmld_uuid', function (req, res) {
-    // TODO Validierung: Rueckmeldung auf Validiteat pruefen
-    var waip_uuid = req.body.waip_uuid;
-    var rmld_uuid = req.body.rmld_uuid;
-    waip.rmld_speichern(req.body, null, function (result) {
-      if (result) {
-        req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
-        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
-      } else {
-        req.flash('errorMessage', 'Fehler beim Senden der Rückmeldung!');
-        res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
+    proof.validate_rmld(req.body, function (valid) {
+      if (valid) {
+        var waip_uuid = req.body.waip_uuid;
+        var rmld_uuid = req.body.rmld_uuid;
+        waip.rmld_speichern(req.body, null, function (result) {
+          if (result) {
+            req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
+            res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
+          } else {
+            req.flash('errorMessage', 'Fehler beim Senden der Rückmeldung!');
+            res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
+          };
+        });
       };
     });
   });

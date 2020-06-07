@@ -1,48 +1,52 @@
-module.exports = function (io, sql, brk, async, app_cfg, api) {
+module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
 
   // Einsatzmeldung in Datenbank speichern
   function einsatz_speichern(einsatz_rohdaten, app_id) {
-    // TODO Validierung: Einsatzdaten auf Validität prüfen
-    // Einsatzmeldung (JSON) speichern
-    sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
-      sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
-      // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
-      // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
-      sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
-        if (socket_rooms) {
-          socket_rooms.forEach(function (rooms) {
-            // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
-            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];
-            if (typeof room_sockets !== 'undefined'){ 
-              Object.keys(room_sockets.sockets).forEach(function (socket_id) {
-                var socket = io.of('/waip').connected[socket_id];
-                waip_verteilen(waip_id, socket, rooms.room);
-                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
+    proof.validate_waip(einsatz_rohdaten, function (valid) {
+      if (valid) {
+
+        // Einsatzmeldung (JSON) speichern
+        sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
+          sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
+          // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
+          // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
+          sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
+            if (socket_rooms) {
+              socket_rooms.forEach(function (rooms) {
+                // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
+                var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];
+                if (typeof room_sockets !== 'undefined') {
+                  Object.keys(room_sockets.sockets).forEach(function (socket_id) {
+                    var socket = io.of('/waip').connected[socket_id];
+                    waip_verteilen(waip_id, socket, rooms.room);
+                    sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
+                  });
+                };
               });
-            };
-          });
-        } else {
-          sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden!');
-        };
-      });
-      // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
-      sql.db_vmtl_get_list(waip_id, function (vmtl_data) {
-        if (vmtl_data) {                                                                                   
-          brk.alert_vmtl_list(vmtl_data, function (result) {
-            if (!result) {
-              sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
             } else {
-              sql.db_log('VMTL', 'Fehler beim senden des Links zur Einsatz-Rueckmeldung an die Vermittler-Liste: ' + result);
+              sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden!');
             };
           });
-        } else {
-          sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
-        };
-      });
+          // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
+          sql.db_vmtl_get_list(waip_id, function (vmtl_data) {
+            if (vmtl_data) {
+              brk.alert_vmtl_list(vmtl_data, function (result) {
+                if (!result) {
+                  sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
+                } else {
+                  sql.db_log('VMTL', 'Fehler beim senden des Links zur Einsatz-Rueckmeldung an die Vermittler-Liste: ' + result);
+                };
+              });
+            } else {
+              sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
+            };
+          });
+        });
+        // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
+        api.server_to_client_new_waip(einsatz_rohdaten, app_id);
+        api.client_to_server_new_waip(einsatz_rohdaten, app_id);
+      };
     });
-    // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
-    api.server_to_client_new_waip(einsatz_rohdaten, app_id);
-    api.client_to_server_new_waip(einsatz_rohdaten, app_id);
   };
 
   // Einsatz an Client verteilen
@@ -110,9 +114,9 @@ module.exports = function (io, sql, brk, async, app_cfg, api) {
           socket_rooms.forEach(function (row) {
             // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
             var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
-            if (typeof room_sockets !== 'undefined') { 
+            if (typeof room_sockets !== 'undefined') {
               Object.keys(room_sockets.sockets).forEach(function (socket_id) {
-              // wenn Raum zum Einsatz aufgerufen ist, dann Rueckmeldung aus DB laden und an diesen versenden
+                // wenn Raum zum Einsatz aufgerufen ist, dann Rueckmeldung aus DB laden und an diesen versenden
                 sql.db_rmld_get_by_rmlduuid(rmld_uuid, function (rmld_obj) {
                   if (rmld_obj) {
                     // Rückmeldung an Clients/Räume senden, wenn richtiger Einsatz angezeigt wird
@@ -133,24 +137,24 @@ module.exports = function (io, sql, brk, async, app_cfg, api) {
                     });*/
                   };
                 });
-                
 
 
-                
+
+
               });
             };
           });
-        };          
+        };
       });
 
 
 
 
-     
-      
-          
-      
-      
+
+
+
+
+
     });
   };
 
@@ -259,7 +263,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api) {
           };
           if (app_cfg.global.development) {
             console.log(commands);
-          };          
+          };
           var childD = proc.spawn('/bin/sh', commands);
           childD.stdin.setEncoding('ascii');
           childD.stderr.setEncoding('ascii');
@@ -305,10 +309,10 @@ module.exports = function (io, sql, brk, async, app_cfg, api) {
             data.forEach(function (row) {
               // fuer jede Wache(row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
-              if (typeof room_sockets !== 'undefined') { 
+              if (typeof room_sockets !== 'undefined') {
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
-                  var socket = io.of('/waip').connected[socket_id];              
+                  var socket = io.of('/waip').connected[socket_id];
                   sql.db_client_check_waip_id(socket.id, waip_id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
@@ -320,7 +324,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api) {
                 });
               };
             });
-          };          
+          };
         });
         // TODO: an Dashboard senden, das der Einsatz gelöscht wurde
         // FIXME: Rueckmeldung löschen, und vorher backup
@@ -348,9 +352,9 @@ module.exports = function (io, sql, brk, async, app_cfg, api) {
 
   function dbrd_verteilen(dbrd_uuid, socket) {
     console.log(JSON.stringify(dbrd_uuid));
-    sql.db_einsatz_get_by_uuid(dbrd_uuid, function(einsatzdaten) {
-      if (einsatzdaten) {        
-        sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function(valid) {
+    sql.db_einsatz_get_by_uuid(dbrd_uuid, function (einsatzdaten) {
+      if (einsatzdaten) {
+        sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function (valid) {
           if (!valid) {
             delete einsatzdaten.objekt;
             delete einsatzdaten.besonderheiten;

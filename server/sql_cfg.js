@@ -83,11 +83,11 @@ module.exports = function (fs, bcrypt, app_cfg) {
         user_agent TEXT,
         reset_timestamp DATETIME)`);
       // Rueckmelde-Tabelle erstellen
-      // TODO: ALIAS-Spalte hinterlegen, abfragen nochmals prüfen ob mit übermittelt, ggf. mit Konfig
       db.run(`CREATE TABLE waip_response (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_uuid TEXT,
         rmld_uuid TEXT,
+        alias TEXT,
         einsatzkraft INTEGER,
         maschinist INTEGER,
         fuehrungskraft INTEGER,
@@ -129,6 +129,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         waip_wachen_id INTEGER,
         tw_account_id INTEGER,
         tw_account_list TEXT,
+        bkp_recipient TEXT,
         FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id),
         FOREIGN KEY(tw_account_id) REFERENCES waip_twitter_accounts(id))`);
       // Log erstellen

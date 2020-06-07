@@ -19,7 +19,7 @@ module.exports = function (io, sql, app_cfg, waip) {
       // versuche Remote-IP zu ermitteln
       var remote_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
 
-      //TODO Verschlüsselung: pruefen ob Verbindung mit passendem Geheimnis und aus IP-Bereich, das Ergebnis loggen
+      //TODO API: Eingehende Verbindung nur mit passendem Geheimnis und aus passendem IP-Bereich zulassen, das Ergebnis loggen
 
       // in Liste der Clients mit aufnehmen
       sql.db_client_update_status(socket, 'api');
@@ -93,7 +93,7 @@ module.exports = function (io, sql, app_cfg, waip) {
 
   if (app_cfg.endpoint.enabled) {
     // Verbindung zu anderem Server aufbauen
-    // TODO Verschlüsselung: Verbindungsaufbau mit passendem Geheimnis absichern
+    // TODO API: Verbindungsaufbau mit passendem Geheimnis absichern, IP-Adresse senden
     var remote_api = io_api.connect(app_cfg.endpoint.host, {
       reconnect: true
     });
