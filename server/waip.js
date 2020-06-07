@@ -24,7 +24,8 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
                 };
               });
             } else {
-              sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden!');
+              sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden! Einsatz wird gelöscht!');
+              sql.db_einsatz_loeschen(waip_id);
             };
           });
           // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
@@ -88,8 +89,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
   };
 
 
-  function rmld_speichern(rueckmeldung, host, callback) {
-    // TODO an api senden
+  function rmld_speichern(rueckmeldung, host, app_id, callback) {
     if (!host == null) {
       host = ' von ' + host;
     };
@@ -103,6 +103,8 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
         callback && callback(result);
       };
     });
+    api.server_to_client_new_rmld(rueckmeldung, app_id);
+    api.client_to_server_new_rmld(rueckmeldung, app_id);
   };
 
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {

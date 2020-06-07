@@ -6,7 +6,6 @@ module.exports = function (db, uuidv4, app_cfg) {
   // SQL-Abfragen
 
   function db_einsatz_speichern(content, callback) {
-    // FIXME Einsatz nur speichern, wenn wachen fuer diesen hinterleget
     content = JSON.parse(content);
     // uuid erzeugen und zuweisen falls nicht vorhanden
     if (!content.einsatzdaten.uuid) {
@@ -62,7 +61,7 @@ module.exports = function (db, uuidv4, app_cfg) {
             // Schleife definieren
             function loop_done(waip_id) {
               callback && callback(waip_id);
-            };            
+            };
             var itemsProcessed = 0;
             // Einsatzmittel zum Einsatz speichern
             content.alarmdaten.forEach(function (item, index, array) {
@@ -86,7 +85,7 @@ module.exports = function (db, uuidv4, app_cfg) {
                     callback && callback(err);
                   };
                 });
-            }); 
+            });
           } else {
             callback && callback(err);
           };
@@ -146,7 +145,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_get_by_waipid(waip_id, wachen_nr, user_id, callback) {
-    
+
     // falls waip_id oder wachen_nur keine zahlen sind, abbruch
     if (isNaN(waip_id) || isNaN(wachen_nr)) {
       callback && callback(null);
@@ -518,7 +517,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  function db_user_set_config(user_id, reset_counter, callback) {    
+  function db_user_set_config(user_id, reset_counter, callback) {
     // reset_counter validieren, ansonsten default setzen
     if (!(reset_counter >= 1 && reset_counter <= app_cfg.global.time_to_delete_waip)) {
       reset_counter = app_cfg.global.default_time_for_standby;
@@ -559,7 +558,7 @@ module.exports = function (db, uuidv4, app_cfg) {
         callback && callback(null);
       };
     });
-  };  
+  };
 
   function db_user_check_permission(user_obj, waip_id, callback) {
     // Benutzer-Berechtigung pruefen
@@ -681,7 +680,7 @@ module.exports = function (db, uuidv4, app_cfg) {
           callback && callback(all_responses);
         };
         // summiertes JSON-Rueckmeldeobjekt für die angeforderte Wachennummer erstellen
-        rows.forEach(function (item, index, array) {          
+        rows.forEach(function (item, index, array) {
           var tmp = JSON.stringify(item.wache_nr);
           if (tmp.startsWith(wachen_nr) || wachen_nr == 0) {
             if (item.einsatzkraft == 1) {
@@ -781,27 +780,27 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_einsatz_get_by_waipid: db_einsatz_get_by_waipid,
     db_einsatz_get_by_uuid: db_einsatz_get_by_uuid,
     db_einsatz_get_waipid_by_uuid: db_einsatz_get_waipid_by_uuid,
-    db_einsatz_get_active: db_einsatz_get_active,    
-    db_einsatz_get_rooms: db_einsatz_get_rooms, 
+    db_einsatz_get_active: db_einsatz_get_active,
+    db_einsatz_get_rooms: db_einsatz_get_rooms,
     db_einsatz_get_old: db_einsatz_get_old,
     db_einsatz_loeschen: db_einsatz_loeschen,
-    db_wache_get_all: db_wache_get_all,  
-    db_wache_vorhanden: db_wache_vorhanden,    
-    db_tts_einsatzmittel: db_tts_einsatzmittel,    
+    db_wache_get_all: db_wache_get_all,
+    db_wache_vorhanden: db_wache_vorhanden,
+    db_tts_einsatzmittel: db_tts_einsatzmittel,
     db_client_update_status: db_client_update_status,
     db_client_get_connected: db_client_get_connected,
     db_client_delete: db_client_delete,
     db_client_check_waip_id: db_client_check_waip_id,
     db_log: db_log,
-    db_log_get_5000: db_log_get_5000,    
+    db_log_get_5000: db_log_get_5000,
     db_socket_get_by_id: db_socket_get_by_id,
-    db_socket_get_all_to_standby: db_socket_get_all_to_standby,        
+    db_socket_get_all_to_standby: db_socket_get_all_to_standby,
     db_user_set_config: db_user_set_config,
     db_user_get_config: db_user_get_config,
     db_user_get_all: db_user_get_all,
     db_user_check_permission: db_user_check_permission,
     db_rmld_save: db_rmld_save,
-    db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,     
+    db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,
     db_rmld_get_by_rmlduuid: db_rmld_get_by_rmlduuid,
     db_vmtl_get_list: db_vmtl_get_list
   };

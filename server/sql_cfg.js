@@ -863,11 +863,12 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Benutzer-Tabelle mit Standard-Admin befuellen
       bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function (err, hash) {
         db.run(`INSERT INTO waip_users ( user, password, permissions, ip_address ) VALUES( ?, ?, 'admin', ? )`,
-          app_cfg.global.defaultuser, hash, app_cfg.global.defaultuserip, function (err) {
-          if (err) {
-            console.error(err.message);
-          };
-        });
+          app_cfg.global.defaultuser, hash, app_cfg.global.defaultuserip,
+          function (err) {
+            if (err) {
+              console.error(err.message);
+            };
+          });
       });
     });
   };

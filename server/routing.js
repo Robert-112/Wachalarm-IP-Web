@@ -251,7 +251,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp,
       if (valid) {
         var waip_uuid = req.body.waip_uuid;
         var rmld_uuid = req.body.rmld_uuid;
-        waip.rmld_speichern(req.body, null, function (result) {
+        waip.rmld_speichern(req.body, null, 'web', function (result) {
           if (result) {
             req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
             res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
