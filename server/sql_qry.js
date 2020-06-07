@@ -760,6 +760,17 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
+  function db_rmld_get_by_waipuuid(waip_uuid, callback) {
+    // alle Rueckmeldungen fuer einen Einsatz ermitteln
+    db.all(`SELECT * FROM waip_response WHERE waip_uuid like ?`, [waip_uuid], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
     db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmtl_tw_wachen t 
@@ -814,6 +825,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_rmld_save: db_rmld_save,
     db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,
     db_rmld_get_by_rmlduuid: db_rmld_get_by_rmlduuid,
+    db_rmld_get_by_waipuuid: db_rmld_get_by_waipuuid,
     db_vmtl_get_list: db_vmtl_get_list
   };
 

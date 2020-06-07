@@ -50,7 +50,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     });
   };
 
-  
+
   function waip_verteilen(waip_id, socket, wachen_nr) {
     // Einsatzdaten für eine Wache aus Datenbank laden und an Client verteilen
     var user_obj = socket.request.user;
@@ -179,7 +179,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     };
   };
 
-  
+
   function dbrd_verteilen(dbrd_uuid, socket) {
     sql.db_einsatz_get_by_uuid(dbrd_uuid, function (einsatzdaten) {
       if (einsatzdaten) {
@@ -204,10 +204,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     });
   };
 
-
-
-
-  // TODO: Funktion um Clients "neuzustarten" (Seite remote neu laden)
+    // TODO WAIP: Funktion um Clients "neuzustarten" (Seite remote neu laden), niedrige Prioritaet
 
   function tts_erstellen(app_cfg, socket_id, einsatzdaten, callback) {
     // unnoetige Zeichen aus socket_id entfernen, um diese als Dateinamen zu verwenden
@@ -282,7 +279,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           });
           childD.stdin.end();
           break;
-        // LINUX
+          // LINUX
         case 'linux':
           // bash
           var proc = require('child_process');
@@ -314,7 +311,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           });
           childD.stdin.end();
           break;
-        // anderes OS
+          // anderes OS
         default:
           sql.db_log('Fehler-TTS', 'TTS für dieses Server-Betriebssystem nicht verfügbar!');
           callback && callback(null);
@@ -337,7 +334,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
         });
       };
     });
-  
+
     sql.db_einsatz_get_old(app_cfg.global.time_to_delete_waip, function (waip) {
       // nach alten Einsaetzen suchen und diese ggf. loeschen
       if (waip) {
@@ -365,21 +362,28 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             });
           };
         });
-        // TODO: an Dashboard senden, das der Einsatz gelöscht wurde waip.uuid
         sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
+          // Dashboards trennen, deren Einsatz geloescht wurde
+          // TODO WAIP: testen der Dashboard-Trennen-Funktion
           if (socket_ids) {
             socket_ids.forEach(function (row) {
               var socket = io.of('/dbrd').connected[row.socket_id];
-              socket.emit('io.standby', null);
-              sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
+              socket.emit('io.deleted', null);
+              sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
               sql.db_client_update_status(socket, null);
             });
           };
-        )};
+        });
         // FIXME: Rueckmeldung löschen, und vorher backup
+        sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
+          // full_rmld in csv umwandeln
+          // CSV speichern in bkp-ordner
+          // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
+          // csv an diese Mail-Adressen per Mail senden
+        });
         // Einsatz löschen
-        sql.db_log('WAIP', 'Einsatz ' + waip.id + ' wird gelöscht');
         sql.db_einsatz_loeschen(waip.id);
+        sql.db_log('WAIP', 'Einsatz ' + waip.id + ' gelöscht.');
       };
     });
 

@@ -583,3 +583,5 @@ socket.on('io.new_rmld', function (data) {
   // Text anpassen
   resize_text();
 });
+
+// TODO Socket.on io.deleted
