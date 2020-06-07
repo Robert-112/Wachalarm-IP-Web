@@ -5,7 +5,7 @@ module.exports = function (io, sql, app_cfg, waip) {
 
  
 
-  // TODO eventuellen Zirkel-Bezug abfangen
+  // FIXME eventuellen Zirkel-Bezug abfangen
 
   // ###
   // Server Socket.IO Empfangs-API (anderer Server stellt Verbindung her und sendet Daten)
