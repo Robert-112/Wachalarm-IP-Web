@@ -1,8 +1,8 @@
-module.exports = function (io, sql, brk, async, app_cfg) {
+module.exports = function (io, sql, brk, async, app_cfg, api) {
 
   // Einsatzmeldung in Datenbank speichern
-  function einsatz_speichern(einsatz_rohdaten) {
-    // FIXME: Einsatzdaten auf Validität prüfen
+  function einsatz_speichern(einsatz_rohdaten, app_id) {
+    // TODO Validierung: Einsatzdaten auf Validität prüfen
     // Einsatzmeldung (JSON) speichern
     sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
       sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
@@ -40,6 +40,9 @@ module.exports = function (io, sql, brk, async, app_cfg) {
         };
       });
     });
+    // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
+    api.server_to_client_new_waip(einsatz_rohdaten, app_id);
+    api.client_to_server_new_waip(einsatz_rohdaten, app_id);
   };
 
   // Einsatz an Client verteilen
@@ -82,6 +85,7 @@ module.exports = function (io, sql, brk, async, app_cfg) {
 
 
   function rmld_speichern(rueckmeldung, host, callback) {
+    // TODO an api senden
     if (!host == null) {
       host = ' von ' + host;
     };

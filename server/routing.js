@@ -247,7 +247,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp)
 
   // Rueckmeldung entgegennehmen
   app.post('/rmld/:waip_uuid/:rmld_uuid', function (req, res) {
-    // TODO Rueckmeldung auf Validiteat pruefen
+    // TODO Validierung: Rueckmeldung auf Validiteat pruefen
     var waip_uuid = req.body.waip_uuid;
     var rmld_uuid = req.body.rmld_uuid;
     waip.rmld_speichern(req.body, null, function (result) {
