@@ -1,5 +1,8 @@
 module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
 
+  // Module laden
+  const json2csv = require('json2csv'); 
+
   function einsatz_speichern(einsatz_rohdaten, app_id) {
     // Einsatzmeldung in Datenbank speichern und verteilen
     proof.validate_waip(einsatz_rohdaten, function (valid) {
@@ -9,7 +12,6 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
         sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
           sql.db_log('WAIP', 'DEBUG: Neuer Einsatz mit der ID ' + waip_id);
           // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
-          // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
           sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
             if (socket_rooms) {
               socket_rooms.forEach(function (rooms) {
@@ -67,6 +69,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             einsatzdaten.wgs84_y = '';
           };
           // Einsatz an Client senden
+          // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
           socket.emit('io.new_waip', einsatzdaten);
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
           sql.db_client_update_status(socket, waip_id);
@@ -377,6 +380,14 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
         // FIXME: Rueckmeldung löschen, und vorher backup
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
           // full_rmld in csv umwandeln
+          json2csv({data: json.car, fields: ['name', 'price', 'color']}, function(err, csv) {
+            if (err) console.log(err);
+            fs.writeFile('cars.csv', csv, function(err) {
+              if (err) throw err;
+              console.log('cars file saved');
+            });
+          });
+
           // CSV speichern in bkp-ordner
           // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
           // csv an diese Mail-Adressen per Mail senden
