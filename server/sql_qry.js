@@ -806,11 +806,25 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_vmtl_get_list(waip_id, callback) {
+    // FIXME eee
+
+
+    db.run(`CREATE TABLE waip_vmtl (
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+      waip_wachen_id INTEGER,
+      vmtl_typ TEXT,
+      vmlt_account_name TEXT,
+      vmlt_account_list TEXT,
+      bkp_recipient TEXT,
+      FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id))`);
+    // Log erstellen
+
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
-    db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmtl_wachen t 
+    db.get(`select t.waip_wachen_id, t.vmlt_typ, t.vmtl_account_name, t.vmtl_account_list from waip_vmtl t 
       where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
-      where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, twitter_liste) {
-      if (err == null && twitter_liste) {
+      where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
+      if (err == null && liste) {
+        // Falls Liste für Wache hinterlegt, je nach Typ de
         // Falls Account und Liste hinterlegt sind, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
         db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
         from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa

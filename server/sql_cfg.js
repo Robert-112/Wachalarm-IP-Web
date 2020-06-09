@@ -133,8 +133,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         tw_access_token_key TEXT,
         tw_access_token_secret TEXT)`);
       // Vermittlungs-Tabelle erstellen
-      // TODO Umbauen in allgemine Vermittler-Liste -> mit Typ
-      db.run(`CREATE TABLE waip_vmtl_wachen (
+      db.run(`CREATE TABLE waip_vmtl (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_wachen_id INTEGER,
         vmtl_typ TEXT,
