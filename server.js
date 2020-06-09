@@ -14,7 +14,7 @@ const favicon = require('serve-favicon');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 
 // Basis-Konfiguration laden und generische App-UUID erzeugen
 var app_cfg = require('./server/app_cfg.js');
