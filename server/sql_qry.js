@@ -144,6 +144,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
+  // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
   function db_einsatz_check_history(waip_id, einsatzdaten, socket_id, callback) {
     // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde
     const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'  

@@ -67,22 +67,27 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             einsatzdaten.strasse = '';
             einsatzdaten.wgs84_x = '';
             einsatzdaten.wgs84_y = '';
-          };
-          // Einsatz an Client senden
-          // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
-          sql....
-
-          socket.emit('io.new_waip', einsatzdaten);
-          sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
-          sql.db_client_update_status(socket, waip_id);
-          // Sound erstellen
-          tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
-            if (tts) {
-              // Sound senden
-              socket.emit('io.playtts', tts);
-              sql.db_log('WAIP', 'ttsfile: ' + tts);
+          };         
+          // pruefen ob Einsatz bereits genau so beim Client angezeigt wurde (Doppelalarmierung)
+          sql.db_einsatz_check_history(waip_id, einsatzdaten, socket_id, function (result) {
+            if (!result) {
+              // Einsatz an Client senden
+              socket.emit('io.new_waip', einsatzdaten);
+              sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet.');
+              sql.db_client_update_status(socket, waip_id);
+              // Sound erstellen
+              tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
+                if (tts) {
+                  // Sound senden
+                  socket.emit('io.playtts', tts);
+                  sql.db_log('WAIP', 'ttsfile: ' + tts);
+                };
+              });
+            } else {
+              // Log das Einsatz explizit nicht an Client gesendet wurde
+              sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' nicht an Socket ' + socket.id + ' gesendet, da bereits angezeigt.');
             };
-          });
+          });          
         });
       } else {
         // Standby senden
