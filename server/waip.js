@@ -70,6 +70,8 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           };
           // Einsatz an Client senden
           // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
+          sql....
+
           socket.emit('io.new_waip', einsatzdaten);
           sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet');
           sql.db_client_update_status(socket, waip_id);
@@ -389,8 +391,11 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           });
 
           // CSV speichern in bkp-ordner
+            // später löschen, wenn app_cfg.global.backup_rmld false
           // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
           // csv an diese Mail-Adressen per Mail senden
+            // wenn app_cfg.global.mail_rmld is true
+          
         });
         // Einsatz löschen
         sql.db_einsatz_loeschen(waip.id);

@@ -70,6 +70,15 @@ module.exports = function (fs, bcrypt, app_cfg) {
         name_kreis TEXT,
         wgs84_x TEXT,
         wgs84_y TEXT)`);
+      // History-Tabelle erstellen
+      db.run(`CREATE TABLE waip_history (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        waip_id INTEGER NOT NULL,
+        socket_id TEXT,
+        uuid_einsatz_grunddaten TEXT,
+        uuid_em_alarmiert TEXT,
+        uuid_em_weitere TEXT,
+        FOREIGN KEY (waip_id) REFERENCES waip_einsaetze(id) ON DELETE CASCADE ON UPDATE CASCADE)`);
       // Client-Tabelle erstellen
       db.run(`CREATE TABLE waip_clients (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -124,6 +133,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         tw_access_token_key TEXT,
         tw_access_token_secret TEXT)`);
       // Vermittlungs-Tabelle erstellen
+      // TODO Umbauen in allgemine Vermittler-Liste -> mit Typ
       db.run(`CREATE TABLE waip_vmtl_tw_wachen (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_wachen_id INTEGER,
