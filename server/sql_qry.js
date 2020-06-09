@@ -2,6 +2,7 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   // Module laden
   const turf = require('@turf/turf');
+  const { v5: uuidv5 } = require('uuid');
 
   // SQL-Abfragen
 
@@ -141,11 +142,41 @@ module.exports = function (db, uuidv4, app_cfg) {
         callback && callback(null);
       };
     });
+  };
 
+  function db_einsatz_check_history(waip_id, einsatzdaten, socket_id, callback) {
+    // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde
+    const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'  
+    // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
+    var uuid_em_alarmiert = uuidv5(JSON.stringify(einsatzdaten.em_alarmiert), custom_namespace);
+    delete einsatzdaten.em_alarmiert;
+    var uuid_em_weitere =  uuidv5(JSON.stringify(einsatzdaten.em_weitere), custom_namespace);
+    delete einsatzdaten.em_weitere;
+    var uuid_einsatzdaten = uuidv5(JSON.stringify(einsatzdaten), custom_namespace);
+        
+    
+    db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+
+
+      db.run(`CREATE TABLE waip_history (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        waip_id INTEGER NOT NULL,
+        socket_id TEXT,
+        uuid_einsatz_grunddaten TEXT,
+        uuid_em_alarmiert TEXT,
+        uuid_em_weitere TEXT,`);
+
+
+    });
   };
 
   function db_einsatz_get_by_waipid(waip_id, wachen_nr, user_id, callback) {
-
+    // Einsatzdaten entsprechend der WAIP-ID zusammentragen
     // falls waip_id oder wachen_nur keine zahlen sind, abbruch
     if (isNaN(waip_id) || isNaN(wachen_nr)) {
       callback && callback(null);
@@ -801,6 +832,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_ermitteln: db_einsatz_ermitteln,
     db_einsatz_check_uuid: db_einsatz_check_uuid,
+    db_einsatz_check_history: db_einsatz_check_history,
     db_einsatz_get_by_waipid: db_einsatz_get_by_waipid,
     db_einsatz_get_by_uuid: db_einsatz_get_by_uuid,
     db_einsatz_get_waipid_by_uuid: db_einsatz_get_waipid_by_uuid,
