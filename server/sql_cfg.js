@@ -125,7 +125,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         einsatzmittel_typ TEXT,
         einsatzmittel_rufname TEXT)`);
       // Twitter-Account-Tabelle erstellen
-      db.run(`CREATE TABLE waip_twitter_accounts (
+      db.run(`CREATE TABLE waip_tw_accounts (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         tw_screen_name TEXT,
         tw_consumer_key TEXT,
@@ -134,14 +134,14 @@ module.exports = function (fs, bcrypt, app_cfg) {
         tw_access_token_secret TEXT)`);
       // Vermittlungs-Tabelle erstellen
       // TODO Umbauen in allgemine Vermittler-Liste -> mit Typ
-      db.run(`CREATE TABLE waip_vmtl_tw_wachen (
+      db.run(`CREATE TABLE waip_vmtl_wachen (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_wachen_id INTEGER,
-        tw_account_id INTEGER,
-        tw_account_list TEXT,
+        vmtl_typ TEXT,
+        vmlt_account_name TEXT,
+        vmlt_account_list TEXT,
         bkp_recipient TEXT,
-        FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id),
-        FOREIGN KEY(tw_account_id) REFERENCES waip_twitter_accounts(id))`);
+        FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id))`);
       // Log erstellen
       db.run(`CREATE TABLE waip_log (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,

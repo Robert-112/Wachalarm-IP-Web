@@ -807,13 +807,13 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
-    db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmtl_tw_wachen t 
+    db.get(`select t.waip_wachen_id, t.tw_account_id, t.tw_account_list from waip_vmtl_wachen t 
       where waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, twitter_liste) {
       if (err == null && twitter_liste) {
         // Falls Account und Liste hinterlegt sind, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
         db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
-        from waip_twitter_accounts tw, waip_einsaetze we, waip_wachen wa
+        from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa
         where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function (err, vmtl_daten) {
           if (err == null && vmtl_daten) {
             // Listen-Name zur Daten hinzufuegen
