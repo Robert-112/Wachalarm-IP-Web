@@ -299,6 +299,8 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_einsatz_loeschen(id) {
     // Einsatz loeschen
+    // TODO alle Rüueckmeldungen zu dem Einsatz aus db löschen
+    // TODO alle Historys zu dem Einsatz aus db löschen
     db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
   };
 
