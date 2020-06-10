@@ -80,6 +80,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         uuid_em_weitere TEXT,
         FOREIGN KEY (waip_id) REFERENCES waip_einsaetze(id) ON DELETE CASCADE ON UPDATE CASCADE)`);
       // Client-Tabelle erstellen
+      // TODO WACHENName hinzufügen
       db.run(`CREATE TABLE waip_clients (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         connect_time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),

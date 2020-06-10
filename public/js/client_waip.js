@@ -603,6 +603,7 @@ function recount_rmld(p_uuid) {
 
 // Uhrzeit und Datum für Bildschirmschoner
 function set_clock() {
+  // TODO Sekunden anzeigen
   // Wochentage
   var d_names = new Array('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag');
   // Monate
