@@ -144,9 +144,8 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
-  // FIXME: Einsatz nur verteilen, falls dieser nicht bereits so angezeigt wurde (Doppelalarmierung vermeiden)
   function db_einsatz_check_history(waip_id, einsatzdaten, socket_id, callback) {
-    // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde
+    // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde (Doppelalarmierung vermeiden)
     const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'  
     // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
     var uuid_em_alarmiert = uuidv5(JSON.stringify(einsatzdaten.em_alarmiert), custom_namespace);
@@ -154,26 +153,36 @@ module.exports = function (db, uuidv4, app_cfg) {
     var uuid_em_weitere =  uuidv5(JSON.stringify(einsatzdaten.em_weitere), custom_namespace);
     delete einsatzdaten.em_weitere;
     var uuid_einsatzdaten = uuidv5(JSON.stringify(einsatzdaten), custom_namespace);
-        
-    // wenn keine row, dann insert
-
+    // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
       if (err == null && row) {
-        callback && callback(row);
+        // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
+        if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
+          // Grunddaten oder alarmierte Einsatzmittel haben sich verändert, somit History veraltet und neue Alarmierung notwendig
+          callback && callback(false);
+        } else {
+          // relevante Daten haben sich nicht geändert
+          callback && callback(true);
+        };
+        // History mit aktuellen Daten aktualsieren
+        db.run(`UPDATE waip_history
+          SET 
+          uuid_einsatz_grunddaten=\'` + uuid_einsatzdaten + `\',
+          uuid_em_alarmiert=\'` + uuid_em_alarmiert + `\',
+          uuid_em_weitere=\'` + uuid_em_weitere + `\' 
+          WHERE waip_id like \'` + waip_id + `\' and socket_id like \'` + socket_id + `\'`);
       } else {
-        callback && callback(null);
+        // wenn keine History-Daten hinterlegt sind, diese speichern
+        db.run(`INSERT INTO waip_history (waip_id, socket_id, uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere)
+          VALUES (
+          \'` + waip_id + `\',
+          \'` + socket_id + `\',
+          \'` + uuid_einsatzdaten + `\',
+          \'` + uuid_em_alarmiert + `\',
+          \'` + uuid_em_weitere + `\')`);
+        // callback History = false
+        callback && callback(false);
       };
-
-
-      db.run(`CREATE TABLE waip_history (
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        waip_id INTEGER NOT NULL,
-        socket_id TEXT,
-        uuid_einsatz_grunddaten TEXT,
-        uuid_em_alarmiert TEXT,
-        uuid_em_weitere TEXT,`);
-
-
     });
   };
 
@@ -332,9 +341,11 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_einsatz_loeschen(id) {
     // Einsatz loeschen
-    // TODO alle Rüueckmeldungen zu dem Einsatz aus db löschen
-    // TODO alle Historys zu dem Einsatz aus db löschen
     db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
+    // History loeschen
+    db.run(`DELETE FROM waip_history WHERE waip_id = ?`, [id]);
+    // Rueckmeldungen löschen
+    db.run(`DELETE FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [id]);
   };
 
   function db_wache_get_all(callback) {
@@ -812,11 +823,11 @@ module.exports = function (db, uuidv4, app_cfg) {
       where v.waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
       if (err == null && liste) {
-
+        // Falls Liste für Wache hinterlegt, je nach Typ de
         // FIXME eee
         v.waip_wachen_id, v.vmlt_typ, v.vmtl_account_name, v.vmtl_account_list
 
-        // Falls Liste für Wache hinterlegt, je nach Typ de
+        
         // Falls Account und Liste hinterlegt sind, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
         db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
         from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa

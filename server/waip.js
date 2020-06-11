@@ -85,7 +85,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
               });
             } else {
               // Log das Einsatz explizit nicht an Client gesendet wurde
-              sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' nicht an Socket ' + socket.id + ' gesendet, da bereits angezeigt.');
+              sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' nicht an Socket ' + socket.id + ' gesendet, da bereits angezeigt (Doppelalarmierung).');
             };
           });          
         });
