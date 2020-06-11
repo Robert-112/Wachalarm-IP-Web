@@ -31,9 +31,9 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             };
           });
           // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja, Rueckmeldungs-Link senden
-          sql.db_vmtl_get_list(waip_id, function (vmtl_data) {
-            if (vmtl_data) {
-              brk.alert_vmtl_list(vmtl_data, function (result) {
+          sql.db_vmtl_get_list(waip_id, function (list) {
+            if (list) {
+              brk.alert_vmtl_list(list, function (result) {
                 if (!result) {
                   sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
                 } else {

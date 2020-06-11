@@ -819,13 +819,21 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
-    db.get(`select v.waip_wachen_id, v.vmlt_typ, v.vmtl_account_name, v.vmtl_account_list from waip_vmtl v 
+    db.get(`select v.waip_wachen_id, v.vmlt_typ, v.vmlt_account_name, v.vmtl_account_group from waip_vmtl v 
       where v.waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
       if (err == null && liste) {
         // Falls Liste für Wache hinterlegt, je nach Typ de
+        if () {
+
+        } else {
+          // andere Listen/Gruppen/Schnittstellen koennten hier noch abgefragt werden
+          callback && callback(null);
+        }
         // FIXME eee
-        v.waip_wachen_id, v.vmlt_typ, v.vmtl_account_name, v.vmtl_account_list
+        vmtl_typ TEXT,
+        vmlt_account_name TEXT,
+        vmlt_account_group TEXT
 
         
         // Falls Account und Liste hinterlegt sind, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
@@ -844,6 +852,10 @@ module.exports = function (db, uuidv4, app_cfg) {
         callback && callback(null);
       };
     });
+  };
+
+  function db_vmtl_get_access_data(, callback) {
+
   };
 
   return {
@@ -878,7 +890,8 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,
     db_rmld_get_by_rmlduuid: db_rmld_get_by_rmlduuid,
     db_rmld_get_by_waipuuid: db_rmld_get_by_waipuuid,
-    db_vmtl_get_list: db_vmtl_get_list
+    db_vmtl_get_list: db_vmtl_get_list,
+    db_vmtl_get_access_data: db_vmtl_get_access_data
   };
 
 };
