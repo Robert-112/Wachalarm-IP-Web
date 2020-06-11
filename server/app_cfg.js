@@ -37,20 +37,21 @@ app_cfg.public = {
   url_privacy: 'https://www.nix.nix/datenschutz'
 };
 
-// Daten von anderen Servern empfangen
+// Daten von anderen Clients empfangen
 app_cfg.api = {
   enabled: true,
   secret: 'asdfwert1234567890#',
-  access_list: ['192.168.2.20', '192.168.2.30'],
-  send_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
-  send_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']
+  access_list: ['192.168.2.20', '192.168.2.30']
 };
 
 // Daten an andere Server senden
 app_cfg.endpoint = {
   enabled: true,
   host: 'https://192.168.1.25:8090/api',
-  secret: 'asdfwert1234567890#'  
+  secret: 'asdfwert1234567890#',
+  // TODO in api rausfiltern
+  get_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
+  get_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']
 };
 
 module.exports = app_cfg;

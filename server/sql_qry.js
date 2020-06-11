@@ -2,7 +2,9 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   // Module laden
   const turf = require('@turf/turf');
-  const { v5: uuidv5 } = require('uuid');
+  const {
+    v5: uuidv5
+  } = require('uuid');
 
   // SQL-Abfragen
 
@@ -146,11 +148,11 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_einsatz_check_history(waip_id, einsatzdaten, socket_id, callback) {
     // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde (Doppelalarmierung vermeiden)
-    const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'  
+    const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'
     // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
     var uuid_em_alarmiert = uuidv5(JSON.stringify(einsatzdaten.em_alarmiert), custom_namespace);
     delete einsatzdaten.em_alarmiert;
-    var uuid_em_weitere =  uuidv5(JSON.stringify(einsatzdaten.em_weitere), custom_namespace);
+    var uuid_em_weitere = uuidv5(JSON.stringify(einsatzdaten.em_weitere), custom_namespace);
     delete einsatzdaten.em_weitere;
     var uuid_einsatzdaten = uuidv5(JSON.stringify(einsatzdaten), custom_namespace);
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
@@ -188,7 +190,7 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_einsatz_get_by_waipid(waip_id, wachen_nr, user_id, callback) {
     // Einsatzdaten entsprechend der WAIP-ID zusammentragen
-    // falls waip_id oder wachen_nur keine zahlen sind, abbruch
+    // falls waip_id oder wachen_nur keine zahlen sind, Abbruch
     if (isNaN(waip_id) || isNaN(wachen_nr)) {
       callback && callback(null);
     } else {
@@ -344,8 +346,6 @@ module.exports = function (db, uuidv4, app_cfg) {
     db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
     // History loeschen
     db.run(`DELETE FROM waip_history WHERE waip_id = ?`, [id]);
-    // Rueckmeldungen löschen
-    db.run(`DELETE FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [id]);
   };
 
   function db_wache_get_all(callback) {
@@ -817,45 +817,39 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
+  function db_rmld_loeschen(waip_uuid) {
+    // Rueckmeldungen löschen
+    db.run(`DELETE FROM waip_response WHERE waip_uuid = `, [waip_uuid]);
+  };
+
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
     db.get(`select v.waip_wachen_id, v.vmlt_typ, v.vmlt_account_name, v.vmtl_account_group from waip_vmtl v 
       where v.waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
       if (err == null && liste) {
-        // Falls Liste für Wache hinterlegt, je nach Typ de
-        if () {
-
-        } else {
-          // andere Listen/Gruppen/Schnittstellen koennten hier noch abgefragt werden
-          callback && callback(null);
-        }
-        // FIXME eee
-        vmtl_typ TEXT,
-        vmlt_account_name TEXT,
-        vmlt_account_group TEXT
-
-        
-        // Falls Account und Liste hinterlegt sind, die Account-Zugangsdaten, Einsatz-UUID, Einsatzart und Wachenname auslesen
-        db.get(`select tw.tw_screen_name, tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
-        from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa
-        where tw.id = ? AND we.id = ? AND wa.id = ?`, [twitter_liste.tw_account_id, waip_id, twitter_liste.waip_wachen_id], function (err, vmtl_daten) {
-          if (err == null && vmtl_daten) {
-            // Listen-Name zur Daten hinzufuegen
-            vmtl_daten.list = twitter_liste.tw_account_list;
-            callback && callback(vmtl_daten);
-          } else {
-            callback && callback(null);
-          };
-        });
+        // waip_id zu Daten hinzufuegen
+        liste.waip_id = waip_id;
+        callback && callback(liste);
       } else {
         callback && callback(null);
       };
     });
   };
 
-  function db_vmtl_get_access_data(, callback) {
-
+  function db_vmtl_get_tw_account(list_data, callback) {
+    // falls Liste für Wache hinterlegt, dann hier die Twitter-Account-Daten, Einsatz-UUID, Einsatzart und Wachenname auslesen
+    db.get(`select tw.tw_screen_name, tw.tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
+    from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa
+    where tw.tw_screen_name = ? AND we.id = ? AND wa.id = ?`, [list_data.vmlt_account_name, list_data.waip_id, list_data.waip_wachen_id], function (err, vmtl_daten) {
+      if (err == null && vmtl_daten) {
+        // Listen-Name zu Daten hinzufuegen
+        vmtl_daten.list = list_data.vmtl_account_group;
+        callback && callback(vmtl_daten);
+      } else {
+        callback && callback(null);
+      };
+    });
   };
 
   return {
@@ -890,8 +884,9 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_rmld_get_fuer_wache: db_rmld_get_fuer_wache,
     db_rmld_get_by_rmlduuid: db_rmld_get_by_rmlduuid,
     db_rmld_get_by_waipuuid: db_rmld_get_by_waipuuid,
+    db_rmld_loeschen: db_rmld_loeschen,
     db_vmtl_get_list: db_vmtl_get_list,
-    db_vmtl_get_access_data: db_vmtl_get_access_data
+    db_vmtl_get_tw_account: db_vmtl_get_tw_account
   };
 
 };

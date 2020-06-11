@@ -374,7 +374,7 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
         });
         sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
           // Dashboards trennen, deren Einsatz geloescht wurde
-          // TODO WAIP: testen der Dashboard-Trennen-Funktion
+          // TODO TEST: testen der Dashboard-Trennen-Funktion
           if (socket_ids) {
             socket_ids.forEach(function (row) {
               var socket = io.of('/dbrd').connected[row.socket_id];
@@ -400,11 +400,11 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
           // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
           // csv an diese Mail-Adressen per Mail senden
             // wenn app_cfg.global.mail_rmld is true
-          
+            db_rmld_loeschen(waip_uuid) 
         });
         // Einsatz löschen
         sql.db_einsatz_loeschen(waip.id);
-        sql.db_log('WAIP', 'Einsatz ' + waip.id + ' gelöscht.');
+        sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
       };
     });
 
