@@ -1,4 +1,4 @@
-module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
+module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
 
   // Module laden
   const json2csv = require('json2csv'); 
@@ -384,18 +384,37 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
             });
           };
         });
-        // FIXME: Rueckmeldung löschen, und vorher backup
+        // FIXME: Rueckmeldung löschen, und vorher ggf. per Mail versenden  bzw. Backup speichern
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
-          // full_rmld in csv umwandeln
-          json2csv({data: json.car, fields: ['name', 'price', 'color']}, function(err, csv) {
+          // originale Einsatznummer hinzufuegen, fuer spaetere Recherche
+          full_rmld.einsatznummer = waip.einsatznummer
+          // CSV-Spalten definieren
+          var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt' ,'set_time' ,'arrival_time' ,'wache_id' ,'wache_nr' ,'wache_name'];
+          // gesamte CSV erstellen, falls aktiviert
+          
+          
+          CREATE TABLE waip_export (
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+            export_name TEXT,
+            export_text TEXT,
+            export_filter TEXT,
+            export_recipient TEXT)`);
+          
+          
+          json2csv({data: full_rmld, fields: csv_col}, function(err, csv) {
             if (err) console.log(err);
+            // CSV in Backup-Ordner speichern, falls aktiviert
             fs.writeFile('cars.csv', csv, function(err) {
               if (err) throw err;
               console.log('cars file saved');
             });
+            
           });
+          // teil-CSV fuer einzelne Wache erstellen
 
-          // CSV speichern in bkp-ordner
+          
+          // CSV per Mail versenden, falls aktiviert
+              // einzelne Wachen 
             // später löschen, wenn app_cfg.global.backup_rmld false
           // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
           // csv an diese Mail-Adressen per Mail senden
@@ -409,7 +428,6 @@ module.exports = function (io, sql, brk, async, app_cfg, api, proof) {
     });
 
     // löschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
-    const fs = require('fs');
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
       // nur die mp3s von alten clients loeschen
       if (file.substring(0, 4) != 'bell' && file.substring(file.length - 3) == 'mp3' && file.substring(file.length - 8) != '_tmp.mp3') {

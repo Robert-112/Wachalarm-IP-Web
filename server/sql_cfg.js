@@ -131,7 +131,6 @@ module.exports = function (fs, bcrypt, app_cfg) {
         vmtl_typ TEXT,
         vmlt_account_name TEXT,
         vmlt_account_group TEXT,
-        bkp_recipient TEXT,
         FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id))`);
       // Twitter-Account-Tabelle erstellen
       db.run(`CREATE TABLE waip_tw_accounts (
@@ -140,7 +139,14 @@ module.exports = function (fs, bcrypt, app_cfg) {
         tw_consumer_key TEXT,
         tw_consumer_secret TEXT,
         tw_access_token_key TEXT,
-        tw_access_token_secret TEXT)`);        
+        tw_access_token_secret TEXT)`);
+      // Export-Tabelle erstellen
+      db.run(`CREATE TABLE waip_export (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        export_name TEXT,
+        export_text TEXT,
+        export_filter TEXT,
+        export_recipient TEXT)`);
       // Log erstellen
       db.run(`CREATE TABLE waip_log (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
