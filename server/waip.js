@@ -387,7 +387,18 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
         // FIXME: Rueckmeldung löschen, und vorher ggf. per Mail versenden  bzw. Backup speichern
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
           // originale Einsatznummer hinzufuegen, fuer spaetere Recherche
-          full_rmld.einsatznummer = waip.einsatznummer
+          // TODO siehe sql
+					full_rmld.einsatznummer = waip.einsatznummer
+					
+					map wachennummer in jspn, add 0
+					
+					jetzt exportliste nach passendem mit filter suchen, dabei distinct wachennr übergeben
+					   db.each
+						   jetzt csv erzeugen und versenden
+					falls kein filter
+					   wenn bkp altiviert, gesamt-csv speichern
+					
+					
           // CSV-Spalten definieren
           var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt' ,'set_time' ,'arrival_time' ,'wache_id' ,'wache_nr' ,'wache_name'];
           // gesamte CSV erstellen, falls aktiviert
