@@ -808,10 +808,9 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_rmld_get_by_waipuuid(waip_uuid, callback) {
     // alle Rueckmeldungen fuer einen Einsatz ermitteln
-		// BUG einsatznummer
-    db.all(`SELECT * FROM waip_response WHERE waip_uuid like ?`, [waip_uuid], function (err, row) {
-      if (err == null && row) {
-        callback && callback(row);
+    db.all(`SELECT we.einsatznummer, wr.* FROM waip_response wr, waip_einsaetze we WHERE wr. waip_uuid like ? AND we.uuid like ?`, [waip_uuid, waip_uuid], function (err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
       } else {
         callback && callback(null);
       };
