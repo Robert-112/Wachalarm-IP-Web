@@ -1,7 +1,7 @@
 module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
 
   // Module laden
-  const json2csv = require('json2csv'); 
+  const json2csv = require('json2csv');
 
   function einsatz_speichern(einsatz_rohdaten, app_id) {
     // Einsatzmeldung in Datenbank speichern und verteilen
@@ -67,7 +67,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
             einsatzdaten.strasse = '';
             einsatzdaten.wgs84_x = '';
             einsatzdaten.wgs84_y = '';
-          };         
+          };
           // pruefen ob Einsatz bereits genau so beim Client angezeigt wurde (Doppelalarmierung)
           sql.db_einsatz_check_history(waip_id, einsatzdaten, socket_id, function (result) {
             if (!result) {
@@ -87,7 +87,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
               // Log das Einsatz explizit nicht an Client gesendet wurde
               sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' nicht an Socket ' + socket.id + ' gesendet, da bereits angezeigt (Doppelalarmierung).');
             };
-          });          
+          });
         });
       } else {
         // Standby senden
@@ -390,49 +390,42 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
           var arry_wachen = full_rmld.map(a => a.wache_nr);
           sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
             // db.each
-            // TODO gesamte CSV oder nur Teil für wache?
-            export_data.export_name 
-              export_data.export_text 
-              export_data.export_filter 
-              export_data.export_recipient if valide mail-adresse
+            // TODO remove alle daten aus full_rmld die nicht mit export_filter übereinstimmen (left von)
 
-                     
-            
-        
-                 jetzt csv erzeugen und versenden
-            falls kein filter
-               wenn bkp altiviert, gesamt-csv speichern
-            
-            
             // CSV-Spalten definieren
-            var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt' ,'set_time' ,'arrival_time' ,'wache_id' ,'wache_nr' ,'wache_name'];
-            // gesamte CSV erstellen, falls aktiviert
-            
-            
-           
-              
-            
-            
-            json2csv({data: full_rmld, fields: csv_col}, function(err, csv) {
-              if (err) console.log(err);
-              // CSV in Backup-Ordner speichern, falls aktiviert
-              fs.writeFile('cars.csv', csv, function(err) {
-                if (err) throw err;
-                console.log('cars file saved');
-              });
-              
+            var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
+            json2csv({
+              data: full_rmld,
+              fields: csv_col
+            }, function (err, csv) {
+              if (err) {
+                sql.db_log('EXPORT', 'Fehler beim erstellen der Export-CSV: ' + err);
+              } else {
+                // TODO TEST: CSV in Backup-Ordner speichern, falls aktiviert
+                if (app_cfg.global.backup_rmld_to_file) {
+                  // CSV Dateiname und Pfad festlegen
+                  var csv_filename = full_rmld.einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
+                  csv_filename = process.cwd() + app_cfg.global.backup_path + csv_filename;
+                  // CSV speichern
+                  fs.writeFile(csv_filename, csv, function (err) {
+                    if (err) {
+                      sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
+                    };
+                  });
+                };
+                // TODO CSV per Mail versenden, falls aktiviert
+                if (app_cfg.global.backup_rmld_to_mail) {
+
+                };
+
+                //export_data.export_recipient if valide mail-adresse
+
+
+                //export_data.export_name 
+                //export_data.export_text 
+                //export_data.export_filter 
+              };
             });
-            // teil-CSV fuer einzelne Wache erstellen
-  
-            
-            // CSV per Mail versenden, falls aktiviert
-                // einzelne Wachen 
-              // später löschen, wenn app_cfg.global.backup_rmld false
-            // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
-            // csv an diese Mail-Adressen per Mail senden
-              // wenn app_cfg.global.mail_rmld is true
-
-
           });
           // alte Rueckmeldungen loeschen
           db_rmld_loeschen(waip_uuid);
