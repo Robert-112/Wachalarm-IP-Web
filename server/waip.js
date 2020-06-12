@@ -386,11 +386,13 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
         });
         // FIXME: Rueckmeldung löschen, und vorher ggf. per Mail versenden  bzw. Backup speichern
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
-          // originale Einsatznummer hinzufuegen, fuer spaetere Recherche
-          // FIXME siehe sql
-					full_rmld.einsatznummer = waip.einsatznummer
-					
-					map wachennummer in jspn, add 0
+          // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
+
+          					
+          map wachennummer in jspn, add 0
+          [52,521204,6103]
+          
+          
 					
 					jetzt exportliste nach passendem mit filter suchen, dabei distinct wachennr übergeben
 					   db.each
