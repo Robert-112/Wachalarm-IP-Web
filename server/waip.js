@@ -61,7 +61,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
     var user_obj = socket.request.user;
     sql.db_einsatz_get_by_waipid(waip_id, wachen_nr, user_obj.id, function (einsatzdaten) {
       if (einsatzdaten) {
-        // Berechtigung ueberpruefen
+        // Berechtigung des Users ueberpruefen
         sql.db_user_check_permission(user_obj, waip_id, function (valid) {
           // Wenn nutzer nicht angemeldet, Daten entfernen
           if (!valid) {
@@ -81,7 +81,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
               // Sound erstellen
               tts_erstellen(app_cfg, socket.id, einsatzdaten, function (tts) {
                 if (tts) {
-                  // Sound senden
+                  // Sound-Link senden
                   socket.emit('io.playtts', tts);
                   sql.db_log('WAIP', 'ttsfile: ' + tts);
                 };
@@ -93,9 +93,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
           });
         });
       } else {
-        // Standby senden
+        // wenn keine Einsatzdaten, dann Standby senden
         socket.emit('io.standby', null);
-        sql.db_log('WAIP', 'Kein Einsatz fuer Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket.id + ' gesendet.');
+        sql.db_log('WAIP', 'Kein Einsatz für Wache ' + wachen_nr + ' vorhanden, Standby an Socket ' + socket.id + ' gesendet.');
         sql.db_client_update_status(socket, null);
       };
     });
@@ -126,7 +126,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
   };
 
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
-    // Einsatz-ID mittels Einsatz-UUID ermitteln
+    // Einsatz-ID mittels Einsatz-UUID ermitteln, und Rueckmelung an alle relevanten Clients verteilen
     sql.db_einsatz_get_waipid_by_uuid(waip_uuid, function (waip_id) {
       // am Einsatz beteilite Socket-Räume ermitteln
       sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
@@ -148,37 +148,18 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
                         sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
                       };
                     });
-
-
-                    /*socket_rooms.forEach(function (rooms) {
-                      io.of('/waip').to(rooms.room).emit('io.new_rmld', rmld_obj);
-                      sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Wache ' + rooms.room + ' gesendet.');
-                      sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
-                    });*/
                   };
                 });
-
-
-
-
               });
             };
           });
         };
       });
-
-
-
-
-
-
-
-
-
     });
   };
 
   function rmld_verteilen_for_one_client(waip_id, socket, wachen_id) {
+    // Rueckmeldung an einen bestimmten Client senden
     if (typeof socket !== 'undefined') {
       sql.db_rmld_get_fuer_wache(waip_id, wachen_id, function (rmld_obj) {
         if (rmld_obj) {
@@ -193,8 +174,8 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
     };
   };
 
-
   function dbrd_verteilen(dbrd_uuid, socket) {
+    // Einsatzdaten an Dashboard senden
     sql.db_einsatz_get_by_uuid(dbrd_uuid, function (einsatzdaten) {
       if (einsatzdaten) {
         sql.db_user_check_permission(socket.request.user, einsatzdaten.id, function (valid) {
@@ -335,7 +316,8 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
 
   setInterval(function () {
 
-    // Aufräumen (alle 10 Sekunden)
+    // (alle 10 Sekunden)
+
     sql.db_socket_get_all_to_standby(function (socket_ids) {
       // alle User-Einstellungen prüfen und ggf. Standby senden
       if (socket_ids) {
@@ -470,16 +452,16 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
           };
         });
       };
-    })
-  }, 10000);
+    });
 
+  }, 10000);
 
   return {
     waip_speichern: waip_speichern,
     waip_verteilen: waip_verteilen,
     rmld_speichern: rmld_speichern,
-    dbrd_verteilen: dbrd_verteilen,
     rmld_verteilen_for_one_client: rmld_verteilen_for_one_client,
-    rmld_verteilen_by_uuid: rmld_verteilen_by_uuid
+    rmld_verteilen_by_uuid: rmld_verteilen_by_uuid,
+    dbrd_verteilen: dbrd_verteilen
   };
 };
