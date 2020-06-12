@@ -2,6 +2,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
 
   // Module laden
   const json2csv = require('json2csv');
+  const sendmail = require('sendmail')({silent: true});
 
   function einsatz_speichern(einsatz_rohdaten, app_id) {
     // Einsatzmeldung in Datenbank speichern und verteilen
