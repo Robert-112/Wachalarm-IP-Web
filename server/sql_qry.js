@@ -852,6 +852,36 @@ module.exports = function (db, uuidv4, app_cfg) {
     });
   };
 
+  function db_export_get_for_rmld(ar_wachen, callback) {
+
+
+
+    [521204, 610311]
+    [52, 5212, 521204, 61, 6103, 610301, 0]
+
+
+    db.each(`select * from waip_export 
+      where `, [content],
+      function (err, row) {
+        if (err == null && row) {
+          callback && callback(row.waip_wachen_ID);
+        } else {
+          callback && callback(null);
+        };
+      });
+
+
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+      export_typ TEXT,
+      export_name TEXT,
+      export_text TEXT,
+      export_filter TEXT,
+      export_recipient TEXT)`);
+
+
+
+  };
+
   return {
     db_einsatz_speichern: db_einsatz_speichern,
     db_einsatz_ermitteln: db_einsatz_ermitteln,
@@ -886,7 +916,8 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_rmld_get_by_waipuuid: db_rmld_get_by_waipuuid,
     db_rmld_loeschen: db_rmld_loeschen,
     db_vmtl_get_list: db_vmtl_get_list,
-    db_vmtl_get_tw_account: db_vmtl_get_tw_account
+    db_vmtl_get_tw_account: db_vmtl_get_tw_account,
+    db_export_get_list: db_export_get_list
   };
 
 };

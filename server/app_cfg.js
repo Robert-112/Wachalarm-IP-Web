@@ -49,7 +49,7 @@ app_cfg.endpoint = {
   enabled: true,
   host: 'https://192.168.1.25:8090/api',
   secret: 'asdfwert1234567890#',
-  // TODO in api rausfiltern
+  // FIXME in api rausfiltern
   get_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
   get_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']
 };

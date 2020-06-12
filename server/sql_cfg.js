@@ -143,6 +143,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Export-Tabelle erstellen
       db.run(`CREATE TABLE waip_export (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        export_typ TEXT,
         export_name TEXT,
         export_text TEXT,
         export_filter TEXT,

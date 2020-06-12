@@ -214,7 +214,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
     });
   };
 
-    // TODO WAIP: Funktion um Clients "neuzustarten" (Seite remote neu laden), niedrige Prioritaet
+  // TODO WAIP: Funktion um Clients remote "neuzustarten" (Seite neu laden), niedrige Prioritaet
 
   function tts_erstellen(app_cfg, socket_id, einsatzdaten, callback) {
     // unnoetige Zeichen aus socket_id entfernen, um diese als Dateinamen zu verwenden
@@ -374,7 +374,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
         });
         sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
           // Dashboards trennen, deren Einsatz geloescht wurde
-          // TODO TEST: testen der Dashboard-Trennen-Funktion
+          // TODO TEST: Dashboard-Trennen-Funktion testen
           if (socket_ids) {
             socket_ids.forEach(function (row) {
               var socket = io.of('/dbrd').connected[row.socket_id];
@@ -387,7 +387,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
         // FIXME: Rueckmeldung löschen, und vorher ggf. per Mail versenden  bzw. Backup speichern
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
           // originale Einsatznummer hinzufuegen, fuer spaetere Recherche
-          // TODO siehe sql
+          // FIXME siehe sql
 					full_rmld.einsatznummer = waip.einsatznummer
 					
 					map wachennummer in jspn, add 0
