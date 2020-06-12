@@ -853,37 +853,29 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_export_get_for_rmld(arry_wachen, callback) {
+    // saubere String-Werte erstellen
+    arry_wachen = arry_wachen.map(String);
     // Wachen-Nummern um Teil-Nummern fuer Kreis und Treager ergaenzen
-    var kreis = arry_wachen.map(i=> i.substr(0, 2));
-    var traeger = arry_wachen.map(i=> i.substr(0, 4));
+    var kreis = arry_wachen.map(i => i.substr(0, 2));
+    var traeger = arry_wachen.map(i => i.substr(0, 4));
     arry_wachen = arry_wachen.concat(kreis);
     arry_wachen = arry_wachen.concat(traeger);
     // doppelte Elemente aus Array entfernen
-    arry_wachen = arry_wachen.filter((v, i, a) => a.indexOf(v) === i); 
-
-
-
-
-    db.each(`select * from waip_export 
-      where irgendwas und filte is null`, [content],
-      function (err, row) {
-        if (err == null && row) {
-          callback && callback(row.waip_wachen_ID);
-        } else {
-          callback && callback(null);
-        };
-      });
-
-
-      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-      export_typ TEXT,
-      export_name TEXT,
-      export_text TEXT,
-      export_filter TEXT,
-      export_recipient TEXT)`);
-
-
-
+    arry_wachen = arry_wachen.filter((v, i, a) => a.indexOf(v) === i);
+    // Leer-String hinzufuegen, um auch Export-Eintraege ohne Filter zu beruecksichtigen
+    arry_wachen.push("");
+    // DEBUG
+    if (app_cfg.global.development) {
+      console.log('Export-Liste RMLD: ' + JSON.stringify(arry_wachen));
+    };
+    // Export-Liste auslesen
+    db.each(`select * from waip_export where export_typ like \'rmld\' and export_filter IN (` + arry_wachen.join(', ') + ` )`, function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
   };
 
   return {
@@ -921,7 +913,7 @@ module.exports = function (db, uuidv4, app_cfg) {
     db_rmld_loeschen: db_rmld_loeschen,
     db_vmtl_get_list: db_vmtl_get_list,
     db_vmtl_get_tw_account: db_vmtl_get_tw_account,
-    db_export_get_list: db_export_get_list
+    db_export_get_for_rmld: db_export_get_for_rmld
   };
 
 };

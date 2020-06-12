@@ -387,60 +387,63 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
         // FIXME: Rueckmeldung löschen, und vorher ggf. per Mail versenden  bzw. Backup speichern
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
           // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
+          var arry_wachen = full_rmld.map(a => a.wache_nr);
+          sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
+            // db.each
+            // TODO gesamte CSV oder nur Teil für wache?
+            export_data.export_name 
+              export_data.export_text 
+              export_data.export_filter 
+              export_data.export_recipient if valide mail-adresse
 
-          					
-          map wachennummer in jspn, add 0
-          [52,521204,6103]
-          
-          
-					
-					jetzt exportliste nach passendem mit filter suchen, dabei distinct wachennr übergeben
-					   db.each
-						   jetzt csv erzeugen und versenden
-					falls kein filter
-					   wenn bkp altiviert, gesamt-csv speichern
-					
-					
-          // CSV-Spalten definieren
-          var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt' ,'set_time' ,'arrival_time' ,'wache_id' ,'wache_nr' ,'wache_name'];
-          // gesamte CSV erstellen, falls aktiviert
-          
-          
-          CREATE TABLE waip_export (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-            export_name TEXT,
-            export_text TEXT,
-            export_filter TEXT,
-            export_recipient TEXT)`);
-          
-          
-          json2csv({data: full_rmld, fields: csv_col}, function(err, csv) {
-            if (err) console.log(err);
-            // CSV in Backup-Ordner speichern, falls aktiviert
-            fs.writeFile('cars.csv', csv, function(err) {
-              if (err) throw err;
-              console.log('cars file saved');
-            });
+                     
             
-          });
-          // teil-CSV fuer einzelne Wache erstellen
+        
+                 jetzt csv erzeugen und versenden
+            falls kein filter
+               wenn bkp altiviert, gesamt-csv speichern
+            
+            
+            // CSV-Spalten definieren
+            var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt' ,'set_time' ,'arrival_time' ,'wache_id' ,'wache_nr' ,'wache_name'];
+            // gesamte CSV erstellen, falls aktiviert
+            
+            
+           
+              
+            
+            
+            json2csv({data: full_rmld, fields: csv_col}, function(err, csv) {
+              if (err) console.log(err);
+              // CSV in Backup-Ordner speichern, falls aktiviert
+              fs.writeFile('cars.csv', csv, function(err) {
+                if (err) throw err;
+                console.log('cars file saved');
+              });
+              
+            });
+            // teil-CSV fuer einzelne Wache erstellen
+  
+            
+            // CSV per Mail versenden, falls aktiviert
+                // einzelne Wachen 
+              // später löschen, wenn app_cfg.global.backup_rmld false
+            // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
+            // csv an diese Mail-Adressen per Mail senden
+              // wenn app_cfg.global.mail_rmld is true
 
-          
-          // CSV per Mail versenden, falls aktiviert
-              // einzelne Wachen 
-            // später löschen, wenn app_cfg.global.backup_rmld false
-          // Mail-Adressen fuer Wachen zu dieser Einsatz-ID ermitteln, siehe db_vmtl_get_list
-          // csv an diese Mail-Adressen per Mail senden
-            // wenn app_cfg.global.mail_rmld is true
-            db_rmld_loeschen(waip_uuid) 
+
+          });
+          // alte Rueckmeldungen loeschen
+          db_rmld_loeschen(waip_uuid);
         });
-        // Einsatz löschen
+        // alten Einsatz loeschen
         sql.db_einsatz_loeschen(waip.id);
         sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
       };
     });
 
-    // löschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
+    // loeschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
       // nur die mp3s von alten clients loeschen
       if (file.substring(0, 4) != 'bell' && file.substring(file.length - 3) == 'mp3' && file.substring(file.length - 8) != '_tmp.mp3') {
