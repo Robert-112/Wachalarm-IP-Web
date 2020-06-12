@@ -384,13 +384,12 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
             });
           };
         });
-        // FIXME: Rueckmeldung löschen, und vorher ggf. per Mail versenden  bzw. Backup speichern
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
           // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
           var arry_wachen = full_rmld.map(a => a.wache_nr);
           sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
             // db.each
-            // TODO remove alle daten aus full_rmld die nicht mit export_filter übereinstimmen (left von)
+            // FIXME remove alle daten aus full_rmld die nicht mit export_filter übereinstimmen (left von)
 
             // CSV-Spalten definieren
             var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
@@ -398,10 +397,11 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
               data: full_rmld,
               fields: csv_col
             }, function (err, csv) {
+              // TODO TEST: CSV und Mail
               if (err) {
                 sql.db_log('EXPORT', 'Fehler beim erstellen der Export-CSV: ' + err);
               } else {
-                // TODO TEST: CSV in Backup-Ordner speichern, falls aktiviert
+                // CSV in Backup-Ordner speichern, falls aktiviert
                 if (app_cfg.global.backup_rmld_to_file) {
                   // CSV Dateiname und Pfad festlegen
                   var csv_filename = full_rmld.einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
@@ -413,7 +413,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
                     };
                   });
                 };
-                // TODO CSV per Mail versenden, falls aktiviert
+                // FIXME CSV per Mail versenden, falls aktiviert
                 if (app_cfg.global.backup_rmld_to_mail) {
 
                 };
