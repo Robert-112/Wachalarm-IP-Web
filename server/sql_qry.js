@@ -854,24 +854,18 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_export_get_for_rmld(arry_wachen, callback) {
     // Wachen-Nummern um Teil-Nummern fuer Kreis und Treager ergaenzen
-
-
     var kreis = arry_wachen.map(i=> i.substr(0, 2));
     var traeger = arry_wachen.map(i=> i.substr(0, 4));
+    arry_wachen = arry_wachen.concat(kreis);
+    arry_wachen = arry_wachen.concat(traeger);
+    // doppelte Elemente aus Array entfernen
+    arry_wachen = arry_wachen.filter((v, i, a) => a.indexOf(v) === i); 
 
 
-    var hege = ["Cecilie", "Lone"];
-var stale = ["Emil", "Tobias", "Linus"];
-var children = hege.concat(stale);
-    
-    console.log(friends);
-
-    [521204, 610311]
-    [52, 5212, 521204, 61, 6103, 610301, 0]
 
 
     db.each(`select * from waip_export 
-      where `, [content],
+      where irgendwas und filte is null`, [content],
       function (err, row) {
         if (err == null && row) {
           callback && callback(row.waip_wachen_ID);
