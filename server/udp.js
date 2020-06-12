@@ -25,7 +25,7 @@ module.exports = function(app_cfg, waip, sql) {
   udp_server.on('message', function(message, remote) {
     if (isValidJSON(message)) {
       sql.db_log('WAIP', 'Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
-      waip.einsatz_speichern(message, 'udp');
+      waip.waip_speichern(message, 'udp');
     } else {
       sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote.address + ':' + remote.port + ' Fehlerhaft: ' + message);
     }

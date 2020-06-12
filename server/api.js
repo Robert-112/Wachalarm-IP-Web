@@ -30,7 +30,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         var app_id = raw_data.app_id;
         // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
         if (app_id != app_cfg.global.app_id) {
-          waip.einsatz_speichern(data, app_id);
+          waip.waip_speichern(data, app_id);
           sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data);
         };
       });
@@ -119,7 +119,7 @@ module.exports = function (io, sql, app_cfg, waip) {
       var app_id = raw_data.app_id;
       // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
       if (app_id != app_cfg.global.app_id) {
-        waip.einsatz_speichern(data);
+        waip.waip_speichern(data, app_id);
         sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + ': ' + data);
       };
     });
