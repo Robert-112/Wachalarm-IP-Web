@@ -55,9 +55,10 @@ app_cfg.endpoint = {
   secret: 'asdfwert1234567890#'
 };
 
-// Einstellungen um Schnittstellendaten von bestimmten Clients zu entfernen (Datenschutzoption)
+// Schnittstellendaten von bestimmten Clients entfernen (Datenschutzoption)
 app_cfg.filter = {
   // FIXME in api rausfiltern
+  enabled: true,
   on_message_from: ['192.168.2.20', '192.168.2.30'],
   remove_einsatzdaten: ['besonderheiten'],
   remove_ortsdaten: ['strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y']
