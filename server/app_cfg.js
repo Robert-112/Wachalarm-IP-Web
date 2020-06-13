@@ -17,10 +17,7 @@ app_cfg.global = {
   defaultuserip: '127.0.0.1',
   ip_auth_range: ['::ffff:172.16.5.0/24', '::ffff:192.168.2.0/24'],
   saltRounds: 10,
-  sessionsecret: '0987654321abcdef#xyz',
-  backup_rmld_to_mail: true,
-  backup_rmld_to_file: true,
-  backup_path: '/misc/bkp/'  
+  sessionsecret: '0987654321abcdef#xyz' 
 };
 
 // Einstellungen zur Erscheinung der Seite
@@ -37,21 +34,36 @@ app_cfg.public = {
   url_privacy: 'https://www.nix.nix/datenschutz'
 };
 
-// Daten von anderen Clients empfangen
+// Einstellungen fuer Rueckmeldungen
+app_cfg.rmld = {
+  backup_to_mail: true,
+  backup_to_file: true,
+  backup_path: '/misc/bkp/' 
+};
+
+// Socket-Schnittstelle um Daten von anderen Clients zu empfangen
 app_cfg.api = {
   enabled: true,
   secret: 'asdfwert1234567890#',
   access_list: ['192.168.2.20', '192.168.2.30']
 };
 
-// Daten an andere Server senden
+// Socket-Schnittstelle um Daten an andere Server zu senden
 app_cfg.endpoint = {
   enabled: true,
   host: 'https://192.168.1.25:8090/api',
-  secret: 'asdfwert1234567890#',
-  // FIXME in api rausfiltern
-  get_mission_type: ['Brandeinsatz', 'Hilfeleistung'],
-  get_data_type: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area']
+  secret: 'asdfwert1234567890#'
 };
+
+// Einstellungen um Daten in Socket-Schnittstelle zu filtern (Datenschutzoption)
+app_cfg.filter = {
+   // FIXME in api rausfiltern
+  send_missiontype: ['Brandeinsatz', 'Hilfeleistung'],
+  send_missiondata: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area'],
+  send_resourcedata: ['*'],
+  receive_missiontype: ['Brandeinsatz', 'Hilfeleistung'],
+  receive_missiondata: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area'],
+  receive_resourcedata: ['*'],
+};  
 
 module.exports = app_cfg;

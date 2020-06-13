@@ -388,9 +388,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
               } else {
                 // CSV Dateiname und Pfad festlegen
                 var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
-                csv_filename = process.cwd() + app_cfg.global.backup_path + csv_filename;
+                csv_filename = process.cwd() + app_cfg.rmld.backup_path + csv_filename;
                 // CSV in Backup-Ordner speichern, falls aktiviert
-                if (app_cfg.global.backup_rmld_to_file) {
+                if (app_cfg.rmld.backup_to_file) {
 
                   // CSV speichern
                   fs.writeFile(csv_filename, csv, function (err) {
