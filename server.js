@@ -37,14 +37,15 @@ app.use(bodyParser.urlencoded({
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, uuidv4, app_cfg);
+var api = '';
 var brk = require('./server/broker')(app_cfg, sql, uuidv4);
 var proof = require('./server/proof')(app_cfg, sql);
 var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg, api, proof);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
-var api = require('./server/api')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, waip, sql);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
 var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp);
+api = require('./server/api')(io, sql, app_cfg, waip);
 
 // Server starten
 webserver.listen(app_cfg.global.https_port, function () {
