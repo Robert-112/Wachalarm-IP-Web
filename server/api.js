@@ -34,24 +34,13 @@ module.exports = function (io, sql, app_cfg, waip) {
       socket.on('from_client_to_server_new_waip', function (raw_data) {
         var data = raw_data.data;
         var app_id = raw_data.app_id;
-
-        // nur speichern wenn Einsatztyp akzeptiert wird
-        if (app_cfg.filter.receive_missiontype.includes(data.einsatzdaten.art) || app_cfg.filter.receive_missiontype.length == 0) {
-          // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
-          if (app_id != app_cfg.global.app_id) {
-            // nicht erwuenschte Daten ggf. enfernen
-
-
-data.einsatzdaten
-data.ortsdaten
-
-
-
-            waip.waip_speichern(data, app_id);
-            sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data);
-          };
-        } else {
-          sql.db_log('API', 'Wachalarm von ' + remote_ip + ' abgelehnt. Einsatzart nicht erlaubt: ' + data.einsatzdaten.art);
+        // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
+        if (app_id != app_cfg.global.app_id) {
+          // nicht erwuenschte Daten ggf. enfernen
+          filter_api_data(data, remote_ip, function (data_filtered) {
+            waip.waip_speichern(data_filtered, app_id);
+            sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data_filtered);
+          });
         };
       });
 
@@ -188,6 +177,49 @@ data.ortsdaten
       sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
     };
   };
+
+  function filter_api_data(data, remote_ip, callback) {
+    // unnoetige Zeichen aus socket_id entfernen, um diese als Dateinamen zu verwenden
+    if (app_cfg.filter.enabled) {
+      // Filter nur anwenden wenn Einsatzdaten von bestimmten IP-Adressen kommen
+      if (app_cfg.filter.on_message_from.includes(remote_ip)) {
+        // Schleife definieren
+        function loop_done(waip_id) {
+          callback && callback(waip_id);
+        };
+        var itemsProcessed = 0;
+        // Einsatzmittel zum Einsatz speichern
+        app_cfg.filter.remove_data.forEach(function (item, index, array) {
+          data.einsatzdaten[item] = '';
+          data.ortsdaten[item] = '';
+          // Schleife erhoehen
+          itemsProcessed++;
+          if (itemsProcessed === array.length) {
+            // Schleife beenden
+            loop_done(id);
+          };
+        });        
+      } else {
+        callback && callback(data);
+      };
+    } else {
+      callback && callback(data);
+    };
+
+
+
+
+
+    // nur speichern wenn Einsatztyp akzeptiert wird
+    if (app_cfg.filter.receive_missiontype.includes(data.einsatzdaten.art) || app_cfg.filter.receive_missiontype.length == 0) {
+      // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
+
+    } else {
+      sql.db_log('API', 'Wachalarm von ' + remote_ip + ' abgelehnt. Einsatzart nicht erlaubt: ' + data.einsatzdaten.art);
+    };
+
+  };
+
 
   return {
     server_to_client_new_waip: server_to_client_new_waip,
