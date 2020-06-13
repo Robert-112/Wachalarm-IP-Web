@@ -60,10 +60,10 @@ app_cfg.filter = {
    // FIXME in api rausfiltern
   send_missiontype: ['Brandeinsatz', 'Hilfeleistung'],
   send_missiondata: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area'],
-  send_resourcedata: ['*'],
+  send_resourcedata: [],
   receive_missiontype: ['Brandeinsatz', 'Hilfeleistung'],
   receive_missiondata: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area'],
-  receive_resourcedata: ['*'],
+  receive_resourcedata: [],
 };  
 
 module.exports = app_cfg;

@@ -20,12 +20,12 @@ module.exports = function (io, sql, app_cfg, waip) {
       var remote_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
 
       // FIXME zulassen, aber nichts senden, ist besser
-      // Remote-Verbindung nur zulassen, wenn IP in Access-List
-      if (!app_cfg.api.access_list.includes(remote_ip);) {
+      // Remote-Verbindung nur zulassen, wenn IP in Access-List, und Access-List ueberhaupt befuellt
+      if (!app_cfg.api.access_list.includes(remote_ip) && app_cfg.api.access_list.length > 0) {
         socket.close();
         sql.db_log('API', 'Verbindung von ' + remote_ip + ' geschlossen, da nicht in Zugangsliste.');
       };
-      
+
       //TODO API: Eingehende Verbindung nur mit passendem Geheimnis zulassen, das Ergebnis loggen
 
       // in Liste der Clients mit aufnehmen
