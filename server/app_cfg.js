@@ -41,27 +41,26 @@ app_cfg.rmld = {
   backup_path: '/misc/bkp/' 
 };
 
-// Socket-Schnittstelle um Daten von anderen Clients zu empfangen
+// Schnittstelle um Daten von anderen Clients zu empfangen
 app_cfg.api = {
   enabled: true,
   secret: 'asdfwert1234567890#',
   access_list: ['192.168.2.20', '192.168.2.30']
 };
 
-// Socket-Schnittstelle um Daten an andere Server zu senden
+// Schnittstelle um Daten an andere Server zu senden
 app_cfg.endpoint = {
   enabled: true,
   host: 'https://192.168.1.25:8090/api',
   secret: 'asdfwert1234567890#'
 };
 
-// Einstellungen um Daten in Socket-Schnittstelle zu filtern (Datenschutzoption)
+// Einstellungen um Schnittstellendaten von bestimmten Clients zu entfernen (Datenschutzoption)
 app_cfg.filter = {
-   // FIXME in api rausfiltern
-  send_missiontype: ['Brandeinsatz', 'Hilfeleistung'],
-  send_missiondata: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area'],
-  receive_missiontype: ['Brandeinsatz', 'Hilfeleistung'],
-  receive_missiondata: ['uuid', 'nummer', 'alarmzeit', 'art', 'stichwort', 'sondersignal', 'ort', 'ortsteil', 'wgs84_area'],
+  // FIXME in api rausfiltern
+  on_message_from: ['192.168.2.20', '192.168.2.30'],
+  remove_einsatzdaten: ['besonderheiten'],
+  remove_ortsdaten: ['strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y']
 };  
 
 module.exports = app_cfg;
