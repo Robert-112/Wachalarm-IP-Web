@@ -2,6 +2,11 @@
   "name": "waip-web",
   "version": "0.1.2",
   "description": "Web-Version des Wachalarm-IP",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Robert-112/Wachalarm-IP-Web.git"
+  },
+  "license": "Creative Commons Attribution Share Alike 4.0 International",
   "scripts": {
     "start": "node server.js"
   },
@@ -15,6 +20,7 @@
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "json2csv": "^5.0.1",
     "npm": "^6.13.4",
     "passport": "^0.4.1",
     "passport-ip": "^0.1.2",
@@ -23,6 +29,7 @@
     "passport.socketio": "^3.7.0",
     "pug": "^2.0.4",
     "req-flash": "0.0.3",
+    "sendmail": "^1.6.1",
     "serve-favicon": "^2.5.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",

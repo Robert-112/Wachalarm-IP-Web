@@ -9,7 +9,7 @@ app_cfg.global = {
   database: './database.sqlite3',
   soundpath: '/public/media/',
   mediapath: '/media/',
-  time_to_delete_waip: 60,
+  time_to_delete_waip: 25,
   default_time_for_standby: 10,
   circumcircle: 5,
   defaultuser: 'me',
@@ -57,11 +57,9 @@ app_cfg.endpoint = {
 
 // Schnittstellendaten von bestimmten Clients entfernen (Datenschutzoption)
 app_cfg.filter = {
-  // FIXME in api rausfiltern
   enabled: true,
-  on_message_from: ['192.168.2.20', '192.168.2.30'],
-  remove_einsatzdaten: ['besonderheiten'],
-  remove_ortsdaten: ['strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y']
+  on_message_from: ['192.168.2.20', 'https://192.168.1.25:8090/api'],
+  remove_data: ['besonderheiten', 'strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y']
 };  
 
 module.exports = app_cfg;
