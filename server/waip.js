@@ -400,7 +400,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
                   });
                 };
                 // CSV per Mail versenden, falls aktiviert
-                if (app_cfg.global.backup_rmld_to_mail) {
+                if (app_cfg.rmld.backup_to_mail) {
                   // pruefen ob Mail plausibel ist
                   var validmail = /\S+@\S+\.\S+/;
                   if (validmail.test(export_data.export_recipient)) {
