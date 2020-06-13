@@ -19,7 +19,6 @@ module.exports = function (io, sql, app_cfg, waip) {
       // versuche Remote-IP zu ermitteln
       var remote_ip = socket.handshake.headers["x-real-ip"] || socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
 
-      // FIXME zulassen, aber nichts senden, ist besser
       // Remote-Verbindung nur zulassen, wenn IP in Access-List, und Access-List ueberhaupt befuellt
       if (!app_cfg.api.access_list.includes(remote_ip) && app_cfg.api.access_list.length > 0) {
         socket.close();
@@ -35,10 +34,24 @@ module.exports = function (io, sql, app_cfg, waip) {
       socket.on('from_client_to_server_new_waip', function (raw_data) {
         var data = raw_data.data;
         var app_id = raw_data.app_id;
-        // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
-        if (app_id != app_cfg.global.app_id) {
-          waip.waip_speichern(data, app_id);
-          sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data);
+
+        // nur speichern wenn Einsatztyp akzeptiert wird
+        if (app_cfg.filter.receive_missiontype.includes(data.einsatzdaten.art) || app_cfg.filter.receive_missiontype.length == 0) {
+          // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
+          if (app_id != app_cfg.global.app_id) {
+            // nicht erwuenschte Daten ggf. enfernen
+
+
+data.einsatzdaten
+data.ortsdaten
+
+
+
+            waip.waip_speichern(data, app_id);
+            sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data);
+          };
+        } else {
+          sql.db_log('API', 'Wachalarm von ' + remote_ip + ' abgelehnt. Einsatzart nicht erlaubt: ' + data.einsatzdaten.art);
         };
       });
 
