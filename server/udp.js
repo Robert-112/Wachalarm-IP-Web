@@ -1,4 +1,4 @@
-module.exports = function(app_cfg, waip, sql) {
+module.exports = function(app_cfg, waip, sql, api) {
 
   // Module laden
   var dgram = require('dgram');
@@ -25,7 +25,11 @@ module.exports = function(app_cfg, waip, sql) {
   udp_server.on('message', function(message, remote) {
     if (isValidJSON(message)) {
       sql.db_log('WAIP', 'Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
-      waip.waip_speichern(message, 'udp');
+      waip.waip_speichern(message);
+      // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
+      // TODO TEST: Api WAIP
+      api.server_to_client_new_waip(message, 'udp');
+      api.client_to_server_new_waip(message, 'udp');
     } else {
       sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote.address + ':' + remote.port + ' Fehlerhaft: ' + message);
     }

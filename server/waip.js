@@ -1,4 +1,4 @@
-module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
+module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
 
   // Module laden
   const json2csv = require('json2csv');
@@ -6,7 +6,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
     silent: true
   });
 
-  function waip_speichern(einsatz_rohdaten, app_id) {
+  function waip_speichern(einsatz_rohdaten) {
     // Einsatzmeldung in Datenbank speichern und verteilen
     proof.validate_waip(einsatz_rohdaten, function (valid) {
       if (valid) {
@@ -48,10 +48,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
             };
           });
         });
-        // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
-        // TODO TEST: Api WAIP
-        api.server_to_client_new_waip(einsatz_rohdaten, app_id);
-        api.client_to_server_new_waip(einsatz_rohdaten, app_id);
       };
     });
   };
@@ -72,7 +68,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
             einsatzdaten.wgs84_y = '';
           };
           // pruefen ob Einsatz bereits genau so beim Client angezeigt wurde (Doppelalarmierung)
-          sql.db_einsatz_check_history(waip_id, einsatzdaten, socket_id, function (result) {
+          sql.db_einsatz_check_history(waip_id, einsatzdaten, socket.id, function (result) {
             if (!result) {
               // Einsatz an Client senden
               socket.emit('io.new_waip', einsatzdaten);
@@ -101,7 +97,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
     });
   };
 
-  function rmld_speichern(rueckmeldung, host, app_id, callback) {
+  function rmld_speichern(rueckmeldung, host, callback) {
     // Rueckmeldung speichern und verteilen
     proof.validate_rmld(req.body, function (valid) {
       if (valid) {
@@ -118,9 +114,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
             callback && callback(result);
           };
         });
-        // TODO TEST: Api WAIP
-        api.server_to_client_new_rmld(rueckmeldung, app_id);
-        api.client_to_server_new_rmld(rueckmeldung, app_id);
       };
     });
   };
@@ -215,6 +208,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api, proof) {
     } else {
       var mp3_bell = process.cwd() + app_cfg.global.soundpath + 'bell_short.mp3';
     };
+    console.log(JSON.stringify(einsatzdaten));
     // Zusammensetzen der Sprachansage
     async.map(JSON.parse(einsatzdaten.em_alarmiert), sql.db_tts_einsatzmittel, function (err, einsatzmittel) {
       // Grunddaten
