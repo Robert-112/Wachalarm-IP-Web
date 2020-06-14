@@ -99,14 +99,15 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
 
   function rmld_speichern(rueckmeldung, host, callback) {
     // Rueckmeldung speichern und verteilen
-    proof.validate_rmld(req.body, function (valid) {
+    proof.validate_rmld(rueckmeldung, function (valid) {
       if (valid) {
         if (!host == null) {
           host = ' von ' + host;
         };
+        console.log(rueckmeldung);
         sql.db_rmld_save(rueckmeldung, function (result) {
           if (result) {
-            waip.rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
+            rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
             sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + result);
             callback && callback(result);
           } else {

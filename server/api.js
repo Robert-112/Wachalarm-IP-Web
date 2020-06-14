@@ -77,7 +77,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         data: data,
         app_id: app_id
       });
-      sql.db_log('API', 'Einsatz an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+      sql.db_log('API', 'Einsatz an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
     };
   };
 
@@ -92,7 +92,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         data: data,
         app_id: app_id
       });
-      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
     };
   };
 
@@ -145,7 +145,7 @@ module.exports = function (io, sql, app_cfg, waip) {
       if (app_id != app_cfg.global.app_id) {
         waip.rmld_speichern(data, app_cfg.endpoint.host, function (result) {
           if (!result) {
-            sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + app_cfg.endpoint.host + ': ' + data);
+            sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + app_cfg.endpoint.host + ': ' + JSON.stringify(data));
           };
         });
       };
@@ -163,7 +163,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         data: data,
         app_id: app_id
       });
-      sql.db_log('API', 'Neuen Wachalarm an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+      sql.db_log('API', 'Neuen Wachalarm an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
     };
   };
 
@@ -178,7 +178,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         data: data,
         app_id: app_id
       });
-      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + data);
+      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
     };
   };
 

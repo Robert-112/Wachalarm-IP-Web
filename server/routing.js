@@ -214,7 +214,6 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp,
 
   // Rueckmeldung anzeigen /rueckmeldung/waip_uuid/rmld_uuid
   app.get('/rmld/:waip_uuid/:rmld_uuid', function (req, res, next) {
-
     var waip_uuid = req.params.waip_uuid;
     var rmld_uuid = req.params.rmld_uuid;
     sql.db_einsatz_get_by_uuid(waip_uuid, function (einsatzdaten) {

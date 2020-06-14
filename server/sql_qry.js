@@ -9,7 +9,6 @@ module.exports = function (db, uuidv4, app_cfg) {
   // SQL-Abfragen
 
   function db_einsatz_speichern(content, callback) {
-    content = JSON.parse(content);
     // uuid erzeugen und zuweisen falls nicht vorhanden
     if (!content.einsatzdaten.uuid) {
       content.einsatzdaten.uuid = uuidv4();

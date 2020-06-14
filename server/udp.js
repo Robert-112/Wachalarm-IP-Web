@@ -24,6 +24,7 @@ module.exports = function(app_cfg, waip, sql, api) {
   // Warten auf Einsatzdaten
   udp_server.on('message', function(message, remote) {
     if (isValidJSON(message)) {
+      message = JSON.parse(message);
       sql.db_log('WAIP', 'Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
       waip.waip_speichern(message);
       // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
