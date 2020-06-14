@@ -333,7 +333,7 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_einsatz_get_old(minuten, callback) {
     // veraltete Einsaetze finden
-    db.each('SELECT id, uuid, einsatznummer FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\',\'-' + minuten + ' minutes\')', function (err, row) {
+    db.each('SELECT id, uuid, einsatznummer FROM waip_einsaetze WHERE zeitstempel <= datetime(\'now\', \'localtime\', \'-' + minuten + ' minutes\')', function (err, row) {
       if (err == null && row) {
         callback && callback(row);
       } else {
