@@ -839,7 +839,7 @@ module.exports = function (db, uuidv4, app_cfg) {
 
   function db_rmld_loeschen(waip_uuid) {
     // Rueckmeldungen löschen
-    db.run(`DELETE FROM waip_response WHERE waip_uuid = `, [waip_uuid]);
+    db.run(`DELETE FROM waip_response WHERE waip_uuid = ?`, [waip_uuid]);
   };
 
   function db_vmtl_get_list(waip_id, callback) {
@@ -885,7 +885,6 @@ module.exports = function (db, uuidv4, app_cfg) {
     // DEBUG
     if (app_cfg.global.development) {
       console.log('Export-Liste RMLD: ' + JSON.stringify(arry_wachen));
-      console.log(arry_wachen.join(', '));
     };
     // nur weiter machen wenn arry_wachen nicht leer, weil z.b. keine Rueckmeldungen vorhanden sind
     if (arry_wachen.length > 0) {

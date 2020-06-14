@@ -16,7 +16,7 @@ $(window).on('resize', function () {
 
 var waipAudio = document.getElementById('audio');
 
-waipAudio.addEventListener('ended', function(){
+waipAudio.addEventListener('ended', function () {
   $('.ion-md-pause').toggleClass('ion-md-play-circle');
 });
 
@@ -292,6 +292,7 @@ socket.on('io.standby', function (data) {
   $('#em_alarmiert').empty();
   $('#em_weitere').html('');
   reset_rmld();
+  recount_rmld();
   map.setView(new L.LatLng(0, 0), 14);
   // Tareset_responsebleau ausblenden
   $('#waiptableau').addClass('d-none');
@@ -443,14 +444,14 @@ socket.on('io.new_rmld', function (data) {
     var pg_waip_uuid = arrayItem.waip_uuid;
     console.log(arrayItem.waip_uuid);
     console.log(pg_waip_uuid);
-    var pg_rmld_uuid = arrayItem.rmld_uuid;    
+    var pg_rmld_uuid = arrayItem.rmld_uuid;
     var pg_start = new Date(arrayItem.set_time);
     var pg_end = new Date(arrayItem.arrival_time);
     // Progressbar hinterlegen
-    add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);  
+    add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);
     // Anzahl der Rückmeldung zählen
     recount_rmld(pg_waip_uuid);
-  }); 
+  });
   // Text anpassen
   resize_text();
 });
@@ -463,24 +464,19 @@ var counter_rmld = [];
 
 function reset_rmld(p_uuid) {
   var bar_uuid = 'bar-' + p_uuid;
-  $('#pg-ek').children().each(function(i) { 
-    console.log('ein gefunden');
-    console.log(this);
-
-    if ($(this).hasClass(bar_uuid)) {
-      console.log('hier');
-      
-      $(this).remove;
+  $('#pg-ek').children().each(function (i) {
+    if (!$(this).hasClass(bar_uuid))  {
+      $(this).remove();
     };
   });
-  $('#pg-ma').children().each(function(i) { 
+  $('#pg-ma').children().each(function (i) {
     if (!$(this).hasClass(bar_uuid)) {
-      $(this).remove;
+      $(this).remove();
     };
   });
-  $('#pg-fk').children().each(function(i) { 
+  $('#pg-fk').children().each(function (i) {
     if (!$(this).hasClass(bar_uuid)) {
-      $(this).remove;
+      $(this).remove();
     };
   });
   /*$('#pg-ek').empty();
@@ -570,39 +566,39 @@ function recount_rmld(p_uuid) {
   $('#fk-counter').text(0);
   $('#agt-counter').text(0);
   // EK zählen
-  $('#pg-ek').children().each(function(i) { 
+  $('#pg-ek').children().each(function (i) {
     if ($(this).hasClass(bar_uuid)) {
       var tmp_count = parseInt($('#ek-counter').text());
       $('#ek-counter').text(tmp_count + 1);
       if ($(this).hasClass('border-warning')) {
         agt_count++;
       };
-    };    
+    };
   });
   // MA zählen
-  $('#pg-ma').children().each(function(i) { 
+  $('#pg-ma').children().each(function (i) {
     if ($(this).hasClass(bar_uuid)) {
       var tmp_count = parseInt($('#ma-counter').text());
       $('#ma-counter').text(tmp_count + 1);
       if ($(this).hasClass('border-warning')) {
         agt_count++;
       };
-    };    
+    };
   });
   // FK zählen
-  $('#pg-fk').children().each(function(i) { 
+  $('#pg-fk').children().each(function (i) {
     if ($(this).hasClass(bar_uuid)) {
       var tmp_count = parseInt($('#fk-counter').text());
       $('#fk-counter').text(tmp_count + 1);
       if ($(this).hasClass('border-warning')) {
         agt_count++;
       };
-    };    
+    };
   });
   // AGT setzen
   $('#agt-counter').text(agt_count);
   // Rückmeldecontainer anzeigen/ausblenden
-  if ($('#ek-counter').text() == '0' && $('#ma-counter').text() == '0' &&  $('#fk-counter').text() == '0' && $('#agt-counter').text() == '0') {
+  if ($('#ek-counter').text() == '0' && $('#ma-counter').text() == '0' && $('#fk-counter').text() == '0' && $('#agt-counter').text() == '0') {
     $('#rmld_container').addClass('d-none');
   } else {
     $('#rmld_container').removeClass('d-none');
@@ -649,7 +645,7 @@ function set_clock() {
   // Easter-Egg :-)
   if (element_time == '13:37') {
     element_time = '1337'
-  };  
+  };
   // nur erneuern wenn sich Zeit geändert hat
   if ($('#time').text() !== element_time) {
     // Uhrzeit anzeigen
