@@ -67,10 +67,12 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
             einsatzdaten.wgs84_x = '';
             einsatzdaten.wgs84_y = '';
           };
+console.log(einsatzdaten, waip_id);
           // pruefen ob Einsatz bereits genau so beim Client angezeigt wurde (Doppelalarmierung)
           sql.db_einsatz_check_history(waip_id, einsatzdaten, socket.id, function (result) {
             if (!result) {
               
+console.log(einsatzdaten);
               // Einsatz an Client senden
               socket.emit('io.new_waip', einsatzdaten);
               sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet.');
@@ -432,6 +434,8 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
         sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
       };
     });
+		
+		// FIXME beraltete hispry löschen
 
     // loeschen alter Sounddaten nach alter (15min) und socket-id (nicht mehr verbunden)
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {

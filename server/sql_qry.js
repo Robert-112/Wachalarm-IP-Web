@@ -147,16 +147,16 @@ module.exports = function (db, uuidv4, app_cfg) {
   };
 
   function db_einsatz_check_history(waip_id, missiondata, socket_id, callback) {
-    console.log(missiondata);
+    //console.log(missiondata);
     // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde (Doppelalarmierung vermeiden)
     const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'
     // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
     var uuid_em_alarmiert = uuidv5(JSON.stringify(missiondata.em_alarmiert), custom_namespace);
-    delete missiondata.em_alarmiert;
+    //delete missiondata.em_alarmiert;
     var uuid_em_weitere = uuidv5(JSON.stringify(missiondata.em_weitere), custom_namespace);
-    delete missiondata.em_weitere;
-    var uuid_einsatzdaten = uuidv5(JSON.stringify(misstiondata), custom_namespace);
-    console.log(missiondata);
+    //delete missiondata.em_weitere;
+    var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace);
+    //console.log(missiondata);
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
       if (err == null && row) {
