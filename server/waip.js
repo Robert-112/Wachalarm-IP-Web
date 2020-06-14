@@ -70,6 +70,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
           // pruefen ob Einsatz bereits genau so beim Client angezeigt wurde (Doppelalarmierung)
           sql.db_einsatz_check_history(waip_id, einsatzdaten, socket.id, function (result) {
             if (!result) {
+              
               // Einsatz an Client senden
               socket.emit('io.new_waip', einsatzdaten);
               sql.db_log('WAIP', 'Einsatz ' + waip_id + ' fuer Wache ' + wachen_nr + ' an Socket ' + socket.id + ' gesendet.');
