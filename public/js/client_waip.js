@@ -420,6 +420,7 @@ socket.on('io.new_waip', function (data) {
 socket.on('io.new_rmld', function (data) {
   // DEBUG
   console.log(data);
+  // FIXME  Änderung des Funktions-Typ berücksichtigen
   // Neue Rueckmeldung hinterlegen
   data.forEach(function (arrayItem) {
     // HTML festlegen
@@ -463,7 +464,12 @@ var counter_rmld = [];
 function reset_rmld(p_uuid) {
   var bar_uuid = 'bar-' + p_uuid;
   $('#pg-ek').children().each(function(i) { 
-    if (!$(this).hasClass(bar_uuid)) {
+    console.log('ein gefunden');
+    console.log(this);
+
+    if ($(this).hasClass(bar_uuid)) {
+      console.log('hier');
+      
       $(this).remove;
     };
   });

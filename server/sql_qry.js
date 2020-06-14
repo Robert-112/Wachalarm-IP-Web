@@ -171,13 +171,13 @@ module.exports = function (db, uuidv4, app_cfg) {
     console.log(uuid_em_weitere);
     console.log(uuid_einsatzdaten);
     // FIXME fertigstellen
-    
+
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
       if (err == null && row) {
-        
+
         console.log(waip_id);
-          console.log(socket_id);
+        console.log(socket_id);
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
           // Grunddaten oder alarmierte Einsatzmittel haben sich verändert, somit History veraltet und neue Alarmierung notwendig
@@ -882,20 +882,24 @@ module.exports = function (db, uuidv4, app_cfg) {
     arry_wachen = arry_wachen.concat(traeger);
     // doppelte Elemente aus Array entfernen
     arry_wachen = arry_wachen.filter((v, i, a) => a.indexOf(v) === i);
-    // Leer-String hinzufuegen, um auch Export-Eintraege ohne Filter zu beruecksichtigen
-    arry_wachen.push("");
     // DEBUG
     if (app_cfg.global.development) {
       console.log('Export-Liste RMLD: ' + JSON.stringify(arry_wachen));
+      console.log(arry_wachen.join(', '));
     };
-    // Export-Liste auslesen
-    db.each(`select * from waip_export where export_typ like \'rmld\' and export_filter IN (` + arry_wachen.join(', ') + ` )`, function (err, row) {
-      if (err == null && row) {
-        callback && callback(row);
-      } else {
-        callback && callback(null);
-      };
-    });
+    // nur weiter machen wenn arry_wachen nicht leer, weil z.b. keine Rueckmeldungen vorhanden sind
+    if (arry_wachen.length > 0) {
+      // Export-Liste auslesen
+      db.each(`select * from waip_export where export_typ like \'rmld\' and (export_filter IN (` + arry_wachen.join(', ') + `) or export_filter like \'\')`, function (err, row) {
+        if (err == null && row) {
+          callback && callback(row);
+        } else {
+          callback && callback(null);
+        };
+      });
+    } else {
+      callback && callback(null);
+    };
   };
 
   return {
