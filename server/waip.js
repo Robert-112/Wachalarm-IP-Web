@@ -208,7 +208,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
     } else {
       var mp3_bell = process.cwd() + app_cfg.global.soundpath + 'bell_short.mp3';
     };
-    console.log(JSON.stringify(einsatzdaten));
     // Zusammensetzen der Sprachansage
     async.map(JSON.parse(einsatzdaten.em_alarmiert), sql.db_tts_einsatzmittel, function (err, einsatzmittel) {
       // Grunddaten

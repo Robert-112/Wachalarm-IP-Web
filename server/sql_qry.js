@@ -216,7 +216,7 @@ module.exports = function (db, uuidv4, app_cfg) {
             SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?
             ) || ' minutes', 'localtime') ablaufzeit,
           e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
-          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, e.wgs84_area, em1.EM_ALARMIERT, em0.EM_WEITERE
+          e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE, e.wgs84_area
           FROM WAIP_EINSAETZE e
           LEFT JOIN (
             SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_alarmiert
