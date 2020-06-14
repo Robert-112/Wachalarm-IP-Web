@@ -370,8 +370,8 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
           sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
             // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
             console.log('exportfilter');
-            
-            console.log(export_data.export_filter);
+            // FIXME
+            console.log(export_data);
             var part_rmld = full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
             // CSV-Spalten definieren
             var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];

@@ -9,10 +9,6 @@ module.exports = function (db, uuidv4, app_cfg) {
   // SQL-Abfragen
 
   function db_einsatz_speichern(content, callback) {
-    // uuid erzeugen und zuweisen falls nicht vorhanden
-    if (!content.einsatzdaten.uuid) {
-      content.einsatzdaten.uuid = uuidv4();
-    };
     // Polygon erzeugen und zuweisen falls nicht vorhanden
     if (!content.ortsdaten.wgs84_area) {
       var wgs_x = parseFloat(content.ortsdaten.wgs84_x);
@@ -32,9 +28,18 @@ module.exports = function (db, uuidv4, app_cfg) {
       })
       content.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
     };
-    // Einsatzdaten verarbeiten
-    db.serialize(function () {
-      // Einsatzdaten speichern
+    // pruefen, ob vielleicht schon ein Einsatz mit einer UUID gespeichert ist
+    db.get('select uuid from waip_einsaetze where einsatznummer like ?', [content.einsatzdaten.nummer], function (err, row) {
+      if (err == null && row) {
+        // wenn Einsatz mit UUID vorhanden, dann setzten
+        content.einsatzdaten.uuid = row.uuid;
+      } else {
+        // uuid erzeugen und zuweisen falls nicht vorhanden
+        if (!content.einsatzdaten.uuid) {
+          content.einsatzdaten.uuid = uuidv4();
+        };
+      };
+      // Einsatzdaten verarbeiten
       db.run(`INSERT OR REPLACE INTO waip_einsaetze (
         id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
         VALUES (
@@ -149,16 +154,30 @@ module.exports = function (db, uuidv4, app_cfg) {
     // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde (Doppelalarmierung vermeiden)
     const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'
     // neues Object mit Einsatzdaten erstellen
-    var missiondata = Object.assign({}, einsatzdaten);    
+    var missiondata = Object.assign({}, einsatzdaten);
     // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
     var uuid_em_alarmiert = uuidv5(JSON.stringify(missiondata.em_alarmiert), custom_namespace);
     delete missiondata.em_alarmiert;
     var uuid_em_weitere = uuidv5(JSON.stringify(missiondata.em_weitere), custom_namespace);
     delete missiondata.em_weitere;
+    delete missiondata.zeitstempel;
+    delete missiondata.ablaufzeit;
+    delete missiondata.wgs84_x;
+    delete missiondata.wgs84_y;
+    delete missiondata.wgs84_area;
+    console.log(missiondata);
     var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace);
+    console.log(uuid_em_alarmiert);
+    console.log(uuid_em_weitere);
+    console.log(uuid_einsatzdaten);
+    // FIXME fertigstellen
+    
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
       if (err == null && row) {
+        
+        console.log(waip_id);
+          console.log(socket_id);
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
           // Grunddaten oder alarmierte Einsatzmittel haben sich verändert, somit History veraltet und neue Alarmierung notwendig
@@ -729,7 +748,6 @@ module.exports = function (db, uuidv4, app_cfg) {
   function db_rmld_get_fuer_wache(waip_einsaetze_id, wachen_nr, callback) {
     // Rueckmeldungen fuer eine Wache auslesen
     db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
-      console.log(rows);
       if (err == null && rows) {
         // temporaere Variablen
         var itemsProcessed = 0;
