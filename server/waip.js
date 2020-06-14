@@ -154,9 +154,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
 
   function rmld_verteilen_for_one_client(waip_id, socket, wachen_id) {
     // Rueckmeldung an einen bestimmten Client senden
-    if (typeof socket !== 'undefined') {
+    if (typeof socket.id !== 'undefined') {
       sql.db_rmld_get_fuer_wache(waip_id, wachen_id, function (rmld_obj) {
-        if (rmld_obj) {
+        if (rmld_obj) {          
           // Rueckmeldung nur an den einen Socket senden
           socket.emit('io.new_rmld', rmld_obj);
           sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket.id + ' gesendet.');

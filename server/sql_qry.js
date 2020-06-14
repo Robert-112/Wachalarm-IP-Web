@@ -729,6 +729,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   function db_rmld_get_fuer_wache(waip_einsaetze_id, wachen_nr, callback) {
     // Rueckmeldungen fuer eine Wache auslesen
     db.all(`SELECT * FROM waip_response WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [waip_einsaetze_id], function (err, rows) {
+      console.log(rows);
       if (err == null && rows) {
         // temporaere Variablen
         var itemsProcessed = 0;
