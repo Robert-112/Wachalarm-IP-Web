@@ -122,8 +122,8 @@ module.exports = function (db, uuidv4, app_cfg) {
       	GROUP BY em.waip_einsaetze_id
       	ORDER BY em.waip_einsaetze_id DESC
     	)
-      WHERE DATETIME(zeitstempel,	\'+\' || ` + select_reset_counter + ` || \' minutes\')
-      	> DATETIME(\'now\')`, [wachen_id],
+      WHERE DATETIME(zeitstempel, \'+\' || ` + select_reset_counter + ` || \' minutes\')
+      	> DATETIME(\'now\', \'localtime\')`, [wachen_id],
       function (err, rows) {
         if (err == null && rows.length > 0) {
           //callback && callback(row.waip_einsaetze_ID); ALT
@@ -212,10 +212,10 @@ module.exports = function (db, uuidv4, app_cfg) {
         db.get(`SELECT
           e.id,
           e.uuid,
-          DATETIME(e.zeitstempel, 'localtime') zeitstempel,
+          DATETIME(e.zeitstempel) zeitstempel,
         	DATETIME(e.zeitstempel,	'+' || (
             SELECT COALESCE(MAX(reset_counter), ?) reset_counter FROM waip_user_config WHERE user_id = ?
-            ) || ' minutes', 'localtime') ablaufzeit,
+            ) || ' minutes') ablaufzeit,
           e.EINSATZART, e.STICHWORT, e.SONDERSIGNAL, e.OBJEKT, e.ORT,e.ORTSTEIL, e.STRASSE,
           e.BESONDERHEITEN, e.wgs84_x, e.wgs84_y, em1.EM_ALARMIERT, em0.EM_WEITERE, e.wgs84_area
           FROM WAIP_EINSAETZE e
@@ -473,7 +473,7 @@ module.exports = function (db, uuidv4, app_cfg) {
       \'` + user_name + `\',
       \'` + user_permissions + `\',
       \'` + user_agent + `\',
-      (select DATETIME(zeitstempel,\'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\'));`);
+      (select DATETIME(zeitstempel, \'+\' || ` + reset_timestamp + ` || \' minutes\') from waip_einsaetze where id =\'` + client_status + `\'));`);
   };
 
   function db_client_get_connected(callback) {
@@ -566,7 +566,7 @@ module.exports = function (db, uuidv4, app_cfg) {
   function db_socket_get_all_to_standby(callback) {
     // alle Sockets/Clients finden, die auf Standby gesetzt werden koennen 
     db.all(`select socket_id from waip_clients
-      where reset_timestamp < DATETIME(\'now\')`, function (err, rows) {
+      where reset_timestamp < DATETIME(\'now\', \'localtime\')`, function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
