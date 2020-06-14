@@ -425,7 +425,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
             });
           });
           // alte Rueckmeldungen loeschen
-          db_rmld_loeschen(waip_uuid);
+          sql.db_rmld_loeschen(waip_uuid);
         });
         // alten Einsatz loeschen
         sql.db_einsatz_loeschen(waip.id);
