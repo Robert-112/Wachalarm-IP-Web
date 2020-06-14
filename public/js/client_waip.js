@@ -595,6 +595,12 @@ function recount_rmld(p_uuid) {
   });
   // AGT setzen
   $('#agt-counter').text(agt_count);
+  // Rückmeldecontainer anzeigen/ausblenden
+  if ($('#ek-counter').text() == '0' && $('#ma-counter').text() == '0' &&  $('#fk-counter').text() == '0' && $('#agt-counter').text() == '0') {
+    $('#rmld_container').addClass('d-none');
+  } else {
+    $('#rmld_container').removeClass('d-none');
+  };
 };
 
 /* ########################### */

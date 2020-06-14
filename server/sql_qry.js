@@ -396,7 +396,7 @@ module.exports = function (db, uuidv4, app_cfg) {
           });
         };
         if (len == 4) {
-          db.get('select \'4\' length, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis like SUBSTR(?,-4, 2) and nr_traeger like SUBSTR(?,-2, 2) group by name_traeger LIMIT 1', [content, content], function (err, row) {
+          db.get('select \'4\' length, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis like SUBSTR(?,-4, 2) and nr_traeger like SUBSTR(?,-2, 2) group by name_traeger LIMIT 1', [wachen_nr, wachen_nr], function (err, row) {
             if (err == null && row) {
               callback && callback(row);
             } else {
