@@ -663,7 +663,7 @@ $(document).ready(function () {
     $('.clock_y').css('left', newq[1]);
     // langsam verschieben
     animateDiv();
-  }, 500);
+  }, 1000);
 });
 
 // neue Random-Position fuer Uhrzeit ermitteln

@@ -55,8 +55,6 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp,
     next(err);
   });
 
-
-
   /* ##################### */
   /* ####### Login ####### */
   /* ##################### */
