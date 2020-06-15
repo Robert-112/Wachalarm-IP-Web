@@ -1,4 +1,4 @@
-module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
+module.exports = function (io, sql, fs, brk, async, app_cfg) {
 
   // Module laden
   const json2csv = require('json2csv');
@@ -6,52 +6,47 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
     silent: true
   });
 
-  function waip_speichern(einsatz_rohdaten) {
+  function waip_speichern(einsatz_daten) {
     // Einsatzmeldung in Datenbank speichern und verteilen
-    proof.validate_waip(einsatz_rohdaten, function (valid) {
-      if (valid) {
-        // Einsatzmeldung (JSON) speichern
-        sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
-          sql.db_log('DEBUG', 'Neuen Einsatz mit der ID ' + waip_id + ' gespeichert.');
+    sql.db_einsatz_speichern(einsatz_daten, function (waip_id) {
+      sql.db_log('DEBUG', 'Neuen Einsatz mit der ID ' + waip_id + ' gespeichert.');
 
-  // FIXME hier ungewollte Einsaetze ggf. wieder loeschen
+// FIXME hier ungewollte Einsaetze ggf. wieder loeschen
 
-          // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
-          sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
-            if (socket_rooms) {
-              socket_rooms.forEach(function (rooms) {
-                // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
-                var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];
-                if (typeof room_sockets !== 'undefined') {
-                  Object.keys(room_sockets.sockets).forEach(function (socket_id) {
-                    var socket = io.of('/waip').connected[socket_id];
-                    waip_verteilen(waip_id, socket, rooms.room);
-                    sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
-                  });
-                };
+      // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
+      sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
+        if (socket_rooms) {
+          socket_rooms.forEach(function (rooms) {
+            // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
+            var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];
+            if (typeof room_sockets !== 'undefined') {
+              Object.keys(room_sockets.sockets).forEach(function (socket_id) {
+                var socket = io.of('/waip').connected[socket_id];
+                waip_verteilen(waip_id, socket, rooms.room);
+                sql.db_log('WAIP', 'Einsatz ' + waip_id + ' wird an ' + socket.id + ' (' + rooms.room + ') gesendet');
               });
-            } else {
-              // wenn kein Raum (keine Wache) in der DB hinterlegt ist, dann Einsatz direkt wieder loeschen
-              sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden! Einsatz wird gelöscht!');
-              sql.db_einsatz_loeschen(waip_id);
             };
           });
-          // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja: Rueckmeldungs-Link senden
-          sql.db_vmtl_get_list(waip_id, function (list) {
-            if (list) {
-              brk.alert_vmtl_list(list, function (result) {
-                if (!result) {
-                  sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
-                } else {
-                  sql.db_log('VMTL', 'Fehler beim senden des Links zur Einsatz-Rueckmeldung an die Vermittler-Liste: ' + result);
-                };
-              });
+        } else {
+          // wenn kein Raum (keine Wache) in der DB hinterlegt ist, dann Einsatz direkt wieder loeschen
+          sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden! Einsatz wird gelöscht!');
+          sql.db_einsatz_loeschen(waip_id);
+        };
+      });
+      // pruefen ob für die beteiligten Wachen eine Verteiler-Liste hinterlegt ist, falls ja: Rueckmeldungs-Link senden
+      sql.db_vmtl_get_list(waip_id, function (list) {
+        if (list) {
+          brk.alert_vmtl_list(list, function (result) {
+            if (!result) {
+              sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
             } else {
-              sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
+              sql.db_log('VMTL', 'Fehler beim senden des Links zur Einsatz-Rueckmeldung an die Vermittler-Liste: ' + result);
             };
           });
-        });
-      };
+        } else {
+          sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
+        };
+      });
     });
   };
 

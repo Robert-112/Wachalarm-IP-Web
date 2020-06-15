@@ -13,7 +13,7 @@ module.exports = function (app_cfg, sql, saver) {
 
   // Warten auf Einsatzdaten
   udp_server.on('message', function (message, remote) {
-    saver.save_new_waip(message, 'udp')
+    saver.save_new_waip(message, remote.address + ':' + remote.port, 'udp')
   });
 
   // UDP-Daten senden

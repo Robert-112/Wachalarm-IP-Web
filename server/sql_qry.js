@@ -1,7 +1,6 @@
-module.exports = function (db, uuidv4, app_cfg) {
+module.exports = function (db, app_cfg) {
 
   // Module laden
-  const turf = require('@turf/turf');
   const {
     v5: uuidv5
   } = require('uuid');
@@ -9,71 +8,40 @@ module.exports = function (db, uuidv4, app_cfg) {
   // SQL-Abfragen
 
   function db_einsatz_speichern(content, callback) {
-    // Polygon erzeugen und zuweisen falls nicht vorhanden
-    if (!content.ortsdaten.wgs84_area) {
-      var wgs_x = parseFloat(content.ortsdaten.wgs84_x);
-      var wgs_y = parseFloat(content.ortsdaten.wgs84_y);
-      var point = turf.point([wgs_y, wgs_x]);
-      var buffered = turf.buffer(point, 1, {
-        steps: app_cfg.global.circumcircle,
-        units: 'kilometers'
-      });
-      var bbox = turf.bbox(buffered);
-      var new_point = turf.randomPoint(1, {
-        bbox: bbox
-      });
-      var new_buffer = turf.buffer(new_point, 1, {
-        steps: app_cfg.global.circumcircle,
-        units: 'kilometers'
-      })
-      content.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
-    };
-    // pruefen, ob vielleicht schon ein Einsatz mit einer UUID gespeichert ist
-    db.get('select uuid from waip_einsaetze where einsatznummer like ?', [content.einsatzdaten.nummer], function (err, row) {
-      if (err == null && row) {
-        // wenn Einsatz mit UUID vorhanden, dann setzten
-        content.einsatzdaten.uuid = row.uuid;
-      } else {
-        // FIXME UUID schon vor dem weiterleiten setzen
-        // uuid erzeugen und zuweisen falls nicht vorhanden
-        if (!content.einsatzdaten.uuid) {
-          content.einsatzdaten.uuid = uuidv4();
-        };
-      };
-      // Einsatzdaten verarbeiten
-      db.run(`INSERT OR REPLACE INTO waip_einsaetze (
-        id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
-        VALUES (
-        (select ID from waip_einsaetze where einsatznummer like \'` + content.einsatzdaten.nummer + `\'),
-        \'` + content.einsatzdaten.uuid + `\',
-        \'` + content.einsatzdaten.nummer + `\',
-        \'` + content.einsatzdaten.alarmzeit + `\',
-        \'` + content.einsatzdaten.art + `\',
-        \'` + content.einsatzdaten.stichwort + `\',
-        \'` + content.einsatzdaten.sondersignal + `\',
-        \'` + content.einsatzdaten.besonderheiten + `\',
-        \'` + content.ortsdaten.ort + `\',
-        \'` + content.ortsdaten.ortsteil + `\',
-        \'` + content.ortsdaten.strasse + `\',
-        \'` + content.ortsdaten.objekt + `\',
-        \'` + content.ortsdaten.objektnr + `\',
-        \'` + content.ortsdaten.objektart + `\',
-        \'` + content.ortsdaten.wachfolge + `\',
-        \'` + content.ortsdaten.wgs84_x + `\',
-        \'` + content.ortsdaten.wgs84_y + `\',
-        \'` + content.ortsdaten.wgs84_area + `\')`,
-        function (err) {
-          if (err == null) {
-            // letzte Einsatz-ID ermitteln
-            var id = this.lastID;
-            // Schleife definieren
-            function loop_done(waip_id) {
-              callback && callback(waip_id);
-            };
-            var itemsProcessed = 0;
-            // Einsatzmittel zum Einsatz speichern
-            content.alarmdaten.forEach(function (item, index, array) {
-              db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
+    // Einsatzdaten verarbeiten
+    db.run(`INSERT OR REPLACE INTO waip_einsaetze (
+      id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
+      VALUES (
+      (select ID from waip_einsaetze where einsatznummer like \'` + content.einsatzdaten.nummer + `\'),
+      \'` + content.einsatzdaten.uuid + `\',
+      \'` + content.einsatzdaten.nummer + `\',
+      \'` + content.einsatzdaten.alarmzeit + `\',
+      \'` + content.einsatzdaten.art + `\',
+      \'` + content.einsatzdaten.stichwort + `\',
+      \'` + content.einsatzdaten.sondersignal + `\',
+      \'` + content.einsatzdaten.besonderheiten + `\',
+      \'` + content.ortsdaten.ort + `\',
+      \'` + content.ortsdaten.ortsteil + `\',
+      \'` + content.ortsdaten.strasse + `\',
+      \'` + content.ortsdaten.objekt + `\',
+      \'` + content.ortsdaten.objektnr + `\',
+      \'` + content.ortsdaten.objektart + `\',
+      \'` + content.ortsdaten.wachfolge + `\',
+      \'` + content.ortsdaten.wgs84_x + `\',
+      \'` + content.ortsdaten.wgs84_y + `\',
+      \'` + content.ortsdaten.wgs84_area + `\')`,
+      function (err) {
+        if (err == null) {
+          // letzte Einsatz-ID ermitteln
+          var id = this.lastID;
+          // Schleife definieren
+          function loop_done(waip_id) {
+            callback && callback(waip_id);
+          };
+          var itemsProcessed = 0;
+          // Einsatzmittel zum Einsatz speichern
+          content.alarmdaten.forEach(function (item, index, array) {
+            db.run(`INSERT OR REPLACE INTO waip_einsatzmittel (id, waip_einsaetze_ID, waip_wachen_ID, wachenname, einsatzmittel, zeitstempel)
               VALUES (
               (select ID from waip_einsatzmittel where einsatzmittel like \'` + item.einsatzmittel + `\'),
               \'` + id + `\',
@@ -81,24 +49,23 @@ module.exports = function (db, uuidv4, app_cfg) {
               \'` + item.wachenname + `\',
               \'` + item.einsatzmittel + `\',
               \'` + item.zeit_a + `\')`,
-                function (err) {
-                  if (err == null) {
-                    // Schleife erhoehen
-                    itemsProcessed++;
-                    if (itemsProcessed === array.length) {
-                      // Schleife beenden
-                      loop_done(id);
-                    };
-                  } else {
-                    callback && callback(err);
+              function (err) {
+                if (err == null) {
+                  // Schleife erhoehen
+                  itemsProcessed++;
+                  if (itemsProcessed === array.length) {
+                    // Schleife beenden
+                    loop_done(id);
                   };
-                });
-            });
-          } else {
-            callback && callback(err);
-          };
-        });
-    });
+                } else {
+                  callback && callback(err);
+                };
+              });
+          });
+        } else {
+          callback && callback(err);
+        };
+      });
   };
 
   function db_einsatz_ermitteln(wachen_id, socket, callback) {

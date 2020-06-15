@@ -36,13 +36,12 @@ app.use(bodyParser.urlencoded({
 
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
-var sql = require('./server/sql_qry')(sql_cfg, uuidv4, app_cfg);
+var sql = require('./server/sql_qry')(sql_cfg, app_cfg);
 var brk = require('./server/broker')(app_cfg, sql, uuidv4);
-var proof = require('./server/proof')(app_cfg, sql);
-var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg, proof);
+var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var api = require('./server/api')(io, sql, app_cfg, waip);
-var saver = require('./server/proof')(app_cfg, sql, waip, api, uuidv4);
+var saver = require('./server/saver')(app_cfg, sql, waip, api, uuidv4);
 var udp = require('./server/udp')(app_cfg, sql, saver);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
 var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp, saver);
