@@ -165,19 +165,11 @@ module.exports = function (db, uuidv4, app_cfg) {
     delete missiondata.wgs84_x;
     delete missiondata.wgs84_y;
     delete missiondata.wgs84_area;
-    console.log(missiondata);
     var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace);
-    console.log(uuid_em_alarmiert);
-    console.log(uuid_em_weitere);
-    console.log(uuid_einsatzdaten);
-    // FIXME fertigstellen
-
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
+      // FIXME Testen
       if (err == null && row) {
-
-        console.log(waip_id);
-        console.log(socket_id);
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
           // Grunddaten oder alarmierte Einsatzmittel haben sich verändert, somit History veraltet und neue Alarmierung notwendig
