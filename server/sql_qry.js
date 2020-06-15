@@ -34,6 +34,7 @@ module.exports = function (db, uuidv4, app_cfg) {
         // wenn Einsatz mit UUID vorhanden, dann setzten
         content.einsatzdaten.uuid = row.uuid;
       } else {
+        // FIXME UUID schon vor dem weiterleiten setzen
         // uuid erzeugen und zuweisen falls nicht vorhanden
         if (!content.einsatzdaten.uuid) {
           content.einsatzdaten.uuid = uuidv4();
