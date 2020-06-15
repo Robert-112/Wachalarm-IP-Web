@@ -50,7 +50,7 @@ module.exports = function (io, sql, app_cfg, saver) {
         var app_id = raw_data.app_id;
         // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
         if (app_id != app_cfg.global.app_id) {
-          waip.rmld_speichern(data, remote_ip, function (result) {
+          saver.save_new_rmld(data, remote_ip, app_id, function (result) {
             if (!result) {
               sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + remote_ip + ': ' + data);
             };
@@ -143,7 +143,7 @@ module.exports = function (io, sql, app_cfg, saver) {
       var app_id = raw_data.app_id;
       // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
       if (app_id != app_cfg.global.app_id) {
-        waip.rmld_speichern(data, app_cfg.endpoint.host, function (result) {
+        saver.save_new_rmld(data, app_cfg.endpoint.host, app_id, function (result) {
           if (!result) {
             sql.db_log('API', 'Fehler beim speichern der Rückmeldung von ' + app_cfg.endpoint.host + ': ' + JSON.stringify(data));
           };

@@ -11,7 +11,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api) {
     sql.db_einsatz_speichern(einsatz_daten, function (waip_id) {
       sql.db_log('DEBUG', 'Neuen Einsatz mit der ID ' + waip_id + ' gespeichert.');
 
-// FIXME hier ungewollte Einsaetze ggf. wieder loeschen
+      // FIXME hier ungewollte Einsaetze ggf. wieder loeschen
 
       // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
       sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
@@ -99,29 +99,19 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api) {
     });
   };
 
-  function rmld_speichern(rueckmeldung, host, callback) {
+  function rmld_speichern(rueckmeldung, app_id, callback) {
     // Rueckmeldung speichern und verteilen
-    proof.validate_rmld(rueckmeldung, function (valid) {
-      if (valid) {
-        if (!host == null) {
-          host = ' von ' + host;
-        };
-        console.log(rueckmeldung);
-        sql.db_rmld_save(rueckmeldung, function (result) {
-          if (result) {
-            rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
-            sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + result);
-            callback && callback(result);
-          } else {
-            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung' + host + ': ' + rueckmeldung);
-            callback && callback(result);
-          };
-        });
+    sql.db_rmld_save(rueckmeldung, function (saved) {
+      if (saved) {
+        rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
+        callback && callback(saved);
+      } else {
+        callback && callback(saved);
       };
     });
     // TODO TEST: Api WAIP
-    api.server_to_client_new_rmld(req.body, 'web');
-    api.client_to_server_new_rmld(req.body, 'web');
+    api.server_to_client_new_rmld(req.body, app_id);
+    api.client_to_server_new_rmld(req.body, app_id);
   };
 
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
@@ -161,7 +151,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, api) {
     // Rueckmeldung an einen bestimmten Client senden
     if (typeof socket.id !== 'undefined') {
       sql.db_rmld_get_fuer_wache(waip_id, wachen_id, function (rmld_obj) {
-        if (rmld_obj) {          
+        if (rmld_obj) {
           // Rueckmeldung nur an den einen Socket senden
           socket.emit('io.new_rmld', rmld_obj);
           sql.db_log('RMLD', 'Vorhandene Rückmeldungen an Socket ' + socket.id + ' gesendet.');

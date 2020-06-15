@@ -61,14 +61,19 @@ module.exports = function (app_cfg, sql, waip, uuidv4) {
   function save_new_rmld(data, remote_addr, app_id, callback) {
     validate_rmld(data, function (valid) {
       if (valid) {
-
+        waip.rmld_speichern(data, app_id, function (result) {
+          if (result) {
+            sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + data);
+            callback && callback(result);
+          } else {
+            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung' + host + ': ' + rueckmeldung);
+            callback && callback(result);
+          };
+        });
       } else {
-        sql.db_log('RMLD', 'Fehler: Rückmeldung von nicht valide: ' + waip_data);
+        sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + waip_data);
       };
     });
-
-
-
   };
 
   // Funktion um zu pruefen, ob Nachricht im JSON-Format ist
