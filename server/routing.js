@@ -1,4 +1,4 @@
-module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp, api) {
+module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver) {
 
   /* ########################### */
   /* ##### Statische Seiten #### */
@@ -244,7 +244,8 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp,
 
   // Rueckmeldung entgegennehmen
   app.post('/rmld/:waip_uuid/:rmld_uuid', function (req, res) {
-    waip.rmld_speichern(req.body, null, function (result) {
+    // auf Saver verweisen
+    saver.save_new_rmld(req.body, null, 'web', function (result) {
       var waip_uuid = req.body.waip_uuid;
       var rmld_uuid = req.body.rmld_uuid;
       if (result) {
@@ -254,9 +255,6 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, waip, udp,
         req.flash('errorMessage', 'Fehler beim Senden der Rückmeldung!');
         res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
       };
-      // TODO TEST: Api WAIP
-      api.server_to_client_new_rmld(req.body, 'web');
-      api.client_to_server_new_rmld(req.body, 'web');
     });
   });
 

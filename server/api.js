@@ -1,4 +1,4 @@
-module.exports = function (io, sql, app_cfg, waip) {
+module.exports = function (io, sql, app_cfg, saver) {
 
   // Module laden
   const io_api = require('socket.io-client');
@@ -38,7 +38,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         if (app_id != app_cfg.global.app_id) {
           // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
           filter_api_data(data, remote_ip, function (data_filtered) {
-            waip.waip_speichern(data_filtered, app_id);
+            saver.save_new_waip(data_filtered, remote_ip, app_id);
             sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data_filtered);
           });
         };
@@ -131,7 +131,7 @@ module.exports = function (io, sql, app_cfg, waip) {
         // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
         app_cfg.endpoint.host
         filter_api_data(data, app_cfg.endpoint.host, function (data_filtered) {
-          waip.waip_speichern(data_filtered, app_id);
+          saver.save_new_waip(data_filtered, app_cfg.endpoint.host, app_id);
           sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + ': ' + data_filtered);
         });
       };

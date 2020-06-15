@@ -1,4 +1,4 @@
-module.exports = function (app_cfg, sql, waip, api, uuidv4) {
+module.exports = function (app_cfg, sql, waip, uuidv4) {
 
   // Module laden
   const turf = require('@turf/turf');
@@ -40,34 +40,32 @@ module.exports = function (app_cfg, sql, waip, api, uuidv4) {
               // wenn ein Einsatz mit UUID schon vorhanden ist, dann diese setzten / ueberschreiben
               content.einsatzdaten.uuid = row.uuid;
             } else {
-              // uuid erzeugen und zuweisen falls nicht bereits in JSON vorhanden
-              if (!content.einsatzdaten.uuid) {
+              // uuid erzeugen und zuweisen falls nicht bereits in JSON vorhanden, oder falls keine korrekte uuid
+              if (!content.einsatzdaten.uuid || !uuid_pattern.test(content.einsatzdaten.uuid) {
                 content.einsatzdaten.uuid = uuidv4();
               };
             };
             // Einsatz in DB Speichern
-            waip.waip_speichern(waip_data);
-            sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ': ' + waip_data);
-            // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
-            // TODO TEST: Api WAIP
-            api.server_to_client_new_waip(waip_data, app_id);
-            api.client_to_server_new_waip(waip_data, app_id);
+            waip.waip_speichern(waip_data, app_id);
+            sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + waip_data);            
           });
         } else {
-          sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote_addr + ' nicht valide: ' + waip_data);
+          sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' nicht valide: ' + waip_data);
         };
       });
     } else {
-      sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote_addr + ' Fehlerhaft: ' + waip_data);
+      sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' Fehlerhaft: ' + waip_data);
     };
   };
 
-  function save_new_rmld(data, app_id) {
+  function save_new_rmld(data, remote_addr, app_id, callback) {
+    validate_rmld(data, function (valid) {
+      if (valid) {
 
-
-    // TODO TEST: Api WAIP
-    api.server_to_client_new_rmld(req.body, 'web');
-    api.client_to_server_new_rmld(req.body, 'web');
+      } else {
+        sql.db_log('RMLD', 'Fehler: Rückmeldung von nicht valide: ' + waip_data);
+      };
+    });
 
 
 

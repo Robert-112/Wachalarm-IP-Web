@@ -38,13 +38,13 @@ app.use(bodyParser.urlencoded({
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, app_cfg);
 var brk = require('./server/broker')(app_cfg, sql, uuidv4);
-var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg);
+var saver = require('./server/saver')(app_cfg, sql, waip, uuidv4);
+var api = require('./server/api')(io, sql, app_cfg, saver);
+var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg, api);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
-var api = require('./server/api')(io, sql, app_cfg, waip);
-var saver = require('./server/saver')(app_cfg, sql, waip, api, uuidv4);
 var udp = require('./server/udp')(app_cfg, sql, saver);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
-var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp, saver);
+var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, udp, saver);
 
 // Server starten
 webserver.listen(app_cfg.global.https_port, function () {

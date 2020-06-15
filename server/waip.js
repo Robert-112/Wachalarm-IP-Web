@@ -1,4 +1,4 @@
-module.exports = function (io, sql, fs, brk, async, app_cfg) {
+module.exports = function (io, sql, fs, brk, async, app_cfg, api) {
 
   // Module laden
   const json2csv = require('json2csv');
@@ -48,6 +48,10 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         };
       });
     });
+    // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
+    // TODO TEST: Api WAIP
+    api.server_to_client_new_waip(waip_data, app_id);
+    api.client_to_server_new_waip(waip_data, app_id);
   };
 
   function waip_verteilen(waip_id, socket, wachen_nr) {
@@ -115,6 +119,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         });
       };
     });
+    // TODO TEST: Api WAIP
+    api.server_to_client_new_rmld(req.body, 'web');
+    api.client_to_server_new_rmld(req.body, 'web');
   };
 
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
