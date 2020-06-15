@@ -13,6 +13,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg, proof) {
         // Einsatzmeldung (JSON) speichern
         sql.db_einsatz_speichern(einsatz_rohdaten, function (waip_id) {
           sql.db_log('DEBUG', 'Neuen Einsatz mit der ID ' + waip_id + ' gespeichert.');
+
+  // FIXME hier ungewollte Einsaetze ggf. wieder loeschen
+
           // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
           sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
             if (socket_rooms) {
