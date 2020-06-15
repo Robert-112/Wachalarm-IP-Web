@@ -256,6 +256,17 @@ module.exports = function (db, app_cfg) {
     });
   };
 
+  function db_einsatz_get_uuid_by_enr(einsatz_nr, callback) {
+    // mit uuid die zugehoerige id des Einsatzes finden
+    db.get(`select uuid from waip_einsaetze where einsatznummer like ?`, [einsatz_nr], function (err, row) {
+      if (err == null && row) {
+        callback && callback(row.uuid);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   function db_einsatz_get_waipid_by_uuid(waip_uuid, callback) {
     // mit uuid die zugehoerige id des Einsatzes finden
     db.get(`SELECT id FROM WAIP_EINSAETZE WHERE uuid like ?`, [waip_uuid], function (err, row) {
@@ -868,6 +879,7 @@ module.exports = function (db, app_cfg) {
     db_einsatz_check_history: db_einsatz_check_history,
     db_einsatz_get_by_waipid: db_einsatz_get_by_waipid,
     db_einsatz_get_by_uuid: db_einsatz_get_by_uuid,
+    db_einsatz_get_uuid_by_enr: db_einsatz_get_uuid_by_enr,
     db_einsatz_get_waipid_by_uuid: db_einsatz_get_waipid_by_uuid,
     db_einsatz_get_active: db_einsatz_get_active,
     db_einsatz_get_rooms: db_einsatz_get_rooms,

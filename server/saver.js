@@ -35,14 +35,14 @@ module.exports = function (app_cfg, sql, waip, uuidv4) {
             waip_data.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
           };
           // pruefen, ob vielleicht schon ein Einsatz mit einer UUID gespeichert ist
-          db.get('select uuid from waip_einsaetze where einsatznummer like ?', [content.einsatzdaten.nummer], function (err, row) {
-            if (err == null && row) {
+          sql.db_einsatz_get_uuid_by_enr(waip_data.einsatzdaten.nummer, function(waip_uuid) {
+            if (waip_uuid) {
               // wenn ein Einsatz mit UUID schon vorhanden ist, dann diese setzten / ueberschreiben
-              content.einsatzdaten.uuid = row.uuid;
+              waip_data.einsatzdaten.uuid = waip_uuid;
             } else {
               // uuid erzeugen und zuweisen falls nicht bereits in JSON vorhanden, oder falls keine korrekte uuid
-              if (!content.einsatzdaten.uuid || !uuid_pattern.test(content.einsatzdaten.uuid) {
-                content.einsatzdaten.uuid = uuidv4();
+              if (!waip_data.einsatzdaten.uuid || !uuid_pattern.test(waip_data.einsatzdaten.uuid)) {
+                waip_data.einsatzdaten.uuid = uuidv4();
               };
             };
             // Einsatz in DB Speichern
