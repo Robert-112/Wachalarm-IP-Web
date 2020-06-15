@@ -42,10 +42,10 @@ var proof = require('./server/proof')(app_cfg, sql);
 var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg, proof);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var api = require('./server/api')(io, sql, app_cfg, waip);
-var udp = require('./server/udp')(app_cfg, waip, sql, api);
+var saver = require('./server/proof')(app_cfg, sql, waip, api, uuidv4);
+var udp = require('./server/udp')(app_cfg, sql, saver);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
-var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp, api);
-
+var routes = require('./server/routing')(app, sql, uuidv4, app_cfg, passport, auth, waip, udp, saver);
 
 // Server starten
 webserver.listen(app_cfg.global.https_port, function () {
