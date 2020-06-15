@@ -21,7 +21,7 @@ module.exports = function (io, sql, app_cfg, waip) {
 
       // Remote-Verbindung nur zulassen, wenn IP in Access-List, und Access-List ueberhaupt befuellt
       if (!app_cfg.api.access_list.includes(remote_ip) && app_cfg.api.access_list.length > 0) {
-        socket.terminate();
+        socket.disconnect(true);
         sql.db_log('API', 'Verbindung von ' + remote_ip + ' geschlossen, da nicht in Zugangsliste.');
       };
 

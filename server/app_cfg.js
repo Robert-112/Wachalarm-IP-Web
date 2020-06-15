@@ -17,7 +17,7 @@ app_cfg.global = {
   defaultuserip: '127.0.0.1',
   ip_auth_range: ['::ffff:172.16.5.0/24', '::ffff:192.168.2.0/24'],
   saltRounds: 10,
-  sessionsecret: '0987654321abcdef#xyz' 
+  sessionsecret: '0987654321abcdef#xyz'
 };
 
 // Einstellungen zur Erscheinung der Seite
@@ -38,14 +38,14 @@ app_cfg.public = {
 app_cfg.rmld = {
   backup_to_mail: true,
   backup_to_file: true,
-  backup_path: '/misc/bkp/' 
+  backup_path: '/misc/bkp/'
 };
 
 // Schnittstelle um Daten von anderen Clients zu empfangen
 app_cfg.api = {
   enabled: true,
   secret: 'asdfwert1234567890#',
-  access_list: ['192.168.2.20', '192.168.2.30']
+  access_list: ['192.168.2.20', '192.168.2.30', '80.147.87.170']
 };
 
 // Schnittstelle um Daten an andere Server zu senden
@@ -59,7 +59,17 @@ app_cfg.endpoint = {
 app_cfg.filter = {
   enabled: true,
   on_message_from: ['192.168.2.20', 'https://192.168.1.25:8090/api'],
-  remove_data: ['besonderheiten', 'strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y']
-};  
+  remove_data: ['besonderheiten', 'strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y'],
+  block_data: [{
+    for_wache: '520101',
+    block: ['Rettungseinsatz', 'Krankentransport']
+  }, {
+    for_wache: '520102',
+    block: ['Rettungseinsatz', 'Krankentransport']
+  }, {
+    for_wache: '520103',
+    block: ['Rettungseinsatz', 'Krankentransport']
+  }]
+};
 
 module.exports = app_cfg;
