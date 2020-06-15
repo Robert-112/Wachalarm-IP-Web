@@ -60,16 +60,10 @@ app_cfg.filter = {
   enabled: true,
   on_message_from: ['192.168.2.20', 'https://192.168.1.25:8090/api'],
   remove_data: ['besonderheiten', 'strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y'],
-  block_data: [{
-    for_wache: '520101',
-    block: ['Rettungseinsatz', 'Krankentransport']
-  }, {
-    for_wache: '520102',
-    block: ['Rettungseinsatz', 'Krankentransport']
-  }, {
-    for_wache: '520103',
-    block: ['Rettungseinsatz', 'Krankentransport']
-  }]
+  block_data: {
+    einsatztyp: ['Rettungseinsatz', 'Krankentransport'],
+    wachen_nr: [520101, 520102, 520103]
+  }
 };
 
 module.exports = app_cfg;
