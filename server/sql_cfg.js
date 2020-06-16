@@ -42,6 +42,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         objektnr TEXT,
         objektart TEXT,
         wachenfolge INTEGER,
+        sonstiger_ort TEXT,
         wgs84_x TEXT,
         wgs84_y TEXT,
         wgs84_area TEXT,
@@ -118,6 +119,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         reset_counter INTEGER,
+        display_options TEXT,
+        sound_options TEXT,
         FOREIGN KEY(user_id) REFERENCES waip_users(id))`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
