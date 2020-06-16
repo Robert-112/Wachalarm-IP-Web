@@ -134,9 +134,12 @@ module.exports = function (db, app_cfg) {
     delete missiondata.wgs84_y;
     delete missiondata.wgs84_area;
     var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace);
+    console.log(waip_id);
+    console.log(socket_id);    
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_id like ? and socket_id like ?', [waip_id, socket_id], function (err, row) {
       // FIXME Testen
+      console.log(row);
       if (err == null && row) {
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {

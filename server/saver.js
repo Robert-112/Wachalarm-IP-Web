@@ -81,8 +81,8 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
         });
         // RMLD-Daten per API weiterleiten (entweder zum Server oder zum verbunden Client)
         // TODO TEST: Api WAIP
-        api_server_to_client_new_rmld(req.body, app_id);
-        api_client_to_server_new_rmld(req.body, app_id);
+        api_server_to_client_new_rmld(data, app_id);
+        api_client_to_server_new_rmld(data, app_id);
       } else {
         sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + JSON.stringify(waip_data));
         callback && callback(false);
