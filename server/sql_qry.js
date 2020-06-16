@@ -120,7 +120,7 @@ module.exports = function (db, app_cfg) {
 
   function db_einsatz_check_history(waip_id, einsatzdaten, socket_id, callback) {
     // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde (Doppelalarmierung vermeiden)
-    const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252'
+    const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252';
     // neues Object mit Einsatzdaten erstellen
     var missiondata = Object.assign({}, einsatzdaten);
     // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
@@ -336,7 +336,7 @@ module.exports = function (db, app_cfg) {
     // Einsatz loeschen
     db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
     // History loeschen
-    db.run(`DELETE FROM waip_history WHERE waip_id = ?`, [id]);
+    db.run(`DELETE FROM waip_history WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [id]);
   };
 
   function db_wache_get_all(callback) {

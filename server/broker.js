@@ -2,6 +2,10 @@ module.exports = function (app_cfg, sql, uuidv4) {
 
   // Module laden
   const twit = require('twit');
+  const {
+    v5: uuidv5
+  } = require('uuid');
+  const custom_namespace = 'fadad35a-b9dc-42b5-9484-7459ae2a6445';
 
   function alert_vmtl_list(list_data, callback) {
 
@@ -18,6 +22,13 @@ module.exports = function (app_cfg, sql, uuidv4) {
         if (app_cfg.global.development) {
           console.log('Twitter-Account-Daten: ' + JSON.stringify(vmtl_data));
         };
+
+        // Daten in kurzen UUID-Strings umwandeln
+        //FIXME 
+        var uuid_vmlt_history = uuidv5(vmtl_data.uuid + vmtl_data.einsatzart + vmtl_data.stichwort + vmtl_data.name_wache + vmtl_data.list, custom_namespace);
+        // Prüfen ob zuletzt bereits eine Nachricht gesendet wurde (Doppelalarmierung vermeiden)
+
+
 
         if (vmtl_data) {
 
@@ -52,8 +63,8 @@ module.exports = function (app_cfg, sql, uuidv4) {
                   var arrayLength = members.users.length;
                   for (var i = 0; i < arrayLength; i++) {
                     // Mitteilungstext festelgen
-                    var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + String.fromCodePoint(0x1F6A8) + String.fromCodePoint(0x0A) + 
-                      'Einsatz für ' + vmtl_data.name_wache + ' ' + String.fromCodePoint(0x27A1) + ' ' + vmtl_data.einsatzart + ': ' + vmtl_data.stichwort + String.fromCodePoint(0x0A) + 
+                    var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + String.fromCodePoint(0x1F6A8) + String.fromCodePoint(0x0A) +
+                      'Einsatz für ' + vmtl_data.name_wache + ' ' + String.fromCodePoint(0x27A1) + ' ' + vmtl_data.einsatzart + ', ' + vmtl_data.stichwort + String.fromCodePoint(0x0A) +
                       'jetzt Rückmeldung senden: ' + app_cfg.public.url + '/rmld/' + vmtl_data.uuid + '/' + uuidv4();
                     // Parameter der Mitteilung
                     var msg_params = {
@@ -95,14 +106,14 @@ module.exports = function (app_cfg, sql, uuidv4) {
         };
 
       });
-    } else {
-      // andere Listen/Gruppen/Schnittstellen koennten hier noch abgefragt werden
-      callback && callback(null);
-    };
-
+  } else {
+    // andere Listen/Gruppen/Schnittstellen koennten hier noch abgefragt werden
+    callback && callback(null);
   };
 
-  return {
-    alert_vmtl_list: alert_vmtl_list
-  };
+};
+
+return {
+  alert_vmtl_list: alert_vmtl_list
+};
 };

@@ -132,7 +132,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
         waip_wachenname TEXT,
         vmtl_typ TEXT,
         vmtl_account_name TEXT,
-        vmtl_account_group TEXT)`);
+        vmtl_account_group TEXT,
+        vmtl_history TEXT)`);
       // Twitter-Account-Tabelle erstellen
       db.run(`CREATE TABLE waip_tw_accounts (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
