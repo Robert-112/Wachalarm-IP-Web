@@ -35,7 +35,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         if (list) {
           brk.alert_vmtl_list(list, function (result) {
             if (!result) {
-              sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreichen an Vermittler-Liste gesendet. ' + result);
+              sql.db_log('VMTL', 'Link zur Einsatz-Rückmeldung erfolgreich an Vermittler-Liste gesendet. ' + result);
             } else {
               sql.db_log('VMTL', 'Fehler beim senden des Links zur Einsatz-Rueckmeldung an die Vermittler-Liste: ' + result);
             };

@@ -52,8 +52,9 @@ module.exports = function (app_cfg, sql, uuidv4) {
                   var arrayLength = members.users.length;
                   for (var i = 0; i < arrayLength; i++) {
                     // Mitteilungstext festelgen
-                    var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + String.fromCodePoint(0x1F6A8) + String.fromCodePoint(0x0A) + 'Einsatz für ' + vmtl_data.name_wache + ' ' +String.fromCodePoint(0x27A1) + ' ' + vmtl_data.einsatzart + String.fromCodePoint(0x0A) + 'jetzt Rückmeldung senden: ' +
-                      app_cfg.public.url + '/rmld/' + vmtl_data.uuid + '/' + uuidv4();
+                    var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + String.fromCodePoint(0x1F6A8) + String.fromCodePoint(0x0A) + 
+                      'Einsatz für ' + vmtl_data.name_wache + ' ' + String.fromCodePoint(0x27A1) + ' ' + vmtl_data.einsatzart + ': ' + vmtl_data.stichwort + String.fromCodePoint(0x0A) + 
+                      'jetzt Rückmeldung senden: ' + app_cfg.public.url + '/rmld/' + vmtl_data.uuid + '/' + uuidv4();
                     // Parameter der Mitteilung
                     var msg_params = {
                       event: {
@@ -71,11 +72,10 @@ module.exports = function (app_cfg, sql, uuidv4) {
                     // Mitteilung senden
                     T.post('direct_messages/events/new', msg_params, function (error, members, response) {
                       if (!error) {
-                        sql.db_log('VMTL', 'Einsatz-Link an ' + members.users[i].screen_name + ' gesendet.');
-                        callback && callback(members);
+                        sql.db_log('VMTL', 'Einsatz-Link gesendet: ' + JSON.stringify(members));
+                        callback && callback(vmtl_data.list);
                       } else {
                         sql.db_log('VMTL', 'Fehler beim senden eines Einsatz-Links: ' + error);
-                        callback && callback(null);
                       };
                     });
                   };
@@ -91,7 +91,7 @@ module.exports = function (app_cfg, sql, uuidv4) {
           });
 
         } else {
-          sql.db_log('VMTL', 'Zugangsdaten für Twitter-Account ' + vmtl_data.tw_screen_name + ' konnten nicht ermittelt werden.');
+          sql.db_log('VMTL', 'Zugangsdaten für Twitter-Account ' + list_data.vmtl_account_name + ' konnten nicht ermittelt werden.');
         };
 
       });
