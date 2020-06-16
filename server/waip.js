@@ -95,18 +95,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
     });
   };
 
-  function rmld_speichern(rueckmeldung, callback) {
-    // Rueckmeldung speichern und verteilen
-    sql.db_rmld_save(rueckmeldung, function (saved) {
-      if (saved) {
-        rmld_verteilen_by_uuid(rueckmeldung.waip_uuid, rueckmeldung.rmld_uuid);
-        callback && callback(saved);
-      } else {
-        callback && callback(saved);
-      };
-    });
-  };
-
   function rmld_verteilen_by_uuid(waip_uuid, rmld_uuid) {
     // Einsatz-ID mittels Einsatz-UUID ermitteln, und Rueckmelung an alle relevanten Clients verteilen
     sql.db_einsatz_get_waipid_by_uuid(waip_uuid, function (waip_id) {
@@ -443,7 +431,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
   return {
     waip_speichern: waip_speichern,
     waip_verteilen: waip_verteilen,
-    rmld_speichern: rmld_speichern,
     rmld_verteilen_for_one_client: rmld_verteilen_for_one_client,
     rmld_verteilen_by_uuid: rmld_verteilen_by_uuid,
     dbrd_verteilen: dbrd_verteilen
