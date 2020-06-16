@@ -59,11 +59,7 @@ app_cfg.endpoint = {
 app_cfg.filter = {
   enabled: true,
   on_message_from: ['192.168.2.20', 'https://192.168.1.25:8090/api'],
-  remove_data: ['besonderheiten', 'strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y'],
-  block_data: {
-    einsatztyp: ['Rettungseinsatz', 'Krankentransport'],
-    wachen_nr: [520101, 520102, 520103]
-  }
+  remove_data: ['besonderheiten', 'strasse', 'objekt', 'objektnr', 'wachfolge', 'wgs84_x', 'wgs84_y']
 };
 
 module.exports = app_cfg;

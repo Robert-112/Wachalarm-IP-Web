@@ -74,12 +74,11 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // History-Tabelle erstellen
       db.run(`CREATE TABLE waip_history (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        waip_id INTEGER NOT NULL,
+        waip_uuid TEXT,
         socket_id TEXT,
         uuid_einsatz_grunddaten TEXT,
         uuid_em_alarmiert TEXT,
-        uuid_em_weitere TEXT,
-        FOREIGN KEY (waip_id) REFERENCES waip_einsaetze(id) ON DELETE CASCADE ON UPDATE CASCADE)`);
+        uuid_em_weitere TEXT)`);
       // Client-Tabelle erstellen
       db.run(`CREATE TABLE waip_clients (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -132,8 +131,8 @@ module.exports = function (fs, bcrypt, app_cfg) {
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_wachen_id INTEGER,
         vmtl_typ TEXT,
-        vmlt_account_name TEXT,
-        vmlt_account_group TEXT,
+        vmtl_account_name TEXT,
+        vmtl_account_group TEXT,
         FOREIGN KEY(waip_wachen_id) REFERENCES waip_wachen(id))`);
       // Twitter-Account-Tabelle erstellen
       db.run(`CREATE TABLE waip_tw_accounts (

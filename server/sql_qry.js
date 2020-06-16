@@ -133,19 +133,11 @@ module.exports = function (db, app_cfg) {
     delete missiondata.wgs84_x;
     delete missiondata.wgs84_y;
     delete missiondata.wgs84_area;
-    var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace);
-    console.log(waip_id);
-    console.log(socket_id);    
+    var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace); 
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
-    db.get(`select uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere from waip_history where waip_id = 79`,
-    function (err, row) { //\'` + waip_id + `\' and socket_id like \'` + socket_id + `\'`, function (err, row) {
-      // FIXME Testen
-      console.log(err);
-      
-      console.log(JSON.stringify(row));
+    db.get('select * from waip_history where waip_uuid like (select uuid from waip_einsaetze where id = ?) and socket_id like ?', [waip_id, socket_id], function (err, row) {
+    // uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere 
       if (err == null && row) {
-        console.log('schon hinterlegt');
-        
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
           // Grunddaten oder alarmierte Einsatzmittel haben sich verändert, somit History veraltet und neue Alarmierung notwendig
@@ -160,12 +152,12 @@ module.exports = function (db, app_cfg) {
           uuid_einsatz_grunddaten=\'` + uuid_einsatzdaten + `\',
           uuid_em_alarmiert=\'` + uuid_em_alarmiert + `\',
           uuid_em_weitere=\'` + uuid_em_weitere + `\' 
-          WHERE waip_id like \'` + waip_id + `\' and socket_id like \'` + socket_id + `\'`);
+          WHERE waip_uuid like (select uuid from waip_einsaetze where id = \'` + waip_id + `\') and socket_id like \'` + socket_id + `\'`);
       } else {
         // wenn keine History-Daten hinterlegt sind, diese speichern
-        db.run(`INSERT INTO waip_history (waip_id, socket_id, uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere)
+        db.run(`INSERT INTO waip_history (waip_uuid, socket_id, uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere)
           VALUES (
-          \'` + waip_id + `\',
+          (select uuid from waip_einsaetze where id = \'` + waip_id + `\'),
           \'` + socket_id + `\',
           \'` + uuid_einsatzdaten + `\',
           \'` + uuid_em_alarmiert + `\',
