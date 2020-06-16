@@ -49,7 +49,7 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
             filter_api_data(waip_data, remote_addr, function (data_filtered) {
               // Einsatz in DB Speichern
               waip.waip_speichern(data_filtered);
-              sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + data_filtered);
+              sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + JSON.stringify(data_filtered));
             });
             // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
             // TODO TEST: Api WAIP
@@ -57,11 +57,11 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
             api_client_to_server_new_waip(waip_data, app_id);
           });
         } else {
-          sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' nicht valide: ' + waip_data);
+          sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' nicht valide: ' + JSON.stringify(waip_data));
         };
       });
     } else {
-      sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' Fehlerhaft: ' + waip_data);
+      sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' Fehlerhaft: ' + JSON.stringify(waip_data));
     };
   };
 
@@ -70,10 +70,10 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
       if (valid) {
         waip.rmld_speichern(data, function (result) {
           if (result) {
-            sql.db_log('RMLD', 'Rückmeldung von ' + remote_addr + ' erhalten und gespeichert: ' + data);
+            sql.db_log('RMLD', 'Rückmeldung von ' + remote_addr + ' erhalten und gespeichert: ' + JSON.stringify(data));
             callback && callback(result);
           } else {
-            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung von ' + remote_addr + ': ' + rueckmeldung);
+            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung von ' + remote_addr + ': ' + JSON.stringify(data));
             callback && callback(result);
           };
         });
@@ -82,7 +82,7 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
         api_server_to_client_new_rmld(req.body, app_id);
         api_client_to_server_new_rmld(req.body, app_id);
       } else {
-        sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + waip_data);
+        sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + JSON.stringify(waip_data));
       };
     });
   };
