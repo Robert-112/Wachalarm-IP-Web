@@ -10,7 +10,7 @@ module.exports = function (app_cfg, sql, uuidv4) {
       console.log('Liste Vermittlung: ' + JSON.stringify(list_data));
     };
 
-    if (list_data.vmlt_typ == 'twitter') {
+    if (list_data.vmtl_typ == 'twitter') {
       // wenn es sich um eine Twitter-Liste/Gruppe handelt, Account-Zugangsdaten ermitteln
       sql.db_vmtl_get_tw_account(list_data, function (vmtl_data) {
 
@@ -52,7 +52,7 @@ module.exports = function (app_cfg, sql, uuidv4) {
                   var arrayLength = members.users.length;
                   for (var i = 0; i < arrayLength; i++) {
                     // Mitteilungstext festelgen
-                    var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + vmtl_data.einsatzart + ' für ' + vmtl_data.name_wache + ', bitte um Rückmeldung: ' +
+                    var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + String.fromCodePoint(0x1F6A8) + String.fromCodePoint(0x0A) + 'Einsatz für ' + vmtl_data.name_wache + ' ' +String.fromCodePoint(0x27A1) + ' ' + vmtl_data.einsatzart + String.fromCodePoint(0x0A) + 'jetzt Rückmeldung senden: ' +
                       app_cfg.public.url + '/rmld/' + vmtl_data.uuid + '/' + uuidv4();
                     // Parameter der Mitteilung
                     var msg_params = {
@@ -74,7 +74,7 @@ module.exports = function (app_cfg, sql, uuidv4) {
                         sql.db_log('VMTL', 'Einsatz-Link an ' + members.users[i].screen_name + ' gesendet.');
                         callback && callback(members);
                       } else {
-                        sql.db_log('VMTL', 'Fehler beim senden des Einsatz-Links an ' + members.users[i].screen_name + ': ' + error);
+                        sql.db_log('VMTL', 'Fehler beim senden eines Einsatz-Links: ' + error);
                         callback && callback(null);
                       };
                     });
@@ -85,7 +85,6 @@ module.exports = function (app_cfg, sql, uuidv4) {
                 };
               });
             } else {
-              console.log(error);
               sql.db_log('VMTL', 'Fehler beim lesen der Twitter-Liste: ' + error);
               callback && callback(null);
             };

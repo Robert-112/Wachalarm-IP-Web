@@ -815,7 +815,7 @@ module.exports = function (db, app_cfg) {
 
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
-    db.get(`select v.waip_wachen_id, v.vmlt_typ, v.vmlt_account_name, v.vmtl_account_group from waip_vmtl v 
+    db.get(`select v.waip_wachen_id, v.vmtl_typ, v.vmtl_account_name, v.vmtl_account_group from waip_vmtl v 
       where v.waip_wachen_id = (select distinct w.id wachen_id from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
       if (err == null && liste) {
@@ -832,7 +832,11 @@ module.exports = function (db, app_cfg) {
     // falls Liste für Wache hinterlegt, dann hier die Twitter-Account-Daten, Einsatz-UUID, Einsatzart und Wachenname auslesen
     db.get(`select tw.tw_screen_name, tw.tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, wa.name_wache 
     from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa
-    where tw.tw_screen_name = ? AND we.id = ? AND wa.id = ?`, [list_data.vmlt_account_name, list_data.waip_id, list_data.waip_wachen_id], function (err, vmtl_daten) {
+    where tw.tw_screen_name = ? AND we.id = ? AND wa.id = ?`, [list_data.vmtl_account_name, list_data.waip_id, list_data.waip_wachen_id], function (err, vmtl_daten) {
+      console.log(vmtl_daten);
+      console.log('vmtl_daten');
+
+      
       if (err == null && vmtl_daten) {
         // Listen-Name zu Daten hinzufuegen
         vmtl_daten.list = list_data.vmtl_account_group;

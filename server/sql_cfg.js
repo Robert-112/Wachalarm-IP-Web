@@ -129,7 +129,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Vermittlungs-Tabelle erstellen
       db.run(`CREATE TABLE waip_vmtl (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        waip_wachen_id INTEGER,
+        waip_wachenname TEXT,
         vmtl_typ TEXT,
         vmtl_account_name TEXT,
         vmtl_account_group TEXT,
