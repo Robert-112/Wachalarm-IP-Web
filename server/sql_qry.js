@@ -682,11 +682,13 @@ module.exports = function (db, app_cfg) {
       reuckmeldung.wache_id = responseobj.wachenauswahl;
     } else {
       reuckmeldung.wache_id = null;
-    };
-    console.log(rueckmeldung);
-    
+    };    
     // Rueckmeldung der Wache zuordnen
     db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function (err, row) {
+      
+      console.log(err);
+      console.log(row);
+      console.log(reuckmeldung);
       if (err == null && row) {
         reuckmeldung.wache_name = row.name_wache;
         reuckmeldung.wache_nr = row.nr_wache;

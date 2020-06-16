@@ -68,8 +68,13 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
   function save_new_rmld(data, remote_addr, app_id, callback) {
     validate_rmld(data, function (valid) {
       if (valid) {
+        console.log('hier');
+        
         // Rueckmeldung speichern und verteilen
         sql.db_rmld_save(data, function (result) {
+          console.log('hier auch');
+          console.log(result);
+          
           if (result) {
             sql.db_log('RMLD', 'Rückmeldung von ' + remote_addr + ' erhalten und gespeichert: ' + JSON.stringify(data));
             waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
