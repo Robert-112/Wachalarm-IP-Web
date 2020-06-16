@@ -137,12 +137,14 @@ module.exports = function (db, app_cfg) {
     console.log(waip_id);
     console.log(socket_id);    
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
-    db.get('select * from waip_history where waip_id = ? and socket_id like \'?\'', [waip_id, socket_id], function (err, row) {
+    db.get('select uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere from waip_history where waip_id = ? and socket_id = ?', [waip_id, socket_id], function (err, row) {
       // FIXME Testen
       console.log(err);
       
       console.log(row);
       if (err == null && row) {
+        console.log('schon hinterlegt');
+        
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
           // Grunddaten oder alarmierte Einsatzmittel haben sich verändert, somit History veraltet und neue Alarmierung notwendig
