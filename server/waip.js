@@ -95,7 +95,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
     });
   };
 
-  function rmld_speichern(rueckmeldung, app_id, callback) {
+  function rmld_speichern(rueckmeldung, callback) {
     // Rueckmeldung speichern und verteilen
     sql.db_rmld_save(rueckmeldung, function (saved) {
       if (saved) {

@@ -21,6 +21,14 @@ const { v4: uuidv4 } = require('uuid');
 var app_cfg = require('./server/app_cfg.js');
 app_cfg.global.app_id = uuidv4();
 
+// Remote-Api aktivieren
+var remote_api;
+if (app_cfg.endpoint.enabled) {
+  remote_api = io_api.connect(app_cfg.endpoint.host, {
+    reconnect: true
+  });
+};
+
 // Express-Einstellungen
 app.set('views', path.join(__dirname, 'views'));
 app.locals.basedir = app.get('views');
@@ -35,20 +43,12 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-// Remote-Api aktivieren
-var remote_api
-if (app_cfg.endpoint.enabled) {
-  remote_api = io_api.connect(app_cfg.endpoint.host, {
-    reconnect: true
-  });
-};
-
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, app_cfg);
 var brk = require('./server/broker')(app_cfg, sql, uuidv4);
 var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg);
-var saver = require('./server/saver')(app_cfg, sql, waip, uuidv4, io);
+var saver = require('./server/saver')(app_cfg, sql, waip, uuidv4, io, remote_api);
 var api = require('./server/api')(io, sql, app_cfg, remote_api, saver);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, sql, saver);

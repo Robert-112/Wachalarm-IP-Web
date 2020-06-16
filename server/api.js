@@ -1,10 +1,4 @@
-module.exports = function (io, sql, app_cfg, saver) {
-
-  // Module laden
-  const io_api = require('socket.io-client');
-
-  // Variablen festlegen
-  var uuid_pattern = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$', 'i');
+module.exports = function (io, sql, app_cfg, remote_api, saver) {
 
   // ###
   // Server Socket.IO Empfangs-API (anderer Server stellt Verbindung her und sendet Daten)
@@ -36,11 +30,8 @@ module.exports = function (io, sql, app_cfg, saver) {
         var app_id = raw_data.app_id;
         // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
         if (app_id != app_cfg.global.app_id) {
-          // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
-          filter_api_data(data, remote_ip, function (data_filtered) {
-            saver.save_new_waip(data_filtered, remote_ip, app_id);
-            sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data_filtered);
-          });
+          saver.save_new_waip(data, remote_ip, app_id);
+          sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + data);
         };
       });
 
@@ -66,36 +57,6 @@ module.exports = function (io, sql, app_cfg, saver) {
     });
   };
 
-  function server_to_client_new_waip(data, app_id) {
-    // Rückmeldung an verbundenen Client senden, falls funktion aktiviert
-    if (app_cfg.api.enabled) {
-      // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
-      if (!uuid_pattern.test(app_id)) {
-        app_id = app_cfg.global.app_id;
-      };
-      nsp_api.emit('from_server_to_client_new_waip', {
-        data: data,
-        app_id: app_id
-      });
-      sql.db_log('API', 'Einsatz an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
-    };
-  };
-
-  function server_to_client_new_rmld(data, app_id) {
-    // Rückmeldung an verbundenen Client senden, falls funktion aktiviert
-    if (app_cfg.api.enabled) {
-      // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
-      if (!uuid_pattern.test(app_id)) {
-        app_id = app_cfg.global.app_id;
-      };
-      nsp_api.emit('from_server_to_client_new_rmld', {
-        data: data,
-        app_id: app_id
-      });
-      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
-    };
-  };
-
   // ###
   // Client Socket.IO Sende-API (Daten an Server senden, zu denen eine Verbindung hergestellt wurde)
   // ###
@@ -103,9 +64,6 @@ module.exports = function (io, sql, app_cfg, saver) {
   if (app_cfg.endpoint.enabled) {
     // Verbindung zu anderem Server aufbauen
     // TODO API: Verbindungsaufbau mit passendem Geheimnis absichern, IP-Adresse senden
-    var remote_api = io_api.connect(app_cfg.endpoint.host, {
-      reconnect: true
-    });
 
     // Verbindungsaufbau protokollieren
     remote_api.on('connect', function () {
@@ -129,11 +87,8 @@ module.exports = function (io, sql, app_cfg, saver) {
       // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
       if (app_id != app_cfg.global.app_id) {
         // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
-        app_cfg.endpoint.host
-        filter_api_data(data, app_cfg.endpoint.host, function (data_filtered) {
-          saver.save_new_waip(data_filtered, app_cfg.endpoint.host, app_id);
-          sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + ': ' + data_filtered);
-        });
+        saver.save_new_waip(data, app_cfg.endpoint.host, app_id);
+        sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + ': ' + data);
       };
     });
 
@@ -150,73 +105,6 @@ module.exports = function (io, sql, app_cfg, saver) {
         });
       };
     });
-  };
-
-  function client_to_server_new_waip(data, app_id) {
-    // Alarm an Remote-Server senden, falls funktion aktiviert
-    if (app_cfg.endpoint.enabled) {
-      // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
-      if (!uuid_pattern.test(app_id)) {
-        app_id = app_cfg.global.app_id;
-      };
-      remote_api.emit('from_client_to_server_new_waip', {
-        data: data,
-        app_id: app_id
-      });
-      sql.db_log('API', 'Neuen Wachalarm an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
-    };
-  };
-
-  function client_to_server_new_rmld(data, app_id) {
-    // Rückmeldung an Remote-Server senden, falls funktion aktiviert
-    if (app_cfg.endpoint.enabled) {
-      // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
-      if (!uuid_pattern.test(app_id)) {
-        app_id = app_cfg.global.app_id;
-      };
-      remote_api.emit('from_client_to_server_new_rmld', {
-        data: data,
-        app_id: app_id
-      });
-      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
-    };
-  };
-
-  function filter_api_data(data, remote_ip, callback) {
-    // unnoetige Zeichen aus socket_id entfernen, um diese als Dateinamen zu verwenden
-    if (app_cfg.filter.enabled) {
-      // Filter nur anwenden wenn Einsatzdaten von bestimmten IP-Adressen kommen
-      if (app_cfg.filter.on_message_from.includes(remote_ip)) {
-        var data_filtered = data;
-        // Schleife definieren
-        function loop_done(data_filtered) {
-          callback && callback(data_filtered);
-        };
-        var itemsProcessed = 0;
-        // nicht gewollte Daten entfernen
-        app_cfg.filter.remove_data.forEach(function (item, index, array) {
-          data_filtered.einsatzdaten[item] = '';
-          data_filtered.ortsdaten[item] = '';
-          // Schleife erhoehen
-          itemsProcessed++;
-          if (itemsProcessed === array.length) {
-            // Schleife beenden
-            loop_done(data_filtered);
-          };
-        });
-      } else {
-        callback && callback(data);
-      };
-    } else {
-      callback && callback(data);
-    };
-  };
-
-  return {
-    server_to_client_new_waip: server_to_client_new_waip,
-    server_to_client_new_rmld: server_to_client_new_rmld,
-    client_to_server_new_waip: client_to_server_new_waip,
-    client_to_server_new_rmld: client_to_server_new_rmld
   };
 
 };
