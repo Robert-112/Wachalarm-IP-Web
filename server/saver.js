@@ -47,7 +47,11 @@ module.exports = function (app_cfg, sql, waip, uuidv4) {
             };
             // Einsatz in DB Speichern
             waip.waip_speichern(waip_data, app_id);
-            sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + waip_data);            
+            sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + waip_data);   
+                // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
+    // TODO TEST: Api WAIP
+    api.server_to_client_new_waip(waip_data, app_id);
+    api.client_to_server_new_waip(waip_data, app_id);         
           });
         } else {
           sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' nicht valide: ' + waip_data);
@@ -70,6 +74,9 @@ module.exports = function (app_cfg, sql, waip, uuidv4) {
             callback && callback(result);
           };
         });
+            // TODO TEST: Api WAIP
+    api.server_to_client_new_rmld(req.body, app_id);
+    api.client_to_server_new_rmld(req.body, app_id);
       } else {
         sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + waip_data);
       };

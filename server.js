@@ -8,6 +8,7 @@ const webserver = https.createServer({
   cert: fs.readFileSync('./misc/server.cert', 'utf8')
 }, app);
 const io = require('socket.io').listen(webserver);
+const io_api = require('socket.io-client');
 const async = require('async');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -34,13 +35,21 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
+// Remote-Api aktivieren
+var remote_api
+if (app_cfg.endpoint.enabled) {
+  remote_api = io_api.connect(app_cfg.endpoint.host, {
+    reconnect: true
+  });
+};
+
 // Scripte einbinden
 var sql_cfg = require('./server/sql_cfg')(fs, bcrypt, app_cfg);
 var sql = require('./server/sql_qry')(sql_cfg, app_cfg);
 var brk = require('./server/broker')(app_cfg, sql, uuidv4);
-var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg, api);
-var saver = require('./server/saver')(app_cfg, sql, waip, uuidv4);
-var api = require('./server/api')(io, sql, app_cfg, saver);
+var waip = require('./server/waip')(io, sql, fs, brk, async, app_cfg);
+var saver = require('./server/saver')(app_cfg, sql, waip, uuidv4, io);
+var api = require('./server/api')(io, sql, app_cfg, remote_api, saver);
 var socket = require('./server/socket')(io, sql, app_cfg, waip);
 var udp = require('./server/udp')(app_cfg, sql, saver);
 var auth = require('./server/auth')(app, app_cfg, sql_cfg, async, bcrypt, passport, io);
