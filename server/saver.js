@@ -67,21 +67,16 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
 
   function save_new_rmld(data, remote_addr, app_id, callback) {
     validate_rmld(data, function (valid) {
-      if (valid) {
-        console.log('hier');
-        
+      if (valid) {        
         // Rueckmeldung speichern und verteilen
-        sql.db_rmld_save(data, function (result) {
-          console.log('hier auch');
-          console.log(result);
-          
+        sql.db_rmld_save(data, function (result) {          
           if (result) {
             sql.db_log('RMLD', 'Rückmeldung von ' + remote_addr + ' erhalten und gespeichert: ' + JSON.stringify(data));
             waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
-            callback && callback(result);
+            callback && callback(true);
           } else {
             sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung von ' + remote_addr + ': ' + JSON.stringify(data));
-            callback && callback(result);
+            callback && callback(false);
           };
         });
         // RMLD-Daten per API weiterleiten (entweder zum Server oder zum verbunden Client)
@@ -90,7 +85,7 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
         api_client_to_server_new_rmld(req.body, app_id);
       } else {
         sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + JSON.stringify(waip_data));
-        callback && callback(valid);
+        callback && callback(false);
       };
     });
   };

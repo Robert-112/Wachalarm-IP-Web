@@ -247,10 +247,12 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
     // Remote-IP erkennen, fuer Fehler-Auswertung
     var remote_ip = req.headers["x-real-ip"] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     // auf Saver verweisen
-    saver.save_new_rmld(req.body, remote_ip, 'web', function (result) {
+    saver.save_new_rmld(req.body, remote_ip, 'web', function (saved) {
       var waip_uuid = req.body.waip_uuid;
       var rmld_uuid = req.body.rmld_uuid;
-      if (result) {
+      console.log(saved);
+      console.log(req);
+      if (saved) {
         req.flash('successMessage', 'Rückmeldung erfolgreich gesendet, auf zum Einsatz!');
         res.redirect('/rmld/' + waip_uuid + '/' + rmld_uuid);
       } else {
