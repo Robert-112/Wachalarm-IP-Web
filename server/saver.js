@@ -15,20 +15,6 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
       // Daten validieren
       validate_waip(waip_data, function (valid) {
         if (valid) {
-
-
-
-
-
-
-// nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
-filter_api_data(data, remote_ip, function (data_filtered) {
-});
-
-
-
-
-
           // Polygon erzeugen und zuweisen falls nicht vorhanden
           if (!waip_data.ortsdaten.wgs84_area) {
             var wgs_x = parseFloat(waip_data.ortsdaten.wgs84_x);
@@ -59,13 +45,16 @@ filter_api_data(data, remote_ip, function (data_filtered) {
                 waip_data.einsatzdaten.uuid = uuidv4();
               };
             };
-            // Einsatz in DB Speichern
-            waip.waip_speichern(waip_data, app_id);
-            sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + waip_data);
+            // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
+            filter_api_data(data, remote_addr, function (data_filtered) {
+              // Einsatz in DB Speichern
+              waip.waip_speichern(waip_data);
+              sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + waip_data);
+            });
             // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
             // TODO TEST: Api WAIP
-            api.server_to_client_new_waip(waip_data, app_id);
-            api.client_to_server_new_waip(waip_data, app_id);
+            api_server_to_client_new_waip(waip_data, app_id);
+            api_client_to_server_new_waip(waip_data, app_id);
           });
         } else {
           sql.db_log('WAIP', 'Fehler: Einsatz von ' + remote_addr + ' nicht valide: ' + waip_data);
@@ -79,18 +68,19 @@ filter_api_data(data, remote_ip, function (data_filtered) {
   function save_new_rmld(data, remote_addr, app_id, callback) {
     validate_rmld(data, function (valid) {
       if (valid) {
-        waip.rmld_speichern(data, app_id, function (result) {
+        waip.rmld_speichern(data, function (result) {
           if (result) {
-            sql.db_log('RMLD', 'Rückmeldung' + host + ' erhalten und gespeichert: ' + data);
+            sql.db_log('RMLD', 'Rückmeldung von ' + remote_addr + ' erhalten und gespeichert: ' + data);
             callback && callback(result);
           } else {
-            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung' + host + ': ' + rueckmeldung);
+            sql.db_log('RMLD', 'Fehler beim speichern der Rückmeldung von ' + remote_addr + ': ' + rueckmeldung);
             callback && callback(result);
           };
         });
+        // RMLD-Daten per API weiterleiten (entweder zum Server oder zum verbunden Client)
         // TODO TEST: Api WAIP
-        api.server_to_client_new_rmld(req.body, app_id);
-        api.client_to_server_new_rmld(req.body, app_id);
+        api_server_to_client_new_rmld(req.body, app_id);
+        api_client_to_server_new_rmld(req.body, app_id);
       } else {
         sql.db_log('RMLD', 'Fehler: Rückmeldung von ' + remote_addr + ' nicht valide: ' + waip_data);
       };
@@ -131,7 +121,7 @@ filter_api_data(data, remote_ip, function (data_filtered) {
     // SQL-Log
   };
 
-  function server_to_client_new_waip(data, app_id) {
+  function api_server_to_client_new_waip(data, app_id) {
     // Rückmeldung an verbundenen Client senden, falls funktion aktiviert
     if (app_cfg.api.enabled) {
       // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
@@ -142,11 +132,11 @@ filter_api_data(data, remote_ip, function (data_filtered) {
         data: data,
         app_id: app_id
       });
-      sql.db_log('API', 'Einsatz an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
+      sql.db_log('API', 'Einsatz an Clients gesendet: ' + JSON.stringify(data));
     };
   };
 
-  function server_to_client_new_rmld(data, app_id) {
+  function api_server_to_client_new_rmld(data, app_id) {
     // Rückmeldung an verbundenen Client senden, falls funktion aktiviert
     if (app_cfg.api.enabled) {
       // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
@@ -157,11 +147,11 @@ filter_api_data(data, remote_ip, function (data_filtered) {
         data: data,
         app_id: app_id
       });
-      sql.db_log('API', 'Rückmeldung an ' + app_cfg.endpoint.host + ' gesendet: ' + JSON.stringify(data));
+      sql.db_log('API', 'Rückmeldung an Clients gesendet: ' + JSON.stringify(data));
     };
   };
 
-  function client_to_server_new_waip(data, app_id) {
+  function api_client_to_server_new_waip(data, app_id) {
     // Alarm an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
       // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
@@ -176,7 +166,7 @@ filter_api_data(data, remote_ip, function (data_filtered) {
     };
   };
 
-  function client_to_server_new_rmld(data, app_id) {
+  function api_client_to_server_new_rmld(data, app_id) {
     // Rückmeldung an Remote-Server senden, falls funktion aktiviert
     if (app_cfg.endpoint.enabled) {
       // testen ob app_id auch eine uuid ist, falls nicht, eigene app_uuid setzen
