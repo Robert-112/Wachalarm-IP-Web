@@ -46,10 +46,10 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
               };
             };
             // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
-            filter_api_data(data, remote_addr, function (data_filtered) {
+            filter_api_data(waip_data, remote_addr, function (data_filtered) {
               // Einsatz in DB Speichern
-              waip.waip_speichern(waip_data);
-              sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + waip_data);
+              waip.waip_speichern(data_filtered);
+              sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + data_filtered);
             });
             // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
             // TODO TEST: Api WAIP
