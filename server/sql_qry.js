@@ -137,11 +137,12 @@ module.exports = function (db, app_cfg) {
     console.log(waip_id);
     console.log(socket_id);    
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
-    db.get('select uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere from waip_history where waip_id = ? and socket_id = ?', [waip_id, socket_id], function (err, row) {
+    db.get(`select uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere from waip_history where waip_id = 79`,
+    function (err, row) { //\'` + waip_id + `\' and socket_id like \'` + socket_id + `\'`, function (err, row) {
       // FIXME Testen
       console.log(err);
       
-      console.log(row);
+      console.log(JSON.stringify(row));
       if (err == null && row) {
         console.log('schon hinterlegt');
         
