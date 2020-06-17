@@ -309,14 +309,15 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             data.forEach(function (row) {
               // fuer jede Wache (row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
-              console.log('room_sockets');
+   
 
               if (typeof room_sockets !== 'undefined') {
+                // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
+                console.log('room_sockets');
                 console.log(room_sockets.sockets);
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
-                  var socket = io.of('/waip').connected[socket_id];
-                  // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
+                  var socket = io.of('/waip').connected[socket_id];                  
                   sql.db_client_check_waip_id(socket.id, waip.id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
@@ -360,7 +361,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               try {
                 var csv = parse(part_rmld, opts);
                 // CSV Dateiname und Pfad festlegen
-                var csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
+                var csv_filename = export_data.export_name.replace(/[|&;$%@"<>()+,]/g, '');
+                csv_filename = csv_filename.replace(/ /g,"_");
+                csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + csv_filename + '.csv';
                 csv_path = process.cwd() + app_cfg.rmld.backup_path;
                 //+ csv_filename;
                 console.log(csv_filename);
@@ -398,10 +401,10 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                       }
                     });
                     var mail_message = {
-                      from: 'Wachalarm-IP-Web - ' + app_cfg.public.company + ' <' + app_cfg.rmld.mail_from +'>',
+                      from: 'Wachalarm-IP-Web' + app_cfg.public.company + ' <' + app_cfg.rmld.mail_from +'>',
                       to: export_data.export_recipient,
                       subject: 'Automatischer Export Wachalarm-IP-Web - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer,
-                      html: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company,
+                      html: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.public.company,
                       attachments: [{
                         filename: csv_filename,
                         content: csv

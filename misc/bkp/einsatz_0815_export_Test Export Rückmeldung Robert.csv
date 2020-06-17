@@ -1,2 +1,2 @@
-"einsatznummer","id","waip_uuid","rmld_uuid","alias","einsatzkraft","maschinist","fuehrungskraft","agt","set_time","arrival_time","wache_id","wache_nr","wache_name"
-"0815",12,"52b01a1e-6fcc-4153-bf05-80743b7a0166","d819c5ae-9228-447f-8e2f-2d839b062fab",,1,0,0,0,"Wed Jun 17 2020 22:19:33 GMT+0200 (Mitteleuropäische Sommerzeit)","Wed Jun 17 2020 22:29:33 GMT+0200 (Mitteleuropäische Sommerzeit)",3,520201,"CB FW Cottbus 2"
+"einsatznummer","id","waip_uuid","rmld_uuid","einsatzkraft","maschinist","fuehrungskraft","agt","datetime(wr.set_time)","datetime(wr.arrival_time)","wache_id","wache_nr","wache_name"
+"0815",13,"4d3e0fc6-f186-46b6-a943-3f6e0092ce65","d0acb1e7-ce59-4e1c-8403-d877262d3492",0,1,0,1,,,2,520101,"CB FW Cottbus 1"
