@@ -133,10 +133,10 @@ module.exports = function (db, app_cfg) {
     delete missiondata.wgs84_x;
     delete missiondata.wgs84_y;
     delete missiondata.wgs84_area;
-    var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace); 
+    var uuid_einsatzdaten = uuidv5(JSON.stringify(missiondata), custom_namespace);
     // Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
     db.get('select * from waip_history where waip_uuid like (select uuid from waip_einsaetze where id = ?) and socket_id like ?', [waip_id, socket_id], function (err, row) {
-    // uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere 
+      // uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere 
       if (err == null && row) {
         // wenn History-Daten hinterlegt sind, dann pruefen sich etwas verändert hat
         if (uuid_einsatzdaten !== row.uuid_einsatz_grunddaten || uuid_em_alarmiert !== row.uuid_em_alarmiert) {
@@ -682,7 +682,7 @@ module.exports = function (db, app_cfg) {
       reuckmeldung.wache_id = responseobj.wachenauswahl;
     } else {
       reuckmeldung.wache_id = null;
-    };    
+    };
     // Rueckmeldung der Wache zuordnen
     db.get(`select name_wache, nr_wache from waip_wachen where id = ?;`, [reuckmeldung.wache_id], function (err, row) {
       if (err == null && row) {
@@ -843,30 +843,27 @@ module.exports = function (db, app_cfg) {
     });
   };
 
-  function db_vmtl_check_history(data, callback) {
-    // falls Liste für Wache hinterlegt, dann hier die Twitter-Account-Daten, Einsatz-UUID, Einsatzart und Wachenname auslesen
-
-    var uuid_vmlt_history = uuidv5(data.uuid + data.einsatzart + data.stichwort + data.name_wache + data.list, custom_namespace);
-        
-
-// Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
-db.get('select vmtl_history from waip_vmtl where vmtl_history like ?', [uuid_vmlt_history], function (err, row) {
-  // uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere 
-    if (err == null && row) {
-      // Liste wurde bereits zu diesem Einsatz beschickt
+  function db_vmtl_check_history(vmtl_data, list_data, callback) {
+    // pruefen obe für diesen Liste bereits eine Alarmierung erfolgte
+    var uuid_vmlt_history = uuidv5(vmtl_data.uuid + vmtl_data.einsatzart + vmtl_data.stichwort + vmtl_data.name_wache + vmtl_data.list, custom_namespace);
+    db.get('select vmtl_history from waip_vmtl where vmtl_history like ?', [uuid_vmlt_history], function (err, row) {
+      // Abfrage bring eine Zeile? -> Alarmierung bereits erfolgt
+      if (err == null && row) {
+        // Liste wurde bereits zu diesem Einsatz beschickt
         callback && callback(true);
-    } else {
-      // wenn keine History-Daten hinterlegt sind, diese speichern
-      db.run(`UPDATE waip_vmtl
+      } else {
+        // wenn keine History-Daten hinterlegt sind, diese speichern
+        db.run(`UPDATE waip_vmtl
         SET 
         vmtl_history=\'` + uuid_vmlt_history + `\'
-        WHERE waip_wachenname like \'` + socket_id + `\'
-        AND vmtl_typ
-        AND vmtl_account_name
-        AND vmtl_account_group`);
-      // callback History = false
-      callback && callback(false);
-    };
+        WHERE waip_wachenname like \'` + list_data.waip_wachenname + `\'
+        AND vmtl_typ like \'` + list_data.vmtl_typ + `\'
+        AND vmtl_account_name like \'` + list_data.vmtl_account_name + `\'
+        AND vmtl_account_group like \'` + list_data.vmtl_account_group + `\'`);
+        // Liste wurde noch nicht zu diesem Einsatz beschickt
+        callback && callback(false);
+      };
+    });
   };
 
   function db_export_get_for_rmld(arry_wachen, callback) {
