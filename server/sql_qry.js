@@ -848,20 +848,26 @@ module.exports = function (db, app_cfg) {
 
     var uuid_vmlt_history = uuidv5(data.uuid + data.einsatzart + data.stichwort + data.name_wache + data.list, custom_namespace);
         
-    db.get(`select tw.tw_screen_name, tw.tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, we.stichwort, wa.name_wache 
-    from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa
-    where tw.tw_screen_name = ? AND we.id = ? AND wa.name_wache like ?`, [list_data.vmtl_account_name, list_data.waip_id, list_data.waip_wachenname], function (err, vmtl_daten) {
-      if (err == null && vmtl_daten) {
-        // Listen-Name zu Daten hinzufuegen
-        vmtl_daten.list = list_data.vmtl_account_group;
-        callback && callback(vmtl_daten);
-      } else {
-        callback && callback(null);
-      };
-    });
+
+// Abfrage ob zu Socket und Waip-ID bereits History-Daten hinterlegt sind
+db.get('select vmtl_history from waip_vmtl where vmtl_history like ?', [uuid_vmlt_history], function (err, row) {
+  // uuid_einsatz_grunddaten, uuid_em_alarmiert, uuid_em_weitere 
+    if (err == null && row) {
+      // Liste wurde bereits zu diesem Einsatz beschickt
+        callback && callback(true);
+    } else {
+      // wenn keine History-Daten hinterlegt sind, diese speichern
+      db.run(`UPDATE waip_vmtl
+        SET 
+        vmtl_history=\'` + uuid_vmlt_history + `\'
+        WHERE waip_wachenname like \'` + socket_id + `\'
+        AND vmtl_typ
+        AND vmtl_account_name
+        AND vmtl_account_group`);
+      // callback History = false
+      callback && callback(false);
+    };
   };
-
-
 
   function db_export_get_for_rmld(arry_wachen, callback) {
     // saubere String-Werte erstellen
