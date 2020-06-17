@@ -345,7 +345,11 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
           // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
           var arry_wachen = full_rmld.map(a => a.wache_nr);
+          // FIXME
+          console.log(arry_wachen)
           sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
+            // FIXME
+          console.log(arry_wachen)
             // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
             if (export_data) {
               var part_rmld = full_rmld;
@@ -402,13 +406,10 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                       }
                     });
                     var mail_message = {
-                      from: {
-                        name: 'Wachalarm-IP-Web - ' + app_cfg.global.company,
-                        address: app_cfg.rmld.mail_from
-                      },
+                      from: 'Wachalarm-IP-Web - ' + app_cfg.public.company + ' <' + app_cfg.rmld.mail_from +'>',
                       to: export_data.export_recipient,
                       subject: 'Automatischer Export Wachalarm-IP-Web - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer,
-                      text: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company,
+                      html: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company,
                       attachments: [{
                         filename: csv_filename,
                         content: csv

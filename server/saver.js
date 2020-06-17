@@ -89,7 +89,8 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
   };
 
   // Funktion um zu pruefen, ob Nachricht im JSON-Format ist
-  function isValidJSON(text) {
+  function isValidJSON(json_obj) {
+    var text = JSON.stringify(json_obj);
     if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
       //the json is ok
       return true;
