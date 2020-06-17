@@ -57,7 +57,7 @@ app_cfg.api = {
 // Schnittstelle um Daten an andere Server zu senden
 app_cfg.endpoint = {
   enabled: true,
-  host: 'https://192.168.1.25:8090/api',
+  host: 'https://wachalarm.leitstelle-lausitz.de/api',
   secret: 'asdfwert1234567890#'
 };
 
