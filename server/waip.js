@@ -1,10 +1,10 @@
 module.exports = function (io, sql, fs, brk, async, app_cfg) {
 
   // Module laden
-  const { parse } = require('json2csv');
-  const sendmail = require('sendmail')({
-    silent: true
-  });
+  const {
+    parse
+  } = require('json2csv');
+  const nodemailer = require('nodemailer');
 
   function waip_speichern(einsatz_daten) {
     // Einsatzmeldung in Datenbank speichern und verteilen
@@ -309,7 +309,10 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             data.forEach(function (row) {
               // fuer jede Wache (row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
+              console.log('room_sockets');
+
               if (typeof room_sockets !== 'undefined') {
+                console.log(room_sockets.sockets);
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
                   var socket = io.of('/waip').connected[socket_id];
@@ -348,16 +351,18 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               var part_rmld = full_rmld;
               console.log('bereite export vor');
               console.log(part_rmld);
-              
+
               // FIXME full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
               // CSV-Spalten definieren
               var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
-              var opts = { csv_col };
+              var opts = {
+                csv_col
+              };
               try {
                 var csv = parse(part_rmld, opts);
                 console.log(csv);
                 // CSV Dateiname und Pfad festlegen
-                //FIXME csv export nochmals prüfen
+                //TODO csv export nochmals prüfen
                 var csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
                 csv_path = process.cwd() + app_cfg.rmld.backup_path;
                 //+ csv_filename;
@@ -365,18 +370,20 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                 // CSV in Backup-Ordner speichern, falls aktiviert
                 if (app_cfg.rmld.backup_to_file) {
                   // Ordner erstellen
-                  fs.mkdir(csv_path, { recursive: true }, function (err) {
+                  fs.mkdir(csv_path, {
+                    recursive: true
+                  }, function (err) {
                     if (err) {
                       sql.db_log('EXPORT', 'Fehler beim Erstellen des Backup-Ordners: ' + err);
                     };
-                  // CSV speichern
-                  fs.writeFile(csv_path + csv_filename, csv, function (err) {
-                    if (err) {
-                      console.log(err);
-                      sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
-                    };
+                    // CSV speichern
+                    fs.writeFile(csv_path + csv_filename, csv, function (err) {
+                      if (err) {
+                        console.log(err);
+                        sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
+                      };
+                    });
                   });
-                });
                 };
                 //FIXME anderen Email-Dienst
                 // CSV per Mail versenden, falls aktiviert
@@ -384,25 +391,36 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                   // pruefen ob Mail plausibel ist
                   var validmail = /\S+@\S+\.\S+/;
                   if (validmail.test(export_data.export_recipient)) {
-                    var mail_from = 'keineantwort@wachalarm.info.tm'; //+ app_cfg.global.url.replace(/(^\w+:|^)\/\//, '');
-                    var mail_subject = 'Automatischer Export Rückmeldungen Wachalarm-IP - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer;
-                    var mail_html = 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company;
-                    sendmail({
-                      from: mail_from,
+                    // Mail-Server
+                    var transport = nodemailer.createTransport({
+                      host: app_cfg.rmld.mailserver_host,
+                      port: app_cfg.rmld.mailserver_port,
+                      secure: app_cfg.rmld.secure_mail,
+                      auth: {
+                        user: app_cfg.rmld.mail_user,
+                        pass: app_cfg.rmld.mail_pass
+                      }
+                    });
+                    var mail_message = {
+                      from: {
+                        name: 'Wachalarm-IP-Web - ' + app_cfg.global.company,
+                        address: app_cfg.rmld.mail_from
+                      },
                       to: export_data.export_recipient,
-                      subject: mail_subject,
-                      html: mail_html,
+                      subject: 'Automatischer Export Wachalarm-IP-Web - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer,
+                      text: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company,
                       attachments: [{
                         filename: csv_filename,
                         content: csv
                       }]
-                    }, function (err, reply) {
-                      if (!err) {
-                        sql.db_log('EXPORT', 'Mail an ' + export_data.mail_subject + ' gesendet - ' + reply);
+                    };
+                    transport.sendMail(mail_message, function (err, info) {
+                      if (err) {
+                        sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.mail_subject + ': ' + err);
                       } else {
-                        sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.mail_subject + ' - ' + err + '; ' + err.stack);
-                      };
-                    })
+                        sql.db_log('EXPORT', 'Mail an ' + export_data.mail_subject + ' gesendet: ' + info);
+                      }
+                    });
                   } else {
                     sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.mail_subject + ' - keine richtige Mail-Adresse!');
                   };
