@@ -34,11 +34,17 @@ app_cfg.public = {
   url_privacy: 'https://www.nix.nix/datenschutz'
 };
 
-// Einstellungen fuer Rueckmeldungen
+// Einstellungen fuer Backups von Rueckmeldungen
 app_cfg.rmld = {
-  backup_to_mail: true,
   backup_to_file: true,
-  backup_path: '/misc/bkp/'
+  backup_path: '/misc/bkp/',
+  backup_to_mail: true,
+  mailserver_host: 'smtp.xxx.de',
+  mailserver_port: 587,
+  secure_mail: false,
+  mail_user: 'testuser',
+  mail_pass: 'testpass',
+  mail_from: 'keineantwort@wachalarm.info.tm'
 };
 
 // Schnittstelle um Daten von anderen Clients zu empfangen

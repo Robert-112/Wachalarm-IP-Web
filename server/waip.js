@@ -355,6 +355,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                 var csv = parse(part_rmld, opts);
                 console.log(csv);
                 // CSV Dateiname und Pfad festlegen
+                //FIXME csv export nochmals prüfen
                 var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
                 csv_path = process.cwd() + app_cfg.rmld.backup_path;
                 //+ csv_filename;
@@ -375,6 +376,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                   });
                 });
                 };
+                //FIXME anderen Email-Dienst
                 // CSV per Mail versenden, falls aktiviert
                 if (app_cfg.rmld.backup_to_mail) {
                   // pruefen ob Mail plausibel ist
