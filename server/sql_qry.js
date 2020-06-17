@@ -501,11 +501,15 @@ module.exports = function (db, app_cfg) {
   function db_log(typ, text) {
     // Debug Eintraege nur bei Development speichern 
     var do_log = true;
-    if (typ.match(/debug/i)) {
+    var debug_regex = new RegExp('debug', 'gi');
+    if (typ.match(debug_regex)) {
       do_log = app_cfg.global.development;
     } else {
       do_log = app_cfg.global.development;
     };
+    console.log(typ);
+    console.log();
+    
     // Log-Eintrag schreiben
     if (do_log) {
       db.run(`INSERT INTO waip_log (log_typ, log_text)
