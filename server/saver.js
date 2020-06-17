@@ -32,7 +32,7 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
               steps: app_cfg.global.circumcircle,
               units: 'kilometers'
             })
-            waip_data.ortsdaten.wgs84_area = JSON.stringify(new_buffer);
+            waip_data.ortsdaten.wgs84_area = new_buffer;
           };
           // pruefen, ob vielleicht schon ein Einsatz mit einer UUID gespeichert ist
           sql.db_einsatz_get_uuid_by_enr(waip_data.einsatzdaten.nummer, function (waip_uuid) {
@@ -67,9 +67,9 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
 
   function save_new_rmld(data, remote_addr, app_id, callback) {
     validate_rmld(data, function (valid) {
-      if (valid) {        
+      if (valid) {
         // Rueckmeldung speichern und verteilen
-        sql.db_rmld_save(data, function (result) {          
+        sql.db_rmld_save(data, function (result) {
           if (result) {
             sql.db_log('RMLD', 'Rückmeldung von ' + remote_addr + ' erhalten und gespeichert: ' + JSON.stringify(data));
             waip.rmld_verteilen_by_uuid(data.waip_uuid, data.rmld_uuid);
@@ -92,12 +92,13 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
 
   // Funktion um zu pruefen, ob Nachricht im JSON-Format ist
   function isValidJSON(text) {
-    try {
-      JSON.parse(text);
+    if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+      //the json is ok
       return true;
-    } catch (error) {
+    } else {
+      //the json is not ok
       return false;
-    }
+    };
   };
 
   function validate_waip(data, callback) {

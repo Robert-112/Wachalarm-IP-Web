@@ -10,7 +10,6 @@ module.exports = function (db, app_cfg) {
 
   function db_einsatz_speichern(content, callback) {
     // Einsatzdaten verarbeiten
-    console.log(content.ortsdaten.wgs84_area);
     db.run(`INSERT OR REPLACE INTO waip_einsaetze (
       id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
       VALUES (
@@ -31,7 +30,7 @@ module.exports = function (db, app_cfg) {
       \'` + content.ortsdaten.wachfolge + `\',
       \'` + content.ortsdaten.wgs84_x + `\',
       \'` + content.ortsdaten.wgs84_y + `\',
-      \'` + content.ortsdaten.wgs84_area + `\')`,
+      \'` + JSON.stringify(content.ortsdaten.wgs84_area) + `\')`,
       function (err) {
         if (err == null) {
           // letzte Einsatz-ID ermitteln
