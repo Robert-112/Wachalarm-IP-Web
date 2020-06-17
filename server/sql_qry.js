@@ -4,6 +4,7 @@ module.exports = function (db, app_cfg) {
   const {
     v5: uuidv5
   } = require('uuid');
+  const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252';
 
   // SQL-Abfragen
 
@@ -120,7 +121,6 @@ module.exports = function (db, app_cfg) {
 
   function db_einsatz_check_history(waip_id, einsatzdaten, socket_id, callback) {
     // Prüfen ob Wachalarm bereits in dieser Form an diesen Socket gesendet wurde (Doppelalarmierung vermeiden)
-    const custom_namespace = '59cc72ec-4ff5-499d-81e2-ec49c1d01252';
     // neues Object mit Einsatzdaten erstellen
     var missiondata = Object.assign({}, einsatzdaten);
     // Einsatzdaten in kuzre UUID-Strings umwandeln, diese UUIDs werden dann verglichen
@@ -843,6 +843,26 @@ module.exports = function (db, app_cfg) {
     });
   };
 
+  function db_vmtl_check_history(data, callback) {
+    // falls Liste für Wache hinterlegt, dann hier die Twitter-Account-Daten, Einsatz-UUID, Einsatzart und Wachenname auslesen
+
+    var uuid_vmlt_history = uuidv5(data.uuid + data.einsatzart + data.stichwort + data.name_wache + data.list, custom_namespace);
+        
+    db.get(`select tw.tw_screen_name, tw.tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, we.stichwort, wa.name_wache 
+    from waip_tw_accounts tw, waip_einsaetze we, waip_wachen wa
+    where tw.tw_screen_name = ? AND we.id = ? AND wa.name_wache like ?`, [list_data.vmtl_account_name, list_data.waip_id, list_data.waip_wachenname], function (err, vmtl_daten) {
+      if (err == null && vmtl_daten) {
+        // Listen-Name zu Daten hinzufuegen
+        vmtl_daten.list = list_data.vmtl_account_group;
+        callback && callback(vmtl_daten);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+
+
   function db_export_get_for_rmld(arry_wachen, callback) {
     // saubere String-Werte erstellen
     arry_wachen = arry_wachen.map(String);
@@ -907,6 +927,7 @@ module.exports = function (db, app_cfg) {
     db_rmld_get_by_waipuuid: db_rmld_get_by_waipuuid,
     db_rmld_loeschen: db_rmld_loeschen,
     db_vmtl_get_list: db_vmtl_get_list,
+    db_vmtl_check_history: db_vmtl_check_history,
     db_vmtl_get_tw_account: db_vmtl_get_tw_account,
     db_export_get_for_rmld: db_export_get_for_rmld
   };
