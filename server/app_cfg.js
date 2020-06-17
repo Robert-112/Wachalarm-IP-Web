@@ -9,7 +9,7 @@ app_cfg.global = {
   database: './database.sqlite3',
   soundpath: '/public/media/',
   mediapath: '/media/',
-  time_to_delete_waip: 25,
+  time_to_delete_waip: 1,
   default_time_for_standby: 10,
   circumcircle: 5,
   defaultuser: 'me',

@@ -1,7 +1,7 @@
 module.exports = function (io, sql, fs, brk, async, app_cfg) {
 
   // Module laden
-  const json2csv = require('json2csv');
+  const { parse } = require('json2csv');
   const sendmail = require('sendmail')({
     silent: true
   });
@@ -25,6 +25,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             };
           });
         } else {
+          // FIXME löschen klappt nicht
           // wenn kein Raum (keine Wache) in der DB hinterlegt ist, dann Einsatz direkt wieder loeschen
           sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden! Einsatz wird gelöscht!');
           sql.db_einsatz_loeschen(waip_id);
@@ -343,60 +344,56 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
           sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
             // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
             if (export_data) {
-              var part_rmld = full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
+              var part_rmld = full_rmld;
+              // FIXME full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
               // CSV-Spalten definieren
               var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
-              json2csv({
-                data: part_rmld,
-                fields: csv_col
-              }, function (err, csv) {
-                // FIXME TEST: CSV und Mail
-                if (err) {
-                  sql.db_log('EXPORT', 'Fehler beim erstellen der Export-CSV: ' + err);
-                } else {
-                  // CSV Dateiname und Pfad festlegen
-                  var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
-                  csv_filename = process.cwd() + app_cfg.rmld.backup_path + csv_filename;
-                  // CSV in Backup-Ordner speichern, falls aktiviert
-                  if (app_cfg.rmld.backup_to_file) {
-
-                    // CSV speichern
-                    fs.writeFile(csv_filename, csv, function (err) {
-                      if (err) {
-                        sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
-                      };
-                    });
-                  };
-                  // CSV per Mail versenden, falls aktiviert
-                  if (app_cfg.rmld.backup_to_mail) {
-                    // pruefen ob Mail plausibel ist
-                    var validmail = /\S+@\S+\.\S+/;
-                    if (validmail.test(export_data.export_recipient)) {
-                      var mail_from = 'keineantwort@' + app_cfg.global.url.replace(/(^\w+:|^)\/\//, '');
-                      var mail_subject = 'Automatischer Export Rückmeldungen Wachalarm-IP - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer;
-                      var mail_html = 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company;
-                      sendmail({
-                        from: mail_from,
-                        to: export_data.export_recipient,
-                        subject: mail_subject,
-                        html: mail_html,
-                        attachments: [{
-                          filename: csv_filename,
-                          content: csv
-                        }]
-                      }, function (err, reply) {
-                        if (!err) {
-                          sql.db_log('EXPORT', 'Mail an ' + export_data.mail_subject + ' gesendet - ' + reply);
-                        } else {
-                          sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.mail_subject + ' - ' + err + '; ' + err.stack);
-                        };
-                      })
-                    } else {
-                      sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.mail_subject + ' - keine richtige Mail-Adresse!');
+              var opts = { csv_col };
+              try {
+                var csv = parse(part_rmld, opts);
+                // CSV Dateiname und Pfad festlegen
+                var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
+                csv_filename = process.cwd() + app_cfg.rmld.backup_path + csv_filename;
+                // CSV in Backup-Ordner speichern, falls aktiviert
+                if (app_cfg.rmld.backup_to_file) {
+                  // CSV speichern
+                  fs.writeFile(csv_filename, csv, function (err) {
+                    if (err) {
+                      sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
                     };
+                  });
+                };
+                // CSV per Mail versenden, falls aktiviert
+                if (app_cfg.rmld.backup_to_mail) {
+                  // pruefen ob Mail plausibel ist
+                  var validmail = /\S+@\S+\.\S+/;
+                  if (validmail.test(export_data.export_recipient)) {
+                    var mail_from = 'keineantwort@' + app_cfg.global.url.replace(/(^\w+:|^)\/\//, '');
+                    var mail_subject = 'Automatischer Export Rückmeldungen Wachalarm-IP - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer;
+                    var mail_html = 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company;
+                    sendmail({
+                      from: mail_from,
+                      to: export_data.export_recipient,
+                      subject: mail_subject,
+                      html: mail_html,
+                      attachments: [{
+                        filename: csv_filename,
+                        content: csv
+                      }]
+                    }, function (err, reply) {
+                      if (!err) {
+                        sql.db_log('EXPORT', 'Mail an ' + export_data.mail_subject + ' gesendet - ' + reply);
+                      } else {
+                        sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.mail_subject + ' - ' + err + '; ' + err.stack);
+                      };
+                    })
+                  } else {
+                    sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.mail_subject + ' - keine richtige Mail-Adresse!');
                   };
                 };
-              });
+              } catch (err) {
+                sql.db_log('EXPORT', 'Fehler beim erstellen der Export-CSV: ' + err);
+              };
             };
           });
           // alte Rueckmeldungen loeschen
@@ -404,6 +401,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         });
         // alten Einsatz loeschen
         sql.db_einsatz_loeschen(waip.id);
+          // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
         sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
       };
     });
