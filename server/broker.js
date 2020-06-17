@@ -2,10 +2,6 @@ module.exports = function (app_cfg, sql, uuidv4) {
 
   // Module laden
   const twit = require('twit');
-  const {
-    v5: uuidv5
-  } = require('uuid');
-  const custom_namespace = 'fadad35a-b9dc-42b5-9484-7459ae2a6445';
 
   function alert_vmtl_list(list_data, callback) {
 
@@ -23,15 +19,8 @@ module.exports = function (app_cfg, sql, uuidv4) {
           console.log('Twitter-Account-Daten: ' + JSON.stringify(vmtl_data));
         };
 
-        // Daten in kurzen UUID-Strings umwandeln
-        //FIXME 
-        var uuid_vmlt_history = uuidv5(vmtl_data.uuid + vmtl_data.einsatzart + vmtl_data.stichwort + vmtl_data.name_wache + vmtl_data.list, custom_namespace);
-        // Prüfen ob zuletzt bereits eine Nachricht gesendet wurde (Doppelalarmierung vermeiden)
-
-
-
         if (vmtl_data) {
-
+          // Prüfen ob zuletzt bereits eine Nachricht gesendet wurde (Doppelalarmierung vermeiden)
           sql.db_vmtl_check_history(vmtl_data, list_data, function (exists) {
             if (!exists) {
               var T = new twit({

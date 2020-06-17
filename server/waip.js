@@ -355,7 +355,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                 var csv = parse(part_rmld, opts);
                 console.log(csv);
                 // CSV Dateiname und Pfad festlegen
-                var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
+                var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
                 csv_filename = process.cwd() + app_cfg.rmld.backup_path + csv_filename;
                 console.log(csv_filename);
                 // CSV in Backup-Ordner speichern, falls aktiviert
@@ -373,7 +373,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                   // pruefen ob Mail plausibel ist
                   var validmail = /\S+@\S+\.\S+/;
                   if (validmail.test(export_data.export_recipient)) {
-                    var mail_from = 'keineantwort@' + app_cfg.global.url.replace(/(^\w+:|^)\/\//, '');
+                    var mail_from = 'keineantwort@wachalarm.info.tm'; //+ app_cfg.global.url.replace(/(^\w+:|^)\/\//, '');
                     var mail_subject = 'Automatischer Export Rückmeldungen Wachalarm-IP - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer;
                     var mail_html = 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.global.company;
                     sendmail({
