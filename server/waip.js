@@ -305,12 +305,15 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip.id + ' ist veraltet und kann gelöscht werden.')
         // beteiligte Wachen zum Einsatz ermitteln
         sql.db_einsatz_get_rooms(waip.id, function (data) {
+          console.log(data);
+          
           if (data) {
             data.forEach(function (row) {
               // fuer jede Wache (row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
-   
+              console.log(row.room);
 
+              console.log(room_sockets);
               if (typeof room_sockets !== 'undefined') {
                 // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
                 console.log('room_sockets');
