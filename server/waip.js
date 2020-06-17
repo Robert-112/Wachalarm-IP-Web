@@ -342,20 +342,15 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             });
           };
         });
-        sql.db_rmld_get_by_waipuuid(waip.uuid, function (full_rmld) {
+        sql.db_rmld_get_for_export(waip.uuid, function (full_rmld) {
           // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
           var arry_wachen = full_rmld.map(a => a.wache_nr);
-          // FIXME
-          console.log(arry_wachen)
           sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
-            // FIXME
+   
           console.log(arry_wachen)
             // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
             if (export_data) {
               var part_rmld = full_rmld;
-              console.log('bereite export vor');
-              console.log(part_rmld);
-
               // FIXME full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
               // CSV-Spalten definieren
               var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
@@ -364,9 +359,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               };
               try {
                 var csv = parse(part_rmld, opts);
-                console.log(csv);
                 // CSV Dateiname und Pfad festlegen
-                //TODO csv export nochmals prüfen
                 var csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
                 csv_path = process.cwd() + app_cfg.rmld.backup_path;
                 //+ csv_filename;
@@ -389,7 +382,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                     });
                   });
                 };
-                //FIXME anderen Email-Dienst
                 // CSV per Mail versenden, falls aktiviert
                 if (app_cfg.rmld.backup_to_mail) {
                   // pruefen ob Mail plausibel ist
@@ -417,13 +409,13 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                     };
                     transport.sendMail(mail_message, function (err, info) {
                       if (err) {
-                        sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.mail_subject + ': ' + err);
+                        sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.export_recipient + ': ' + err);
                       } else {
-                        sql.db_log('EXPORT', 'Mail an ' + export_data.mail_subject + ' gesendet: ' + info);
+                        sql.db_log('EXPORT', 'Mail an ' + export_data.export_recipient + ' gesendet: ' + JSON.stringify(info));
                       }
                     });
                   } else {
-                    sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.mail_subject + ' - keine richtige Mail-Adresse!');
+                    sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.export_recipient + ' - keine richtige Mail-Adresse!');
                   };
                 };
               } catch (err) {
