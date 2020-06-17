@@ -305,22 +305,14 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip.id + ' ist veraltet und kann gelöscht werden.')
         // beteiligte Wachen zum Einsatz ermitteln
         sql.db_einsatz_get_rooms(waip.id, function (data) {
-          console.log(data);
-          
           if (data) {
             data.forEach(function (row) {
               // fuer jede Wache (row.room) die verbundenen Sockets(Clients) ermitteln und Standby senden
               var room_sockets = io.nsps['/waip'].adapter.rooms[row.room];
-              console.log(row.room);
-
-              console.log(room_sockets);
               if (typeof room_sockets !== 'undefined') {
-                // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
-                console.log('room_sockets');
-                console.log(room_sockets.sockets);
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
-                  var socket = io.of('/waip').connected[socket_id];                  
+                  var socket = io.of('/waip').connected[socket_id];
                   sql.db_client_check_waip_id(socket.id, waip.id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
@@ -333,108 +325,107 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               };
             });
           };
-        });
-        sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
-          // Dashboards trennen, deren Einsatz geloescht wurde
-          // TODO TEST: Dashboard-Trennen-Funktion testen
-          if (socket_ids) {
-            socket_ids.forEach(function (row) {
-              var socket = io.of('/dbrd').connected[row.socket_id];
-              socket.emit('io.deleted', null);
-              sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
-              sql.db_client_update_status(socket, null);
-            });
-          };
-        });
-        sql.db_rmld_get_for_export(waip.uuid, function (full_rmld) {
-          // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
-          var arry_wachen = full_rmld.map(a => a.wache_nr);
-          sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
-   
-          console.log(arry_wachen)
-            // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
-            if (export_data) {
-              var part_rmld = full_rmld;
-              // FIXME full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
-              // CSV-Spalten definieren
-              var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
-              var opts = {
-                csv_col
-              };
-              try {
-                var csv = parse(part_rmld, opts);
-                // CSV Dateiname und Pfad festlegen
-                var csv_filename = export_data.export_name.replace(/[|&;$%@"<>()+,]/g, '');
-                csv_filename = csv_filename.replace(/ /g,"_");
-                csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + csv_filename + '.csv';
-                csv_path = process.cwd() + app_cfg.rmld.backup_path;
-                //+ csv_filename;
-                console.log(csv_filename);
-                // CSV in Backup-Ordner speichern, falls aktiviert
-                if (app_cfg.rmld.backup_to_file) {
-                  // Ordner erstellen
-                  fs.mkdir(csv_path, {
-                    recursive: true
-                  }, function (err) {
-                    if (err) {
-                      sql.db_log('EXPORT', 'Fehler beim Erstellen des Backup-Ordners: ' + err);
-                    };
-                    // CSV speichern
-                    fs.writeFile(csv_path + csv_filename, csv, function (err) {
-                      if (err) {
-                        console.log(err);
-                        sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
-                      };
-                    });
-                  });
-                };
-                // CSV per Mail versenden, falls aktiviert
-                if (app_cfg.rmld.backup_to_mail) {
-                  // pruefen ob Mail plausibel ist
-                  var validmail = /\S+@\S+\.\S+/;
-                  if (validmail.test(export_data.export_recipient)) {
-                    // Mail-Server
-                    var transport = nodemailer.createTransport({
-                      host: app_cfg.rmld.mailserver_host,
-                      port: app_cfg.rmld.mailserver_port,
-                      secure: app_cfg.rmld.secure_mail,
-                      auth: {
-                        user: app_cfg.rmld.mail_user,
-                        pass: app_cfg.rmld.mail_pass
-                      }
-                    });
-                    var mail_message = {
-                      from: 'Wachalarm-IP-Web' + app_cfg.public.company + ' <' + app_cfg.rmld.mail_from +'>',
-                      to: export_data.export_recipient,
-                      subject: 'Automatischer Export Wachalarm-IP-Web - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer,
-                      html: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.public.company,
-                      attachments: [{
-                        filename: csv_filename,
-                        content: csv
-                      }]
-                    };
-                    transport.sendMail(mail_message, function (err, info) {
-                      if (err) {
-                        sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.export_recipient + ': ' + err);
-                      } else {
-                        sql.db_log('EXPORT', 'Mail an ' + export_data.export_recipient + ' gesendet: ' + JSON.stringify(info));
-                      }
-                    });
-                  } else {
-                    sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.export_recipient + ' - keine richtige Mail-Adresse!');
-                  };
-                };
-              } catch (err) {
-                sql.db_log('EXPORT', 'Fehler beim erstellen der Export-CSV: ' + err);
-              };
+          sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
+            // Dashboards trennen, deren Einsatz geloescht wurde
+            // TODO TEST: Dashboard-Trennen-Funktion testen
+            if (socket_ids) {
+              socket_ids.forEach(function (row) {
+                var socket = io.of('/dbrd').connected[row.socket_id];
+                socket.emit('io.deleted', null);
+                sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
+                sql.db_client_update_status(socket, null);
+              });
             };
           });
-          // alte Rueckmeldungen loeschen
-          sql.db_rmld_loeschen(waip.uuid);
+          sql.db_rmld_get_for_export(waip.uuid, function (full_rmld) {
+            // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
+            var arry_wachen = full_rmld.map(a => a.wache_nr);
+            sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
+
+              console.log(arry_wachen)
+              // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
+              if (export_data) {
+                var part_rmld = full_rmld;
+                // FIXME 
+                //var part_rmld = full_rmld.filter(obj => String(obj.wache_nr).startsWith(String(export_data.export_filter)));
+                // CSV-Spalten definieren
+                var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
+                var opts = {
+                  csv_col
+                };
+                try {
+                  var csv = parse(part_rmld, opts);
+                  // CSV Dateiname und Pfad festlegen
+                  var csv_filename = export_data.export_name.replace(/[|&;$%@"<>()+,]/g, '');
+                  csv_filename = csv_filename.replace(/ /g, "_");
+                  csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + csv_filename + '.csv';
+                  csv_path = process.cwd() + app_cfg.rmld.backup_path;
+                  // CSV in Backup-Ordner speichern, falls aktiviert
+                  if (app_cfg.rmld.backup_to_file) {
+                    // Ordner erstellen
+                    fs.mkdir(csv_path, {
+                      recursive: true
+                    }, function (err) {
+                      if (err) {
+                        sql.db_log('EXPORT', 'Fehler beim Erstellen des Backup-Ordners: ' + err);
+                      };
+                      // CSV speichern
+                      fs.writeFile(csv_path + csv_filename, csv, function (err) {
+                        if (err) {
+                          sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
+                        };
+                      });
+                    });
+                  };
+                  // CSV per Mail versenden, falls aktiviert
+                  if (app_cfg.rmld.backup_to_mail) {
+                    // pruefen ob Mail plausibel ist
+                    var validmail = /\S+@\S+\.\S+/;
+                    if (validmail.test(export_data.export_recipient)) {
+                      // Mail-Server
+                      var transport = nodemailer.createTransport({
+                        host: app_cfg.rmld.mailserver_host,
+                        port: app_cfg.rmld.mailserver_port,
+                        secure: app_cfg.rmld.secure_mail,
+                        auth: {
+                          user: app_cfg.rmld.mail_user,
+                          pass: app_cfg.rmld.mail_pass
+                        }
+                      });
+                      var mail_message = {
+                        from: 'Wachalarm-IP-Web' + app_cfg.public.company + ' <' + app_cfg.rmld.mail_from + '>',
+                        to: export_data.export_recipient,
+                        subject: 'Automatischer Export Wachalarm-IP-Web - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer,
+                        html: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.public.company,
+                        attachments: [{
+                          filename: csv_filename,
+                          content: csv
+                        }]
+                      };
+                      transport.sendMail(mail_message, function (err, info) {
+                        if (err) {
+                          sql.db_log('EXPORT', 'Fehler beim senden der Export-Mail an ' + export_data.export_recipient + ': ' + err);
+                        } else {
+                          sql.db_log('EXPORT', 'Mail an ' + export_data.export_recipient + ' gesendet: ' + JSON.stringify(info));
+                        }
+                      });
+                    } else {
+                      sql.db_log('EXPORT', 'Fehler beim versenden der Export-Mail an ' + export_data.export_recipient + ' - keine richtige Mail-Adresse!');
+                    };
+                  };
+                } catch (err) {
+                  sql.db_log('EXPORT', 'Fehler beim erstellen der Export-CSV: ' + err);
+                };
+              };
+            });
+            // alte Rueckmeldungen loeschen
+            sql.db_rmld_loeschen(waip.uuid);
+          });
+          // alten Einsatz loeschen
+          sql.db_einsatz_loeschen(waip.id);
+          sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
         });
-        // alten Einsatz loeschen
-        sql.db_einsatz_loeschen(waip.id);
-        sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
+
       };
     });
 
