@@ -12,7 +12,8 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
       sql.db_log('DEBUG', 'Neuen Einsatz mit der ID ' + waip_id + ' gespeichert.');
       // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
       sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
-        if (socket_rooms) {
+        // socket_rooms muss groesser als 1 sein, da sonst nur der Standard-Raum '0' vorhanden ist
+        if (socket_rooms.length > 1) {
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
             var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];
@@ -25,8 +26,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             };
           });
         } else {
-          // FIXME löschen klappt nicht
-          // wenn kein Raum (keine Wache) in der DB hinterlegt ist, dann Einsatz direkt wieder loeschen
+          // wenn kein Raum (keine Wache) ausser '0' zurueckgeliefert wird, dann Einsatz direkt wieder loeschen weil keine Wachen dazu hinterlegt
           sql.db_log('Fehler-WAIP', 'Fehler: Keine Wache für den Einsatz mit der ID ' + waip_id + ' vorhanden! Einsatz wird gelöscht!');
           sql.db_einsatz_loeschen(waip_id);
         };
@@ -313,6 +313,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                 Object.keys(room_sockets.sockets).forEach(function (socket_id) {
                   // Standby senden    
                   var socket = io.of('/waip').connected[socket_id];
+                  // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
                   sql.db_client_check_waip_id(socket.id, waip.id, function (same_id) {
                     if (same_id) {
                       socket.emit('io.standby', null);
@@ -346,6 +347,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             if (export_data) {
               var part_rmld = full_rmld;
               console.log('bereite export vor');
+              console.log(part_rmld);
               
               // FIXME full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
               // CSV-Spalten definieren
@@ -356,7 +358,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                 console.log(csv);
                 // CSV Dateiname und Pfad festlegen
                 //FIXME csv export nochmals prüfen
-                var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
+                var csv_filename = 'einsatz_' + part_rmld[0].einsatznummer + '_export_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
                 csv_path = process.cwd() + app_cfg.rmld.backup_path;
                 //+ csv_filename;
                 console.log(csv_filename);
@@ -415,7 +417,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         });
         // alten Einsatz loeschen
         sql.db_einsatz_loeschen(waip.id);
-          // FIXME gelöschter einsatz wird noch als Wachalarm angezeigt
         sql.db_log('WAIP', 'Einsatz-Daten zu Einsatz ' + waip.id + ' gelöscht.');
       };
     });
@@ -424,7 +425,11 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
     fs.readdirSync(process.cwd() + app_cfg.global.soundpath).forEach(file => {
       // nur die mp3s von alten clients loeschen
       if (file.substring(0, 4) != 'bell' && file.substring(file.length - 3) == 'mp3' && file.substring(file.length - 8) != '_tmp.mp3') {
-        sql.db_socket_get_by_id(file.substring(0, file.length - 4), function (data) {
+        // Socket-ID aus Datei-Namen extrahieren
+        socket_name = file.substring(0, file.length - 4);
+        // Socket-ID anpassen, damit die SQL-Abfrage ein Ergebnis liefert
+        socket_name.replace('waip', '/waip#');
+        sql.db_socket_get_by_id(socket_name, function (data) {
           if (!data) {
             fs.unlink(process.cwd() + app_cfg.global.soundpath + file, function (err) {
               if (err) return sql.db_log('Fehler-WAIP', err);

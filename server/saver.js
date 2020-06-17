@@ -52,7 +52,6 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
               sql.db_log('WAIP', 'Neuer Einsatz von ' + remote_addr + ' wird jetzt verarbeitet: ' + JSON.stringify(data_filtered));
             });
             // Einsatzdaten per API weiterleiten (entweder zum Server oder zum verbunden Client)
-            // TODO TEST: Api WAIP
             api_server_to_client_new_waip(waip_data, app_id);
             api_client_to_server_new_waip(waip_data, app_id);
           });
@@ -80,7 +79,6 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
           };
         });
         // RMLD-Daten per API weiterleiten (entweder zum Server oder zum verbunden Client)
-        // TODO TEST: Api WAIP
         api_server_to_client_new_rmld(data, app_id);
         api_client_to_server_new_rmld(data, app_id);
       } else {

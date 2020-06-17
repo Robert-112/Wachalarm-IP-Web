@@ -31,7 +31,11 @@ module.exports = function (io, sql, app_cfg, remote_api, saver) {
         // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
         if (app_id != app_cfg.global.app_id) {
           saver.save_new_waip(data, remote_ip, app_id);
-          sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + JSON.stringify(data));
+          if (app_cfg.global.development) {
+            sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + ': ' + JSON.stringify(data));
+          } else {
+            sql.db_log('API', 'Neuer Wachalarm von ' + remote_ip + '. Wird verarbeitet.');
+          };          
         };
       });
 
@@ -87,8 +91,12 @@ module.exports = function (io, sql, app_cfg, remote_api, saver) {
       // nur speichern wenn app_id nicht eigenen globalen app_id entspricht
       if (app_id != app_cfg.global.app_id) {
         // nicht erwuenschte Daten ggf. enfernen (Datenschutzoption)
-        saver.save_new_waip(data, app_cfg.endpoint.host, app_id);
-        sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + ': ' + JSON.stringify(data));
+        saver.save_new_waip(data, app_cfg.endpoint.host, app_id);        
+        if (app_cfg.global.development) {
+          sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + ': ' + JSON.stringify(data));
+        } else {
+          sql.db_log('API', 'Neuer Wachalarm von ' + app_cfg.endpoint.host + '. Wird verarbeitet.');
+        };  
       };
     });
 
