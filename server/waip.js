@@ -338,6 +338,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             };
           });
           sql.db_rmld_get_for_export(waip.uuid, function (full_rmld) {
+            // FIXME manchmal leer weil einsatz schon geloescht
             // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
             var arry_wachen = full_rmld.map(a => a.wache_nr);
             sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
