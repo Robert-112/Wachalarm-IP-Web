@@ -356,17 +356,24 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                 console.log(csv);
                 // CSV Dateiname und Pfad festlegen
                 var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name.replace(/[/\\?%*:|"<>]/g, '') + '.csv';
-                csv_filename = process.cwd() + app_cfg.rmld.backup_path + csv_filename;
+                csv_path = process.cwd() + app_cfg.rmld.backup_path;
+                //+ csv_filename;
                 console.log(csv_filename);
                 // CSV in Backup-Ordner speichern, falls aktiviert
                 if (app_cfg.rmld.backup_to_file) {
+                  // Ordner erstellen
+                  fs.mkdir(csv_path, { recursive: true }, function (err) {
+                    if (err) {
+                      sql.db_log('EXPORT', 'Fehler beim Erstellen des Backup-Ordners: ' + err);
+                    };
                   // CSV speichern
-                  fs.writeFile(csv_filename, csv, function (err) {
+                  fs.writeFile(csv_path + csv_filename, csv, function (err) {
                     if (err) {
                       console.log(err);
                       sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
                     };
                   });
+                });
                 };
                 // CSV per Mail versenden, falls aktiviert
                 if (app_cfg.rmld.backup_to_mail) {
