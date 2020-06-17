@@ -10,6 +10,7 @@ module.exports = function (db, app_cfg) {
 
   function db_einsatz_speichern(content, callback) {
     // Einsatzdaten verarbeiten
+    console.log(content.ortsdaten.wgs84_area);
     db.run(`INSERT OR REPLACE INTO waip_einsaetze (
       id, uuid, einsatznummer, alarmzeit, einsatzart, stichwort, sondersignal, besonderheiten, ort, ortsteil, strasse, objekt, objektnr, objektart, wachenfolge, wgs84_x, wgs84_y, wgs84_area)
       VALUES (
@@ -340,9 +341,9 @@ module.exports = function (db, app_cfg) {
   };
 
   function db_wache_get_all(callback) {
-    db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen
+    db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen  where nr_wache is not '0'
       union all
-      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen group by name_traeger
+      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis is not '0' group by nr_traeger 
       union all
       select 'kreis' typ, nr_kreis nr, name_kreis name from waip_wachen group by name_kreis 
       order by typ, name`, function (err, rows) {
@@ -505,11 +506,8 @@ module.exports = function (db, app_cfg) {
     if (typ.match(debug_regex)) {
       do_log = app_cfg.global.development;
     } else {
-      do_log = app_cfg.global.development;
+      do_log = true;
     };
-    console.log(typ);
-    console.log();
-    
     // Log-Eintrag schreiben
     if (do_log) {
       db.run(`INSERT INTO waip_log (log_typ, log_text)
