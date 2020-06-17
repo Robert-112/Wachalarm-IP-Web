@@ -345,20 +345,25 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
             if (export_data) {
               var part_rmld = full_rmld;
+              console.log('bereite export vor');
+              
               // FIXME full_rmld.filter(obj => obj.wache_id.startsWith(export_data.export_filter));
               // CSV-Spalten definieren
               var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
               var opts = { csv_col };
               try {
                 var csv = parse(part_rmld, opts);
+                console.log(csv);
                 // CSV Dateiname und Pfad festlegen
                 var csv_filename = part_rmld[0].einsatznummer + '_export_rmld_' + export_data.export_name + '.csv';
                 csv_filename = process.cwd() + app_cfg.rmld.backup_path + csv_filename;
+                console.log(csv_filename);
                 // CSV in Backup-Ordner speichern, falls aktiviert
                 if (app_cfg.rmld.backup_to_file) {
                   // CSV speichern
                   fs.writeFile(csv_filename, csv, function (err) {
                     if (err) {
+                      console.log(err);
                       sql.db_log('EXPORT', 'Fehler beim speichern der Export-CSV: ' + err);
                     };
                   });
