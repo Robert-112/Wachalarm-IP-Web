@@ -257,23 +257,50 @@ socket.on('io.error', function (data) {
 
 // Sounds stoppen
 socket.on('io.stopaudio', function (data) {
+  console.log('stopaudio');
   $('#audio').pause;
 });
 
 // Sounds abspielen
 socket.on('io.playtts', function (data) {
+  console.log('playaudio');
   var audio = $('#audio');
   audio.src = (data);
+  console.log($('#audio'));
+  
   // Audio-Blockade des Browsers erkennen
   var promise = document.querySelector('audio').play();
-  if (promise !== undefined) {
+  console.log(document.querySelector('audio').play());
+  console.log( audio);
+  
+  /*if (promise !== undefined) {
+    console.log(promise);
     promise.then(function (_) {
       audio.play();
     }).catch(function (error) {
+      console.log(error);
       $('#volume').addClass('btn-danger');
       $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
     });
-  };
+  };*/
+
+  var playPromise = document.querySelector('audio').play();
+
+  // In browsers that don’t yet support this functionality,
+  // playPromise won’t be defined.
+  if (playPromise !== undefined) {
+    playPromise.then(function() {
+      // Automatic playback started!
+      audio.play();
+    }).catch(function(error) {
+      // Automatic playback failed.
+      // Show a UI element to let the user manually start playback.
+      $('#volume').addClass('btn-danger');
+      $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
+    });
+  }
+
+
 });
 
 // Daten löschen, Uhr anzeigen
