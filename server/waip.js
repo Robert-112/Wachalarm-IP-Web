@@ -433,7 +433,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         // Socket-ID aus Datei-Namen extrahieren
         socket_name = file.substring(0, file.length - 4);
         // Socket-ID anpassen, damit die SQL-Abfrage ein Ergebnis liefert
-        socket_name.replace('waip', '/waip#');
+        socket_name = socket_name.replace('waip', '/waip#');
         sql.db_socket_get_by_id(socket_name, function (data) {
           if (!data) {
             fs.unlink(process.cwd() + app_cfg.global.soundpath + file, function (err) {
