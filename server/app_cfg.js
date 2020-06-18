@@ -38,7 +38,7 @@ app_cfg.public = {
 app_cfg.rmld = {
   backup_to_file: true,
   backup_path: '/misc/bkp/',
-  backup_to_mail: true,
+  backup_to_mail: false,
   mailserver_host: 'smtp.xxx.xxx',
   mailserver_port: 587,
   secure_mail: false,
