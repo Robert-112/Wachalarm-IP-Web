@@ -337,7 +337,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               });
             };
           });
-          sql.db_rmld_get_for_export(waip.uuid, function (full_rmld) {
+          sql.db_rmld_get_for_export(waip.einsatznummer, waip.uuid, function (full_rmld) {
             // FIXME manchmal leer weil einsatz schon geloescht
             // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
             var arry_wachen = full_rmld.map(a => a.wache_nr);
@@ -346,9 +346,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               console.log(arry_wachen)
               // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
               if (export_data) {
-                var part_rmld = full_rmld;
+                //var part_rmld = full_rmld;
                 // FIXME 
-                //var part_rmld = full_rmld.filter(obj => String(obj.wache_nr).startsWith(String(export_data.export_filter)));
+                var part_rmld = full_rmld.filter(obj => String(obj.wache_nr).startsWith(String(export_data.export_filter)));
                 // CSV-Spalten definieren
                 var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
                 var opts = {
