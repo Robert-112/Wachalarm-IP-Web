@@ -338,16 +338,12 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
             };
           });
           sql.db_rmld_get_for_export(waip.einsatznummer, waip.uuid, function (full_rmld) {
-            // FIXME manchmal leer weil einsatz schon geloescht
             // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
             var arry_wachen = full_rmld.map(a => a.wache_nr);
             sql.db_export_get_for_rmld(arry_wachen, function (export_data) {
-
-              console.log(arry_wachen)
               // SQL gibt ist eine Schliefe (db.each), fuer jedes Ergebnis wird eine CSV/Mail erstellt
               if (export_data) {
-                //var part_rmld = full_rmld;
-                // FIXME 
+                // je Export eine CSV erstellen, die nur die gewuenschten Rueckmeldungen enthaelt
                 var part_rmld = full_rmld.filter(obj => String(obj.wache_nr).startsWith(String(export_data.export_filter)));
                 // CSV-Spalten definieren
                 var csv_col = ['id', 'einsatznummer', 'waip_uuid', 'rmld_uuid', 'alias', 'einsatzkraft', 'maschinist', 'fuehrungskraft', 'agt', 'set_time', 'arrival_time', 'wache_id', 'wache_nr', 'wache_name'];
@@ -394,10 +390,10 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                         }
                       });
                       var mail_message = {
-                        from: 'Wachalarm-IP-Web' + app_cfg.public.company + ' <' + app_cfg.rmld.mail_from + '>',
+                        from: 'Wachalarm-IP-Web <' + app_cfg.rmld.mail_from + '>',
                         to: export_data.export_recipient,
                         subject: 'Automatischer Export Wachalarm-IP-Web - ' + export_data.export_name + ' - Einsatz ' + part_rmld[0].einsatznummer,
-                        html: 'Hallo,<br><br> anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.public.company,
+                        html: 'Hallo,<br><br>anbei der automatische Export aller Einsatz-R&uuml;ckmeldungen f&uuml;r den Einsatz ' + part_rmld[0].einsatznummer + '<br><br>Mit freundlichen Gr&uuml;&szlig;en<br><br>' + app_cfg.public.company + '<br>',
                         attachments: [{
                           filename: csv_filename,
                           content: csv

@@ -39,12 +39,12 @@ app_cfg.rmld = {
   backup_to_file: true,
   backup_path: '/misc/bkp/',
   backup_to_mail: true,
-  mailserver_host: 'smtp.kms2.de',
+  mailserver_host: 'smtp.xxx.xxx',
   mailserver_port: 587,
   secure_mail: false,
-  mail_user: 'fw137404',
-  mail_pass: 'marona87',//'testpass',
-  mail_from: 'noc@kms2.de'//'keineantwort@wachalarm.info.tm'
+  mail_user: 'testuser',
+  mail_pass: 'testuserpass',//'testpass',
+  mail_from: 'xyz@xxx.xxx'//'keineantwort@wachalarm.info.tm'
 };
 
 // Schnittstelle um Daten von anderen Clients zu empfangen

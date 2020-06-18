@@ -798,11 +798,11 @@ module.exports = function (db, app_cfg) {
     });
   };
 
-  function db_rmld_get_for_export(waip_uuid, callback) {
+  function db_rmld_get_for_export(waip_einsatznummer, waip_uuid, callback) {
     // alle Rueckmeldungen fuer einen Einsatz ermitteln
-    db.all(`SELECT we.einsatznummer, wr.id, wr.waip_uuid, wr.rmld_uuid, wr.einsatzkraft, wr.maschinist, wr.fuehrungskraft, 
+    db.all(`SELECT ? einsatznummer, wr.id, wr.waip_uuid, wr.rmld_uuid, wr.einsatzkraft, wr.maschinist, wr.fuehrungskraft, 
       wr.agt, wr.set_time, wr.arrival_time, wr.wache_id, wr.wache_nr, wr.wache_name
-      FROM waip_response wr, waip_einsaetze we WHERE wr. waip_uuid like ? AND we.uuid like ?`, [waip_uuid, waip_uuid], function (err, rows) {
+      FROM waip_response wr WHERE wr. waip_uuid like ?`, [waip_einsatznummer, waip_uuid], function (err, rows) {
       if (err == null && rows) {
         callback && callback(rows);
       } else {
