@@ -10,8 +10,6 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
   function save_new_waip(waip_data, remote_addr, app_id) {
     // ist JSON?
     if (isValidJSON(waip_data)) {
-      // Daten als JSON parsen
-      waip_data = JSON.parse(waip_data);
       // Daten validieren
       validate_waip(waip_data, function (valid) {
         if (valid) {
@@ -90,13 +88,20 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
 
   // Funktion um zu pruefen, ob Nachricht im JSON-Format ist
   function isValidJSON(json_obj) {
-    var text = JSON.stringify(json_obj);
-    if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-      //the json is ok
-      return true;
-    } else {
-      //the json is not ok
-      return false;
+    try {
+      // versuche das JSON-Objekt zu parsen, falls es ein JSON-String ist
+      var tmp = JSON.parse(json_obj);
+      return tmp;
+    } catch (e) {
+      // klappt das Parson nicht, versuche den JSON-String in String zu kopieren
+      var text = JSON.stringify(json_obj);
+      // teste ob der String JSON-Konform ist
+      if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+        var tmp = JSON.parse(json_obj);
+        return tmp;
+      } else {
+        return false;
+      };
     };
   };
 
