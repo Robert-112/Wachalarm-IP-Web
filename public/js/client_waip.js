@@ -405,8 +405,10 @@ socket.on('io.new_waip', function (data) {
   };
   // weitere alarmierte Einsatzmittel setzen
   $('#em_weitere').html('');
-  var data_em_weitere = JSON.parse(data.em_weitere);
-  if (!data_em_weitere == null) {
+  var data_em_weitere = {};
+  data_em_weitere = JSON.parse(data.em_weitere);
+  
+  if (data_em_weitere.length > 0) {
     var tmp;
     for (var i in data_em_weitere) {
       if (tmp) {
