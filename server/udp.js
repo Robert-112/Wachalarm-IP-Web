@@ -13,14 +13,14 @@ module.exports = function (app_cfg, sql, saver) {
 
   // Warten auf Einsatzdaten
   udp_server.on('message', function (message, remote) {
-    saver.save_new_waip(message, remote.address + ':' + remote.port, 'udp')
+    saver.save_new_waip(message.toString('utf8'), remote.address + ':' + remote.port, 'udp')
   });
 
   // UDP-Daten senden
   function send_message(message) {
     udp_server.send(message, 0, message.length, app_cfg.global.udpport, 'localhost', function (err, bytes) {
       if (err) throw err;
-      sql.db_log('WAIP', 'UDP-Testalarm an localhost:' + app_cfg.global.udpport + ') gesendet.');
+      sql.db_log('WAIP', 'UDP-Testalarm an localhost:' + app_cfg.global.udpport + ' gesendet.');
     });
   };
 

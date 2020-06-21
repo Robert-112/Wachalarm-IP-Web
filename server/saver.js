@@ -96,10 +96,20 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
 
     // Typ ist String
     if (data.constructor == String) {
-      // teste ob der String JSON-Konform ist
+      // String versuchen in JSON umzuwandeln
+      try {
+        var tmp = JSON.parse(data);
+        callback && callback(tmp);
+      } catch (error) {
+        callback && callback(false);
+      };
+    };
+    // Typ ist Object
+    if (data.constructor === Object) {
+      // teste ob der String des Objects JSON-Konform ist
       var text = JSON.stringify(data);
       if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-        // falls ja, dann versuche String in JSON zu parsen
+        //falls ja, dann versuche String in JSON zu parsen
         try {
           var tmp = JSON.parse(text);
           callback && callback(tmp);
@@ -110,22 +120,10 @@ module.exports = function (app_cfg, sql, waip, uuidv4, io, remote_api) {
         callback && callback(false);
       };
     };
-    // Typ ist Object
-    if (data.constructor === Object) {
-      console.log(data);
-      
-      try {
-        var tmp = JSON.parse(text);
-        console.log(tmp);
-        callback && callback(tmp);
-      } catch (error) {
-        callback && callback(false);
-      };      
-    };
 
     // Log
     if (app_cfg.global.development) {
-      //console.log('Validierung WAIP: ' + JSON.stringify(data));
+      console.log('Validierung WAIP: ' + JSON.stringify(data));
     };
   };
 
