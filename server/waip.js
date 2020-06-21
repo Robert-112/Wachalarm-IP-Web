@@ -13,8 +13,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
       // nach dem Speichern anhand der waip_id die beteiligten Wachennummern zum Einsatz ermitteln 
       sql.db_einsatz_get_rooms(waip_id, function (socket_rooms) {
         // socket_rooms muss groesser als 1 sein, da sonst nur der Standard-Raum '0' vorhanden ist
-        console.log(socket_rooms);
-        if (socket_rooms.length > 0) {
+        if (socket_rooms.length > 1) {
           socket_rooms.forEach(function (rooms) {
             // fuer jede Wache(rooms.room) die verbundenen Sockets(Clients) ermitteln und den Einsatz verteilen
             var room_sockets = io.nsps['/waip'].adapter.rooms[rooms.room];

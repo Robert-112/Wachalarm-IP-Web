@@ -410,15 +410,15 @@ socket.on('io.new_waip', function (data) {
     var data_em_weitere = JSON.parse(data.em_weitere);
 
     if (data_em_weitere.length > 0) {
-      var tmp;
+      var tmp_weitere;
       for (var i in data_em_weitere) {
-        if (tmp) {
-          tmp = tmp + ', ' + data_em_weitere[i].name;
+        if (tmp_weitere) {
+          tmp_weitere = tmp_weitere + ', ' + data_em_weitere[i].name;
         } else {
-          tmp = data_em_weitere[i].name;
+          tmp_weitere = data_em_weitere[i].name;
         };
       };
-      $('#em_weitere').html(tmp);
+      $('#em_weitere').html(tmp_weitere);
     };
   } catch (e) {
     console.log(e); // error in the above string (in this case, yes)!
