@@ -206,8 +206,8 @@ module.exports = function (db, app_cfg) {
             ) em1 ON em1.waip_einsaetze_id = e.ID
           LEFT JOIN (
             SELECT waip_einsaetze_id, \'[\' || group_concat(\'{\"name\": \"\' || einsatzmittel || \'\", \"zeit\": \"\' || zeitstempel || \'\"}\') || \']\' AS em_weitere
-            FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and waip_wachen_id not in (
-              select id from waip_wachen where nr_wache like ?||\'%\')
+            FROM waip_einsatzmittel WHERE waip_einsaetze_id = ? and (waip_wachen_id not in (
+              select id from waip_wachen where nr_wache like ?||\'%\') or waip_wachen_id is null)
               GROUP BY waip_einsaetze_id
             ) em0 ON em0.waip_einsaetze_id = e.ID
           WHERE e.id LIKE ?
