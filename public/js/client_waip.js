@@ -267,12 +267,12 @@ socket.on('io.playtts', function (data) {
   var audio = $('#audio');
   audio.src = (data);
   console.log($('#audio'));
-  
+
   // Audio-Blockade des Browsers erkennen
   var promise = document.querySelector('audio').play();
   console.log(document.querySelector('audio').play());
-  console.log( audio);
-  
+  console.log(audio);
+
   /*if (promise !== undefined) {
     console.log(promise);
     promise.then(function (_) {
@@ -289,10 +289,10 @@ socket.on('io.playtts', function (data) {
   // In browsers that don’t yet support this functionality,
   // playPromise won’t be defined.
   if (playPromise !== undefined) {
-    playPromise.then(function() {
+    playPromise.then(function () {
       // Automatic playback started!
       audio.play();
-    }).catch(function(error) {
+    }).catch(function (error) {
       // Automatic playback failed.
       // Show a UI element to let the user manually start playback.
       $('#volume').addClass('btn-danger');
@@ -405,20 +405,26 @@ socket.on('io.new_waip', function (data) {
   };
   // weitere alarmierte Einsatzmittel setzen
   $('#em_weitere').html('');
-  var data_em_weitere = {};
-  data_em_weitere = JSON.parse(data.em_weitere);
-  
-  if (data_em_weitere.length > 0) {
-    var tmp;
-    for (var i in data_em_weitere) {
-      if (tmp) {
-        tmp = tmp + ', ' + data_em_weitere[i].name;
-      } else {
-        tmp = data_em_weitere[i].name;
+
+  try {
+    var data_em_weitere = JSON.parse(data.em_weitere);
+
+    if (data_em_weitere.length > 0) {
+      var tmp;
+      for (var i in data_em_weitere) {
+        if (tmp) {
+          tmp = tmp + ', ' + data_em_weitere[i].name;
+        } else {
+          tmp = data_em_weitere[i].name;
+        };
       };
+      $('#em_weitere').html(tmp);
     };
-    $('#em_weitere').html(tmp);
+  } catch (e) {
+    console.log(e); // error in the above string (in this case, yes)!
   };
+
+
   // Karte leeren
   map.removeLayer(marker);
   map.removeLayer(geojson);
@@ -494,7 +500,7 @@ var counter_rmld = [];
 function reset_rmld(p_uuid) {
   var bar_uuid = 'bar-' + p_uuid;
   $('#pg-ek').children().each(function (i) {
-    if (!$(this).hasClass(bar_uuid))  {
+    if (!$(this).hasClass(bar_uuid)) {
       $(this).remove();
     };
   });
