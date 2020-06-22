@@ -18,14 +18,20 @@ var waipAudio = document.getElementById('audio');
 
 waipAudio.addEventListener('ended', function () {
   $('.ion-md-pause').toggleClass('ion-md-play-circle');
+  $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
+  $('#volume').removeClass('btn-danger');
 });
 
 waipAudio.addEventListener('play', function () {
   $('.ion-md-play-circle').toggleClass('ion-md-pause');
+  $('.ion-md-volume-off').toggleClass('ion-md-volume-high');
+  $('#volume').removeClass('btn-danger');
 });
 
 $('#replay').on('click', function (event) {
-  $('#audio').play();
+  console.log(document.getElementById('audio').src);
+  
+  document.getElementById('audio').play();
 });
 
 /* ############################ */
@@ -263,37 +269,20 @@ socket.on('io.stopaudio', function (data) {
 
 // Sounds abspielen
 socket.on('io.playtts', function (data) {
-  console.log('playaudio');
-  var audio = $('#audio');
+  var audio = document.getElementById('audio');
   audio.src = (data);
   console.log($('#audio'));
 
   // Audio-Blockade des Browsers erkennen
-  var promise = document.querySelector('audio').play();
-  console.log(document.querySelector('audio').play());
-  console.log(audio);
-
-  /*if (promise !== undefined) {
-    console.log(promise);
-    promise.then(function (_) {
-      audio.play();
-    }).catch(function (error) {
-      console.log(error);
-      $('#volume').addClass('btn-danger');
-      $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
-    });
-  };*/
-
   var playPromise = document.querySelector('audio').play();
 
   // In browsers that don’t yet support this functionality,
   // playPromise won’t be defined.
   if (playPromise !== undefined) {
     playPromise.then(function () {
-      console.log('start audio');
-      
       // Automatic playback started!
       audio.play();
+      $('.ion-md-volume-high').toggleClass('ion-md-pause');
     }).catch(function (error) {
       console.log('Automatic playback failed');
       // Automatic playback failed.
@@ -301,9 +290,7 @@ socket.on('io.playtts', function (data) {
       $('#volume').addClass('btn-danger');
       $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
     });
-  }
-
-
+  };
 });
 
 // Daten löschen, Uhr anzeigen
@@ -709,7 +696,7 @@ $(document).ready(function () {
     $('.clock_y').css('left', newq[1]);
     // langsam verschieben
     animateDiv();
-  }, 1000);
+  }, 2000);
 });
 
 // neue Random-Position fuer Uhrzeit ermitteln
