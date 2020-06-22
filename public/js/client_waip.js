@@ -17,20 +17,45 @@ $(window).on('resize', function () {
 var waipAudio = document.getElementById('audio');
 
 waipAudio.addEventListener('ended', function () {
-  $('.ion-md-pause').toggleClass('ion-md-play-circle');
-  $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
-  $('#volume').removeClass('btn-danger');
+  console.log('ended');
+  
+  var tmp_element;
+  // Pause-Symbol in Play-Symbol
+  tmp_element = document.querySelector('.ion-md-pause');
+  tmp_element.classList.remove('ion-md-pause');
+  tmp_element.classList.add('ion-md-play-circle');
+  // Lautsprecher-Symbol in Leise-Symbol
+  tmp_element = document.querySelector('.ion-md-volume-high');
+  tmp_element.classList.remove('ion-md-volume-high');
+  tmp_element.classList.add('ion-md-volume-off');
+  // Button Hintergrund entfernen, falls vorhanden
+  tmp_element = document.querySelector('#volume');
+  if (tmp_element.classList.contains('btn-danger')) {
+    tmp_element.classList.remove('btn-danger');
+  };
 });
 
 waipAudio.addEventListener('play', function () {
-  $('.ion-md-play-circle').toggleClass('ion-md-pause');
-  $('.ion-md-volume-off').toggleClass('ion-md-volume-high');
-  $('#volume').removeClass('btn-danger');
+  console.log('play');
+  
+  var tmp_element;
+  // Pause-Symbol in Play-Symbol
+  tmp_element = document.querySelector('.ion-md-play-circle');
+  tmp_element.classList.remove('ion-md-play-circle');
+  tmp_element.classList.add('ion-md-pause');
+  
+  // Lautsprecher-Symbol in Leise-Symbol
+  tmp_element = document.querySelector('.ion-md-volume-off');
+  tmp_element.classList.remove('ion-md-volume-off');
+  tmp_element.classList.add('ion-md-volume-high');
+  // Button Hintergrund entfernen, falls vorhanden
+  tmp_element = document.querySelector('#volume');
+  if (tmp_element.classList.contains('btn-danger')) {
+    tmp_element.classList.remove('btn-danger');
+  };
 });
 
 $('#replay').on('click', function (event) {
-  console.log(document.getElementById('audio').src);
-  
   document.getElementById('audio').play();
 });
 
@@ -263,8 +288,9 @@ socket.on('io.error', function (data) {
 
 // Sounds stoppen
 socket.on('io.stopaudio', function (data) {
-  console.log('stopaudio');
-  $('#audio').pause;
+  tmp_audio = document.getElementById('audio');
+  tmp_audio.pause();
+  tmp_audio.currentTime = 0;
 });
 
 // Sounds abspielen
