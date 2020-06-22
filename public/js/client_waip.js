@@ -7,6 +7,7 @@ $(document).ready(function () {
 
 $(window).on('resize', function () {
   resize_text();
+  start_screensaver();
 });
 
 /* ############################ */
@@ -22,12 +23,16 @@ waipAudio.addEventListener('ended', function () {
   var tmp_element;
   // Pause-Symbol in Play-Symbol
   tmp_element = document.querySelector('.ion-md-pause');
-  tmp_element.classList.remove('ion-md-pause');
-  tmp_element.classList.add('ion-md-play-circle');
+  if (tmp_element.classList.contains('ion-md-pause')) {
+    tmp_element.classList.remove('ion-md-pause');
+    tmp_element.classList.add('ion-md-play-circle');
+  };
   // Lautsprecher-Symbol in Leise-Symbol
   tmp_element = document.querySelector('.ion-md-volume-high');
-  tmp_element.classList.remove('ion-md-volume-high');
-  tmp_element.classList.add('ion-md-volume-off');
+  if (tmp_element.classList.contains('ion-md-volume-high')) {
+    tmp_element.classList.remove('ion-md-volume-high');
+    tmp_element.classList.add('ion-md-volume-off');
+  };
   // Button Hintergrund entfernen, falls vorhanden
   tmp_element = document.querySelector('#volume');
   if (tmp_element.classList.contains('btn-danger')) {
@@ -35,19 +40,20 @@ waipAudio.addEventListener('ended', function () {
   };
 });
 
-waipAudio.addEventListener('play', function () {
-  console.log('play');
-  
+waipAudio.addEventListener('play', function () {  
   var tmp_element;
   // Pause-Symbol in Play-Symbol
   tmp_element = document.querySelector('.ion-md-play-circle');
-  tmp_element.classList.remove('ion-md-play-circle');
-  tmp_element.classList.add('ion-md-pause');
-  
+  if (tmp_element.classList.contains('ion-md-play-circle')) {
+    tmp_element.classList.remove('ion-md-play-circle');
+    tmp_element.classList.add('ion-md-pause');
+  };  
   // Lautsprecher-Symbol in Leise-Symbol
   tmp_element = document.querySelector('.ion-md-volume-off');
-  tmp_element.classList.remove('ion-md-volume-off');
-  tmp_element.classList.add('ion-md-volume-high');
+  if (tmp_element.classList.contains('ion-md-volume-off')) {
+    tmp_element.classList.remove('ion-md-volume-off');
+    tmp_element.classList.add('ion-md-volume-high');
+  };  
   // Button Hintergrund entfernen, falls vorhanden
   tmp_element = document.querySelector('#volume');
   if (tmp_element.classList.contains('btn-danger')) {
@@ -308,13 +314,21 @@ socket.on('io.playtts', function (data) {
     playPromise.then(function () {
       // Automatic playback started!
       audio.play();
-      $('.ion-md-volume-high').toggleClass('ion-md-pause');
+      //$('.ion-md-volume-high').toggleClass('ion-md-pause');
     }).catch(function (error) {
       console.log('Automatic playback failed');
       // Automatic playback failed.
       // Show a UI element to let the user manually start playback.
-      $('#volume').addClass('btn-danger');
-      $('.ion-md-volume-high').toggleClass('ion-md-volume-off');
+      var tmp_element;
+      tmp_element = document.querySelector('#volume');
+      if (!tmp_element.classList.contains('btn-danger')) {
+        tmp_element.classList.add('btn-danger');
+      };
+      tmp_element = document.querySelector('.ion-md-volume-high');
+      if (tmp_element.classList.contains('ion-md-volume-high')) {
+        tmp_element.classList.remove('ion-md-volume-high');
+        tmp_element.classList.add('ion-md-volume-off');
+      };  
     });
   };
 });
@@ -342,6 +356,8 @@ socket.on('io.standby', function (data) {
   $('#waipclock').removeClass('d-none');
   // Text anpassen
   resize_text();
+  // Screensaver anpassen
+  start_screensaver();
 });
 
 // Einsatzdaten laden, Wachalarm anzeigen
@@ -437,9 +453,8 @@ socket.on('io.new_waip', function (data) {
       $('#em_weitere').html(tmp_weitere);
     };
   } catch (e) {
-    console.log(e); // error in the above string (in this case, yes)!
+    //console.log(e); // error in the above string (in this case, yes)!
   };
-
 
   // Karte leeren
   map.removeLayer(marker);
@@ -676,6 +691,7 @@ function set_clock() {
   var curr_year = d.getFullYear();
   var curr_hour = d.getHours();
   var curr_min = d.getMinutes();
+  var curr_sek = d.getSeconds();
   // Tag und Monat Anpassen
   if ((String(curr_date)).length == 1)
     curr_date = '0' + curr_date;
@@ -688,14 +704,17 @@ function set_clock() {
   if (curr_hour <= 9) {
     curr_hour = '0' + curr_hour;
   };
+  if (curr_sek <= 9) {
+    curr_sek = '0' + curr_sek;
+  };
   var curr_month = d.getMonth();
   var curr_year = d.getFullYear();
   var element_time = curr_hour + ':' + curr_min;
   var element_day = d_names[curr_day] + ', ' + curr_date + '. ' + m_names[curr_month];
   var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time;
   // Easter-Egg :-)
-  if (element_time == '13:37') {
-    element_time = '1337'
+  if (element_time.substr(0, 5) == '13:37') {
+    element_time = '1337';
   };
   // nur erneuern wenn sich Zeit geändert hat
   if ($('#time').text() !== element_time) {
@@ -715,6 +734,11 @@ setInterval(set_clock, 1000);
 
 // Uhrzeit verschieben
 $(document).ready(function () {
+  start_screensaver();
+});
+
+// neue Random-Position fuer Uhrzeit ermitteln
+function start_screensaver() {
   setTimeout(function () {
     // Position neu setzen
     var newq = makeNewPosition();
@@ -723,7 +747,7 @@ $(document).ready(function () {
     // langsam verschieben
     animateDiv();
   }, 2000);
-});
+};
 
 // neue Random-Position fuer Uhrzeit ermitteln
 function makeNewPosition() {
