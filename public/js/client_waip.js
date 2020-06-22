@@ -7,7 +7,12 @@ $(document).ready(function () {
 
 $(window).on('resize', function () {
   resize_text();
-  start_screensaver();
+  // Position neu setzen
+  var newq = makeNewPosition();
+  $('.clock_y').css('top', newq[0]);
+  $('.clock_y').css('left', newq[1]);
+  // langsam verschieben
+  animateDiv();
 });
 
 /* ############################ */
@@ -356,8 +361,15 @@ socket.on('io.standby', function (data) {
   $('#waipclock').removeClass('d-none');
   // Text anpassen
   resize_text();
-  // Screensaver anpassen
-  start_screensaver();
+  // Position neu setzen
+  setTimeout(function () {
+    // Position neu setzen
+    var newq = makeNewPosition();
+    $('.clock_y').css('top', newq[0]);
+    $('.clock_y').css('left', newq[1]);
+    // langsam verschieben
+    animateDiv();
+  }, 1000);
 });
 
 // Einsatzdaten laden, Wachalarm anzeigen
@@ -711,7 +723,7 @@ function set_clock() {
   var curr_year = d.getFullYear();
   var element_time = curr_hour + ':' + curr_min;
   var element_day = d_names[curr_day] + ', ' + curr_date + '. ' + m_names[curr_month];
-  var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time;
+  var element_date_time = curr_date + '.' + curr_month_id + '.' + curr_year + ' - ' + element_time + ':' + curr_sek;
   // Easter-Egg :-)
   if (element_time.substr(0, 5) == '13:37') {
     element_time = '1337';
@@ -734,11 +746,6 @@ setInterval(set_clock, 1000);
 
 // Uhrzeit verschieben
 $(document).ready(function () {
-  start_screensaver();
-});
-
-// neue Random-Position fuer Uhrzeit ermitteln
-function start_screensaver() {
   setTimeout(function () {
     // Position neu setzen
     var newq = makeNewPosition();
@@ -746,8 +753,8 @@ function start_screensaver() {
     $('.clock_y').css('left', newq[1]);
     // langsam verschieben
     animateDiv();
-  }, 2000);
-};
+  }, 1000);
+});
 
 // neue Random-Position fuer Uhrzeit ermitteln
 function makeNewPosition() {
