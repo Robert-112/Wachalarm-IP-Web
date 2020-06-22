@@ -333,10 +333,13 @@ module.exports = function (db, app_cfg) {
   };
 
   function db_einsatz_loeschen(id) {
-    // Einsatz loeschen
-    db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
-    // History loeschen
-    db.run(`DELETE FROM waip_history WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [id]);
+    // Einsatzdaten loeschen
+    db.serialize(function() {
+      // History loeschen
+      db.run(`DELETE FROM waip_history WHERE waip_uuid = (select uuid from waip_einsaetze where id = ?)`, [id]);
+      // Einsatz loeschen
+      db.run(`DELETE FROM waip_einsaetze WHERE id = ?`, [id]);
+    });    
   };
 
   function db_wache_get_all(callback) {
