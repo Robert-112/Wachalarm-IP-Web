@@ -290,9 +290,12 @@ socket.on('io.playtts', function (data) {
   // playPromise won’t be defined.
   if (playPromise !== undefined) {
     playPromise.then(function () {
+      console.log('start audio');
+      
       // Automatic playback started!
       audio.play();
     }).catch(function (error) {
+      console.log('Automatic playback failed');
       // Automatic playback failed.
       // Show a UI element to let the user manually start playback.
       $('#volume').addClass('btn-danger');
