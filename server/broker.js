@@ -49,11 +49,13 @@ module.exports = function (app_cfg, sql, uuidv4) {
                     if (!error) {
                       if (app_cfg.global.development) {
                         console.log('Mitglieder der Twitter-Liste: ' + JSON.stringify(members));
+                        console.log('Response der Twitter-Liste: ' + JSON.stringify(response));
                       };
                       // an jedes Mitglied der Liste eine Meldung senden
                       var arrayLength = members.users.length;
                       for (var i = 0; i < arrayLength; i++) {
                         // Mitteilungstext festelgen
+                        console.log(members);
                         var tw_text = String.fromCodePoint(0x1F4DF) + ' ' + String.fromCodePoint(0x1F6A8) + String.fromCodePoint(0x0A) +
                           'Einsatz für ' + vmtl_data.name_wache + ' ' + String.fromCodePoint(0x27A1) + ' ' + vmtl_data.einsatzart + ', ' + vmtl_data.stichwort + String.fromCodePoint(0x0A) +
                           'jetzt Rückmeldung senden: ' + app_cfg.public.url + '/rmld/' + vmtl_data.uuid + '/' + uuidv4();
@@ -63,7 +65,7 @@ module.exports = function (app_cfg, sql, uuidv4) {
                             type: "message_create",
                             message_create: {
                               target: {
-                                recipient_id: members.users[i].id
+                                recipient_id: members.users[i].id_str
                               },
                               message_data: {
                                 text: tw_text
@@ -77,32 +79,40 @@ module.exports = function (app_cfg, sql, uuidv4) {
                             sql.db_log('VMTL', 'Einsatz-Link gesendet: ' + JSON.stringify(members));
                             callback && callback(vmtl_data.list);
                           } else {
+                            console.log('e1');
                             sql.db_log('VMTL', 'Fehler beim senden eines Einsatz-Links: ' + error);
                           };
                         });
                       };
                     } else {
+                      console.log('e2');
                       sql.db_log('VMTL', 'Fehler beim lesen der Mitglieder der Twitter-Liste: ' + error);
                       callback && callback(null);
                     };
                   });
                 } else {
+                  console.log('e3');
                   sql.db_log('VMTL', 'Fehler beim lesen der Twitter-Liste: ' + error);
                   callback && callback(null);
                 };
               });
             } else {
+              console.log('e4');
               sql.db_log('VMTL', 'Rückmeldungs-Link für Twitter-Account ' + list_data.vmtl_account_name + ' bereits zuvor gesendet. Wird verworfen.');
+              callback && callback(null);
             };
           });
 
         } else {
+          console.log('e5');
           sql.db_log('VMTL', 'Zugangsdaten für Twitter-Account ' + list_data.vmtl_account_name + ' konnten nicht ermittelt werden.');
+          callback && callback(null);
         };
 
       });
   } else {
     // andere Listen/Gruppen/Schnittstellen koennten hier noch abgefragt werden
+    console.log('e6');
     callback && callback(null);
   };
 
