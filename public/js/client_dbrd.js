@@ -477,9 +477,15 @@ socket.on('io.Einsatz', function (data) {
       $('#sondersignal').addClass('ion-md-notifications-off');
   };
   // Ortsdaten zusammenstellen und setzen
+  $('#einsatzort_list').nextAll().remove();
   var small_ortsdaten;
   small_ortsdaten = '';
   if (data.objekt) {
+    var $newDiv = $("<div/>")   // creates a div element
+    .addClass("someClass")   // add a class
+    .text("data.objekt");
+
+    $( "einsatzort_list").append(newDiv);
     small_ortsdaten = small_ortsdaten + (data.objekt) + '<br>';
   };
   if (data.ort) {
@@ -506,7 +512,7 @@ socket.on('io.Einsatz', function (data) {
     //$('#cn_' + tmp).append('<div class="pr-2">' + data_em_alarmiert[i].name + '</div>');
   //};
   // weitere alarmierte Einsatzmittel setzen
-  $('#em_weitere').html('');
+  /*$('#em_weitere').html('');
   var data_em_weitere = JSON.parse(data.em_weitere);
   if (!data_em_weitere == null) {
     var tmp;
@@ -518,9 +524,9 @@ socket.on('io.Einsatz', function (data) {
       };
     };
     $('#em_weitere').html(tmp);
-  };
+  };*/
   // Karte leeren
-  map.removeLayer(marker);
+  /*map.removeLayer(marker);
   map.removeLayer(geojson);
   // Karte setzen
   if (data.wgs84_x && data.wgs84_y) {
@@ -544,7 +550,7 @@ socket.on('io.Einsatz', function (data) {
   $('#waipclock').addClass('d-none');
   $('#waiptableau').removeClass('d-none');
   // Text anpassen
-  resize_text();
+  resize_text();*/
 });
 
 socket.on('io.new_rmld', function (data) {
