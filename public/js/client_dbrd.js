@@ -1,36 +1,38 @@
-/* ########################### */
+
+  
+  /* ########################### */
 /* ######### LEAFLET ######### */
 /* ########################### */
 
 // Karte definieren
 var map = L.map('map', {
-    zoomControl: false
-  }).setView([51.733005, 14.338048], 13);
-  
-  // Layer der Karte
-  mapLink = L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  zoomControl: false
+}).setView([51.733005, 14.338048], 13);
+
+// Layer der Karte
+mapLink = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     //map_tile, {
-      maxZoom: 18
-    }).addTo(map);
-  
-  // Icon der Karte zuordnen
-  var redIcon = new L.Icon({
-    iconUrl: '/media/marker-icon-2x-red.png',
-    shadowUrl: '/media/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  });
-  
-  // Icon setzen
-  var marker = L.marker(new L.LatLng(0, 0), {
-    icon: redIcon
+    maxZoom: 18
   }).addTo(map);
-  
 
+// Icon der Karte zuordnen
+var redIcon = new L.Icon({
+  iconUrl: '/media/marker-icon-2x-red.png',
+  shadowUrl: '/media/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
+// Icon setzen
+var marker = L.marker(new L.LatLng(0, 0), {
+  icon: redIcon
+}).addTo(map);
+
+// GeoJSON vordefinieren
+var geojson = L.geoJSON().addTo(map);
 
 
   var counter_ID = [];
@@ -477,32 +479,24 @@ socket.on('io.Einsatz', function (data) {
       $('#sondersignal').addClass('ion-md-notifications-off');
   };
   // Ortsdaten zusammenstellen und setzen
-  $('#einsatzort_list').nextAll().remove();
-  var small_ortsdaten;
-  small_ortsdaten = '';
+  $('#einsatzort_list').empty();
   if (data.objekt) {
-    var $newDiv = $("<div/>")   // creates a div element
-    .addClass("someClass")   // add a class
-    .text("data.objekt");
-
-    $( "einsatzort_list").append(newDiv);
-    small_ortsdaten = small_ortsdaten + (data.objekt) + '<br>';
+    $('#einsatzort_list').append('<li class="list-group-item">' + data.objekt+ '</li>');
   };
   if (data.ort) {
-    small_ortsdaten = small_ortsdaten + (data.ort) + '<br>';
+    $('#einsatzort_list').append('<li class="list-group-item">' + data.ort+ '</li>');
   };
   if (data.ortsteil) {
-    small_ortsdaten = small_ortsdaten + (data.ortsteil) + '<br>';
+    $('#einsatzort_list').append('<li class="list-group-item">' + data.ortsteil+ '</li>');
   };
   if (data.strasse) {
-    small_ortsdaten = small_ortsdaten + (data.strasse) + '<br>';
+    $('#einsatzort_list').append('<li class="list-group-item">' + data.strasse+ '</li>');
   };
-  if (small_ortsdaten.substr(small_ortsdaten.length - 4) == '<br>') {
-    small_ortsdaten = small_ortsdaten.slice(0, -4);
+  if (data.besonderheiten) {
+    $('#einsatzort_list').append('<li class="list-group-item text-warning">' + data.besonderheiten+ '</li>');
   };
-  $('#ortsdaten').html(small_ortsdaten);
-  // Besonderheiten setzen
-  $('#besonderheiten').html((data.besonderheiten));
+  
+
   // alarmierte Einsatzmittel setzen
   $('#em_alarmiert').empty();
   //var data_em_alarmiert = JSON.parse(data.em_alarmiert);
@@ -526,7 +520,7 @@ socket.on('io.Einsatz', function (data) {
     $('#em_weitere').html(tmp);
   };*/
   // Karte leeren
-  /*map.removeLayer(marker);
+  map.removeLayer(marker);
   map.removeLayer(geojson);
   // Karte setzen
   if (data.wgs84_x && data.wgs84_y) {
@@ -541,7 +535,7 @@ socket.on('io.Einsatz', function (data) {
     map.setZoom(13);
   };
   // Ablaufzeit setzen
-  start_counter(data.zeitstempel, data.ablaufzeit);
+  /*start_counter(data.zeitstempel, data.ablaufzeit);
   // alte Rückmeldung entfernen
   reset_rmld(data.uuid);
   recount_rmld(data.uuid);
