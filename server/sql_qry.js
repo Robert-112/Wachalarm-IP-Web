@@ -231,7 +231,7 @@ module.exports = function (db, app_cfg) {
       WHERE e.uuid like ?`, [waip_uuid], function (err, row) {
       if (err == null && row) {
         // Einsatzmittel zu dem Einsatz finden und hinzufuegen
-        db.all(`SELECT e.einsatzmittel, e.status FROM waip_einsatzmittel e 
+        db.all(`SELECT e.einsatzmittel, e.status, e.wachenname FROM waip_einsatzmittel e 
           WHERE e.waip_einsaetze_id = ?`, [row.id], function (err, rows) {
           if (err == null && rows) {
             var einsatzdaten = row;
