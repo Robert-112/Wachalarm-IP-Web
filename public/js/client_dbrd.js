@@ -495,10 +495,14 @@ socket.on('io.Einsatz', function (data) {
   if (data.besonderheiten) {
     $('#einsatzort_list').append('<li class="list-group-item text-warning">' + data.besonderheiten+ '</li>');
   };
-  
+  // Einsatzmittel-Tabelle
+  console.log(data.einsatzmittel);
+  for (var i in data.einsatzmittel) {
+	
+  };
 
   // alarmierte Einsatzmittel setzen
-  $('#em_alarmiert').empty();
+  //$('#em_alarmiert').empty();
   //var data_em_alarmiert = JSON.parse(data.em_alarmiert);
   //for (var i in data_em_alarmiert) {
     //var tmp = data_em_alarmiert[i].name.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
