@@ -156,10 +156,13 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
           };
           socket.emit('io.Einsatz', einsatzdaten);
           sql.db_log('DBRD', 'Einsatzdaten für Dashboard ' + dbrd_uuid + ' an Socket ' + socket.id + ' gesendet');
-          sql.db_client_update_status(socket, dbrd_uuid);
+          sql.db_client_update_status(socket, einsatzdaten.id);
         });
+        // Rueckmeldungen auslesen
+        rmld_verteilen_for_one_client(einsatzdaten.id, socket, 0);
       } else {
         // Standby senden
+        // BUG hier kein standby senden, sonder nicht vorhanden
         socket.emit('io.standby', null);
         sql.db_log('DBRD', 'Der angefragte Einsatz ' + dbrd_uuid + ' ist nicht - oder nicht mehr - vorhanden!, Standby an Socket ' + socket.id + ' gesendet.');
         sql.db_client_update_status(socket, null);
