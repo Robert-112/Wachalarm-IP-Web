@@ -507,9 +507,19 @@ socket.on('io.Einsatz', function (data) {
 	newCell.appendChild(newText);
 	newCell2.appendChild(newText2);
 	var table_em = document.getElementById('table_einsatzmittel');
+	var vorhanden = false;
 	for (var j = 0, row; row = table_em.rows[j]; j++) {
-		console.log(row);
+		console.log(row.cells[0].innerHTML);
+		if (row.cells[0].innerHTML == data.einsatzmittel[i].wachenname) {
+			vorhanden = true;
+			console.log(vorhanden);
+		};
 	};
+	if (vorhanden) {
+		
+	} else {
+		
+	}
 	
   };
 
