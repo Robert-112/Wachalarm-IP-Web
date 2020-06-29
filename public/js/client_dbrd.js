@@ -35,21 +35,40 @@ var marker = L.marker(new L.LatLng(0, 0), {
 var geojson = L.geoJSON().addTo(map);
 
 
-  var counter_ID = [];
+/* ########################### */
+/* ####### Rückmeldung ####### */
+/* ########################### */
 
-function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
-  // Split timestamp into [ Y, M, D, h, m, s ]
-  //var t1 = zeitstempel.split(/[- :]/),
-    //t2 = ablaufzeit.split(/[- :]/);
+var counter_rmld = [];
 
-  //var start = new Date(t1[0], t1[1] - 1, t1[2], t1[3], t1[4], t1[5]),
-    //end = new Date(t2[0], t2[1] - 1, t2[2], t2[3], t2[4], t2[5]);
+function reset_rmld(p_uuid) {
+  var bar_uuid = 'bar-' + p_uuid;
+  $('#pg-ek').children().each(function (i) {
+    if (!$(this).hasClass(bar_uuid)) {
+      $(this).remove();
+    };
+  });
+  $('#pg-ma').children().each(function (i) {
+    if (!$(this).hasClass(bar_uuid)) {
+      $(this).remove();
+    };
+  });
+  $('#pg-fk').children().each(function (i) {
+    if (!$(this).hasClass(bar_uuid)) {
+      $(this).remove();
+    };
+  });
+  /*$('#pg-ek').empty();
+  $('#pg-ma').empty();
+  $('#pg-fk').empty();
+  $('#ek-counter').text(0);
+  $('#ma-counter').text(0);
+  $('#fk-counter').text(0);
+  $('#agt-counter').text(0);*/
+};
 
-  // Progressbar erstellen falls nicht existiert
-
-    // 
-    //<div class="progress mt-1">
-  //<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">2min</div></div>
+function add_resp_progressbar(p_uuid, p_id, p_type, p_agt, p_start, p_end) {
+  // Hintergrund der Progressbar festlegen
   var bar_background = '';
   var bar_border = '';
   if (p_agt) {
@@ -69,57 +88,101 @@ function add_resp_progressbar(p_id, p_type, p_agt, p_start, p_end) {
       bar_background = '';
       break;
   };
-
-  $( '#pg-' + p_type ).append( '<div class="progress mt-1 position-relative '+bar_border+'" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>'); //+ ' ></div>' );
-
-  $( '#pg-'+ p_id ).append( '<div id="pg-bar'+ p_id +'" class="progress-bar progress-bar-striped '+ bar_background +'" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' );
-  $( '#pg-bar'+ p_id ).append('<small id="pg-text'+ p_id +'" class="justify-content-center d-flex position-absolute w-100"></small>');
-  
-  
-  
-
-  clearInterval(counter_ID[p_id]);
-  counter_ID[p_id] = 0;
-  
-  counter_ID[p_id] = setInterval(function() {
-    do_progressbar(p_id, p_start, p_end);
+  var bar_uuid = 'bar-' + p_uuid;
+  // pruefen ob div mit id 'pg-'+p_id schon vorhanden ist
+  var pgbar = document.getElementById('pg-' + p_id);
+  if (!pgbar) {
+    $('#pg-' + p_type).append('<div class="progress mt-1 position-relative ' + bar_border + ' ' + bar_uuid + '" id="pg-' + p_id + '" style="height: 15px; font-size: 14px;"></div>');
+    $('#pg-' + p_id).append('<div id="pg-bar-' + p_id + '" class="progress-bar progress-bar-striped ' + bar_background + '" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>');
+    $('#pg-bar-' + p_id).append('<small id="pg-text-' + p_id + '" class="justify-content-center d-flex position-absolute w-100"></small>');
+  } else {
+    // TODO PG-Bar ändern falls neue/angepasste Rückmeldung
+  };
+  // Zeitschiene Anpassen
+  clearInterval(counter_rmld[p_id]);
+  counter_rmld[p_id] = 0;
+  counter_rmld[p_id] = setInterval(function () {
+    do_rmld_bar(p_id, p_start, p_end);
   }, 1000);
 };
 
+function do_rmld_bar(p_id, start, end) {
+  //console.log(p_id);
+  today = new Date();
+  // restliche Zeit ermitteln
+  var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
 
-  function do_progressbar(p_id, start, end) {
-    //console.log(p_id);
-    today = new Date();
-    // restliche Zeit ermitteln
-    //var current_progress = Math.round(100 / (end.getTime() - start.getTime()) * (end.getTime() - today.getTime()));
-    var current_progress = Math.round(100 / (start.getTime() - end.getTime()) * (start.getTime() - today.getTime()));
-  
-    var diff = Math.abs(end - today);
-    var minutesDifference = Math.floor(diff / 1000 / 60);
-    diff -= minutesDifference * 1000 * 60;
-    var secondsDifference = Math.floor(diff / 1000);
-    if (secondsDifference <= 9) {
-      secondsDifference = '0' + secondsDifference;
-    };
-    var minutes = minutesDifference + ':' + secondsDifference;
-   
-    
-    // Progressbar anpassen
-    if (current_progress >= 100) {
-      $("#pg-bar"+p_id)
-        .css("width", "100%")
-        .attr("aria-valuenow", 100)
-        .addClass("ion-md-checkmark-circle");
-        $("#pg-text"+p_id).text("");
-      clearInterval(counter_ID[p_id]);
-    } else {
-      $("#pg-bar"+p_id)
-        .css("width", current_progress + "%")
-        .attr("aria-valuenow", current_progress);
-      $("#pg-text"+p_id).text(minutes);
-    };
+  var diff = Math.abs(end - today);
+  var minutesDifference = Math.floor(diff / 1000 / 60);
+  diff -= minutesDifference * 1000 * 60;
+  var secondsDifference = Math.floor(diff / 1000);
+  if (secondsDifference <= 9) {
+    secondsDifference = '0' + secondsDifference;
   };
+  var minutes = minutesDifference + ':' + secondsDifference;
+  // Progressbar anpassen
+  if (current_progress >= 100) {
+    $('#pg-bar-' + p_id)
+      .css('width', '100%')
+      .attr('aria-valuenow', 100)
+      .addClass('ion-md-checkmark-circle');
+    $('#pg-text-' + p_id).text('');
+    clearInterval(counter_ID[p_id]);
+  } else {
+    $('#pg-bar-' + p_id)
+      .css('width', current_progress + '%')
+      .attr('aria-valuenow', current_progress);
+    $('#pg-text-' + p_id).text(minutes);
+  };
+};
 
+function recount_rmld(p_uuid) {
+  var bar_uuid = 'bar-' + p_uuid;
+  var agt_count = 0;
+  // Zähler auf 0 Setzen
+  $('#ek-counter').text(0);
+  $('#ma-counter').text(0);
+  $('#fk-counter').text(0);
+  $('#agt-counter').text(0);
+  // EK zählen
+  $('#pg-ek').children().each(function (i) {
+    if ($(this).hasClass(bar_uuid)) {
+      var tmp_count = parseInt($('#ek-counter').text());
+      $('#ek-counter').text(tmp_count + 1);
+      if ($(this).hasClass('border-warning')) {
+        agt_count++;
+      };
+    };
+  });
+  // MA zählen
+  $('#pg-ma').children().each(function (i) {
+    if ($(this).hasClass(bar_uuid)) {
+      var tmp_count = parseInt($('#ma-counter').text());
+      $('#ma-counter').text(tmp_count + 1);
+      if ($(this).hasClass('border-warning')) {
+        agt_count++;
+      };
+    };
+  });
+  // FK zählen
+  $('#pg-fk').children().each(function (i) {
+    if ($(this).hasClass(bar_uuid)) {
+      var tmp_count = parseInt($('#fk-counter').text());
+      $('#fk-counter').text(tmp_count + 1);
+      if ($(this).hasClass('border-warning')) {
+        agt_count++;
+      };
+    };
+  });
+  // AGT setzen
+  $('#agt-counter').text(agt_count);
+  // Rückmeldecontainer anzeigen/ausblenden
+  if ($('#ek-counter').text() == '0' && $('#ma-counter').text() == '0' && $('#fk-counter').text() == '0' && $('#agt-counter').text() == '0') {
+    $('#rmld_container').addClass('d-none');
+  } else {
+    $('#rmld_container').removeClass('d-none');
+  };
+};
   
   
 
@@ -315,7 +378,7 @@ var arr_resp =  [
     //var timeline2 = new vis.Timeline(container2, items2, options2);
 
  
-    arr_resp.forEach(function (arrayItem) {
+    /*arr_resp.forEach(function (arrayItem) {
       //var x = arrayItem.prop1 + 2;
       //console.log(x);
       var item_content = '';
@@ -363,7 +426,7 @@ if (arrayItem.agt){
       
   });
 
-  console.log(items.get());
+  console.log(items.get());*/
 
 
 
@@ -498,28 +561,43 @@ socket.on('io.Einsatz', function (data) {
   // Einsatzmittel-Tabelle
   console.log(data.einsatzmittel);
   for (var i in data.einsatzmittel) {
-	var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
-	var newRow = tableRef.insertRow();
-	var newCell = newRow.insertCell(0);
-	var newCell2 = newRow.insertCell(1);
-	var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
-	var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
-	newCell.appendChild(newText);
-	newCell2.appendChild(newText2);
-	var table_em = document.getElementById('table_einsatzmittel');
-	var vorhanden = false;
-	for (var j = 0, row; row = table_em.rows[j]; j++) {
-		console.log(row.cells[0].innerHTML);
-		if (row.cells[0].innerHTML == data.einsatzmittel[i].wachenname) {
-			vorhanden = true;
-			console.log(vorhanden);
-		};
-	};
-	if (vorhanden) {
-		
-	} else {
-		
-	}
+    var table_em = document.getElementById('table_einsatzmittel');
+    var wache_vorhanden = false;
+    var wache_zeile = 0;
+    for (var j = 0, row; row = table_em.rows[j]; j++) {
+      //console.log(row.cells[0].innerHTML);
+      if (row.cells[0].innerHTML == data.einsatzmittel[i].wachenname) {
+        wache_vorhanden = true;
+        wache_zeile = j;
+        console.log(wache_vorhanden);
+      };
+    };
+    if (wache_vorhanden) {
+      //var newCell2 = newRow.insertCell(1);
+      var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
+      //newCell2.appendChild(newText2);
+      table_em.rows[wache_zeile].cells[1].appendChild(newText2);
+    } else {
+      var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
+      var newRow = tableRef.insertRow();
+      var newCell = newRow.insertCell(0);
+      var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
+      newCell.appendChild(newText);
+      var newCell2 = newRow.insertCell(1);
+      var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
+      newCell2.appendChild(newText2);
+    };
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
   };
 
@@ -575,7 +653,8 @@ socket.on('io.Einsatz', function (data) {
 
 socket.on('io.new_rmld', function (data) {
   // DEBUG
-  console.log(data);
+  console.log('rmld'+data);
+  // FIXME  Änderung des Funktions-Typ berücksichtigen
   // Neue Rueckmeldung hinterlegen
   data.forEach(function (arrayItem) {
     // HTML festlegen
@@ -598,14 +677,14 @@ socket.on('io.new_rmld', function (data) {
     var pg_waip_uuid = arrayItem.waip_uuid;
     console.log(arrayItem.waip_uuid);
     console.log(pg_waip_uuid);
-    var pg_rmld_uuid = arrayItem.rmld_uuid;    
+    var pg_rmld_uuid = arrayItem.rmld_uuid;
     var pg_start = new Date(arrayItem.set_time);
     var pg_end = new Date(arrayItem.arrival_time);
     // Progressbar hinterlegen
-    add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);  
+    add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);
     // Anzahl der Rückmeldung zählen
     recount_rmld(pg_waip_uuid);
-  }); 
+  });
   // Text anpassen
   resize_text();
 });
