@@ -498,6 +498,18 @@ socket.on('io.Einsatz', function (data) {
   // Einsatzmittel-Tabelle
   console.log(data.einsatzmittel);
   for (var i in data.einsatzmittel) {
+	var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
+	var newRow = tableRef.insertRow();
+	var newCell = newRow.insertCell(0);
+	var newCell2 = newRow.insertCell(1);
+	var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
+	var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
+	newCell.appendChild(newText);
+	newCell2.appendChild(newText2);
+	var table_em = document.getElementById('table_einsatzmittel');
+	for (var j = 0, row; row = table_em.rows[j]; j++) {
+		console.log(row);
+	};
 	
   };
 
