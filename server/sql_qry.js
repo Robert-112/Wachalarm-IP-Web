@@ -332,6 +332,17 @@ module.exports = function (db, app_cfg) {
     });
   };
 
+  function db_einsatz_count_all(callback) {
+    // alle aktivieren Einsaetze finden
+    db.get(`select count(*) from waip_einsaetze`, function (err, row) {
+      if (err == null && row) {
+        callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
   function db_einsatz_loeschen(id) {
     // Einsatzdaten loeschen
     db.serialize(function() {
@@ -551,6 +562,17 @@ module.exports = function (db, app_cfg) {
     db.get('select socket_id from waip_clients where room_name = ? ', [content], function (err, row) {
       if (err == null && row) {
         callback && callback(row);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_socket_get_dbrd(waip_id, callback) {
+    // Client-Eintrag per Socket-ID finden
+    db.all('select socket_id from waip_clients where client_status = ? and socket_id like \'/dbrd#%\'', [waip_id], function (err, rows) {
+      if (err == null && rows) {
+        callback && callback(rows);
       } else {
         callback && callback(null);
       };
@@ -913,6 +935,7 @@ module.exports = function (db, app_cfg) {
     db_einsatz_get_active: db_einsatz_get_active,
     db_einsatz_get_rooms: db_einsatz_get_rooms,
     db_einsatz_get_old: db_einsatz_get_old,
+    db_einsatz_count_all: db_einsatz_count_all,
     db_einsatz_loeschen: db_einsatz_loeschen,
     db_wache_get_all: db_wache_get_all,
     db_wache_vorhanden: db_wache_vorhanden,
@@ -925,6 +948,7 @@ module.exports = function (db, app_cfg) {
     db_log_get_5000: db_log_get_5000,
     db_socket_get_by_id: db_socket_get_by_id,
     db_socket_get_by_room: db_socket_get_by_room,
+    db_socket_get_dbrd: db_socket_get_dbrd,
     db_socket_get_all_to_standby: db_socket_get_all_to_standby,
     db_user_set_config: db_user_set_config,
     db_user_get_config: db_user_get_config,

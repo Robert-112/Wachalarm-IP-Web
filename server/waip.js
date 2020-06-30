@@ -123,6 +123,23 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
           });
         };
       });
+      // Dashboards ermitteln, welche den Einsatz geladen haben
+      sql.db_socket_get_dbrd(waip_id, function (dbrd_sockets) {
+        if (dbrd_sockets) {
+          // Rueckmeldung auslesen
+          sql.db_rmld_get_by_rmlduuid(rmld_uuid, function (rmld_obj) {
+            if (rmld_obj) {
+              // Rückmeldung an Dashboards senden
+              dbrd_sockets.forEach(function (row) {
+                var socket = io.of('/dbrd').connected[row.socket_id];
+                socket.emit('io.new_rmld', rmld_obj);
+                sql.db_log('RMLD', 'Rückmeldung ' + rmld_uuid + ' für den Einsatz mit der ID ' + waip_id + ' an Dashboard ' + waip_uuid + ' gesendet.');
+                sql.db_log('DEBUG', 'Rückmeldung JSON: ' + JSON.stringify(rmld_obj));
+              });
+            };
+          });
+        };
+      });
     });
   };
 

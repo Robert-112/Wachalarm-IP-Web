@@ -6,10 +6,13 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
 
   // Startseite
   app.get('/', function (req, res) {
-    res.render('home', {
-      public: app_cfg.public,
-      title: 'Startseite',
-      user: req.user
+    sql.db_einsatz_count_all(function (data) {
+      res.render('home', {
+        public: app_cfg.public,
+        title: 'Startseite',
+        anzahl_einsaetze: data,
+        user: req.user
+      });
     });
   });
 
