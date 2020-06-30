@@ -160,6 +160,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         });
         // Rueckmeldungen auslesen
         rmld_verteilen_for_one_client(einsatzdaten.id, socket, 0);
+        console.log(einsatzdaten.id, socket, 0);
       } else {
         // Standby senden
         // BUG hier kein standby senden, sonder nicht vorhanden
