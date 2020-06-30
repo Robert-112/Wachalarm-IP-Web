@@ -75,8 +75,8 @@ module.exports = function (io, sql, app_cfg, waip) {
             sql.db_client_update_status(socket, dbrd_uuid.uuid);
           });
         } else {
-          sql.db_log('ERROR', 'Fehler: Dashboard ' + dbrd_uuid.uuid + 'nicht (mehr) vorhanden!');
-          socket.emit('io.error', 'Fehler: Dashboard \'' + dbrd_uuid.uuid + '\' nicht (mehr) vorhanden!');
+          sql.db_log('ERROR', 'Fehler: Dashboard ' + uuid + 'nicht (mehr) vorhanden!');
+          socket.emit('io.error', 'Fehler: Dashboard \'' + uuid + '\' nicht (mehr) vorhanden!');
         };
       });
     });

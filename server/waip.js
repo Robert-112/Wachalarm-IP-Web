@@ -130,6 +130,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
     // Rueckmeldung an einen bestimmten Client senden
     if (typeof socket.id !== 'undefined') {
       sql.db_rmld_get_fuer_wache(waip_id, wachen_id, function (rmld_obj) {
+        console.log(rmld_obj);
         if (rmld_obj) {
           // Rueckmeldung nur an den einen Socket senden
           socket.emit('io.new_rmld', rmld_obj);
@@ -160,7 +161,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         });
         // Rueckmeldungen auslesen
         rmld_verteilen_for_one_client(einsatzdaten.id, socket, 0);
-        console.log(einsatzdaten.id, socket, 0);
       } else {
         // Standby senden
         // BUG hier kein standby senden, sonder nicht vorhanden
