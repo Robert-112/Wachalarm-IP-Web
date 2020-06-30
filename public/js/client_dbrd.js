@@ -472,11 +472,24 @@ socket.on('io.error', function (data) {
 
 
 // Daten löschen, Uhr anzeigen
-socket.on('io.standby', function (data) {
+socket.on('io.deleted', function (data) {
+	
+	console.log('del')
+  // Einsatz nicht mehr vorhanden
+  $('#waipModal').modal('hide');
+  setTimeout(function () {
+    $('#waipModalTitle').html('ACHTUNG');
+    $('#waipModalBody').html(`Der aufgerufene Einsatz wurde gel&ouml;scht und ist in diesem System nicht mehr verfügbar.<br>
+    Sie werden in einer Minute auf die Startseite zurück`);
+    $('#waipModal').modal('show');
+    setTimeout(function () {
+      window.location.href = window.location.origin;
+    }, 60000);
+  }, 1000);
   // Einsatz-ID auf 0 setzen
-  waip_id = null;
+  //waip_id = null;
   // TODO: Wenn vorhanden, hier #hilfsfrist zurücksetzen
-  $('#einsatz_art').removeClass(function (index, className) {
+  /*$('#einsatz_art').removeClass(function (index, className) {
     return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
   });
   $('#einsatz_stichwort').removeClass();
@@ -492,7 +505,7 @@ socket.on('io.standby', function (data) {
   $('#waiptableau').addClass('d-none');
   $('#waipclock').removeClass('d-none');
   // Text anpassen
-  resize_text();
+  resize_text();*/
 });
 
 // Einsatzdaten laden, Wachalarm anzeigen
