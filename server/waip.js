@@ -312,10 +312,12 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
       if (socket_ids) {
         socket_ids.forEach(function (row) {
           var socket = io.of('/waip').connected[row.socket_id];
-          socket.emit('io.standby', null);
-          socket.emit('io.stopaudio', null);
-          sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
-          sql.db_client_update_status(socket, null);
+          if (typeof socket !== 'undefined') {
+            socket.emit('io.standby', null);
+            socket.emit('io.stopaudio', null);
+            sql.db_log('WAIP', 'Standby an Socket ' + socket.id + ' gesendet');
+            sql.db_client_update_status(socket, null);
+          };
         });
       };
     });
