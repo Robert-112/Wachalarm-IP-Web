@@ -42,6 +42,7 @@ app_cfg.rmld = {
   mailserver_host: 'smtp.xxx.xxx',
   mailserver_port: 587,
   secure_mail: false,
+  unauthorized_mail: false,
   mail_user: 'testuser',
   mail_pass: 'testuserpass',//'testpass',
   mail_from: 'xyz@xxx.xxx'//'keineantwort@wachalarm.info.tm'

@@ -844,7 +844,7 @@ module.exports = function (db, app_cfg) {
   function db_vmtl_get_list(waip_id, callback) {
     // Pruefen ob fuer eine Wache im Einsatz ein Verteilerliste hinterlegt ist
     db.get(`select v.waip_wachenname, v.vmtl_typ, v.vmtl_account_name, v.vmtl_account_group from waip_vmtl v 
-      where v.waip_wachenname = (select distinct w.name_wache waip_wachenname from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
+      where v.waip_wachenname in (select distinct w.name_wache waip_wachenname from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
       where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
       if (err == null && liste) {
         // waip_id zu Daten hinzufuegen
