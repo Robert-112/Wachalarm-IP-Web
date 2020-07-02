@@ -403,6 +403,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                     var validmail = /\S+@\S+\.\S+/;
                     if (validmail.test(export_data.export_recipient)) {
                       // Mail-Server
+                      // BUG Mail wird bei selbst signiertem Zertifikat nicht verschickt
                       var transport = nodemailer.createTransport({
                         host: app_cfg.rmld.mailserver_host,
                         port: app_cfg.rmld.mailserver_port,
@@ -410,6 +411,9 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
                         auth: {
                           user: app_cfg.rmld.mail_user,
                           pass: app_cfg.rmld.mail_pass
+                        },
+                        tls: {
+                          rejectUnauthorized: false
                         }
                       });
                       var mail_message = {
