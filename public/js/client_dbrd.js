@@ -283,7 +283,7 @@ socket.on('io.Einsatz', function (data) {
   // Einsatz-ID speichern
   waip_id = data.id;
   // DBRD-ID und Zeit setzten
-  $('#dbrd_id').html(' ' + data.uuid);
+  $('#dbrd_id').html(data.uuid);
   $('#einsatz_datum').html(data.zeitstempel);
   
   // Hintergrund der Einsatzart zunächst entfernen
@@ -356,10 +356,34 @@ socket.on('io.Einsatz', function (data) {
       };
     };
     if (wache_vorhanden) {
-      //var newCell2 = newRow.insertCell(1);
-      var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
+      var flex_div = document.createElement('div');
+      flex_div.className = 'd-flex flex-wrap justify-content-between align-items-center';
+
+      var flex_under_div = document.createElement('div');
+      flex_under_div.className = 'flex-fill rounded bg-secondary p-2 m-1';
+
+      var justify_div = document.createElement('div');
+      justify_div.className = 'd-flex justify-content-between';
+
+      var em_div  = document.createElement('div');
+      em_div.className = 'pr-2';
+      em_div.innerHTML = data.einsatzmittel[i].einsatzmittel;
+      
+
+
+      flex_div.appendChild(flex_under_div);
+
+      flex_under_div.appendChild(justify_div);
+
+      justify_div.appendChild(em_div);
+
+
+      table_em.rows[wache_zeile].cells[1].appendChild(flex_div);
+
+      //var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
       //newCell2.appendChild(newText2);
-      table_em.rows[wache_zeile].cells[1].appendChild(newText2);
+      //table_em.rows[wache_zeile].cells[1].appendChild(newText2);
+      //table_em.rows[wache_zeile].cells[1].setAttribute('pr-2');
     } else {
       var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
       var newRow = tableRef.insertRow();
@@ -370,7 +394,26 @@ socket.on('io.Einsatz', function (data) {
       var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
       newCell2.appendChild(newText2);
     };
-	
+  
+    
+/*
+th(scope='row') CB FW Cottbus 1
+                td
+                  div
+
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 01/42-01
+                        div.p-2.badge.badge-success 2
+                  
+                    div.flex-fill.rounded.bg-secondary.p-2.m-1
+                      div.d-flex.justify-content-between
+                        div.pr-2 FL CB 01/82-01
+                        div.p-2.badge.badge-warning 3
+*/
+
+
+
   };
   // Karte leeren
   map.removeLayer(marker);
