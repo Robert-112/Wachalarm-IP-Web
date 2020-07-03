@@ -191,11 +191,11 @@ function recount_rmld(p_uuid) {
 /* ########################### */
 
     // DOM element where the Timeline will be attached
-    var container = document.getElementById('visualization');
+    //var container = document.getElementById('visualization');
     // Create a DataSet (allows two way data-binding)
     var names = ["CB FW Cottbus 1", "CB FW Madlow", "Lee", "Grant"];
     var groupCount = 2;
-    var groups = new vis.DataSet();
+    //var groups = new vis.DataSet();
     //for (var g = 0; g < groupCount; g++) {
     //  groups.add({ id: g, content: names[g] });
     //};
@@ -338,95 +338,7 @@ var arr_resp =  [
     {id: 6, group: 1, className: 'ek', content: 'Florian', start: start6, end: end6},
     */]);
 
-    var markerText = 'Alarmierung';
-    var id2 = "id2";
-    var customDate = new Date();
-    var alert_start = new Date(customDate.setMinutes(customDate.getMinutes() - 2));
-    var timeline_end = new Date(customDate.setMinutes(customDate.getMinutes() + 13));
-  
 
-
-
-    // Configuration for the Timeline
-    var options = {
-      rollingMode: {
-        follow: true,
-        offset: 0.25
-      },
-      start: alert_start,
-      end: timeline_end
-    };
-    // Create a Timeline
-    var timeline = new vis.Timeline(container, items, options);
-    timeline.setGroups(groups);
-    // DOM element where the Timeline will be attached
-    var container2 = document.getElementById('visualization2');
-    // Create a DataSet (allows two way data-binding)
-    var items2 = new vis.DataSet([
-
-    ]);
-
-    timeline.addCustomTime(
-      alert_start,
-      id2
-    );
-    timeline.setCustomTimeMarker(markerText, id2, false);
-
-    // Configuration for the Timeline
-    //var options2 = {};
-    // Create a Timeline
-    //var timeline2 = new vis.Timeline(container2, items2, options2);
-
- 
-    /*arr_resp.forEach(function (arrayItem) {
-      //var x = arrayItem.prop1 + 2;
-      //console.log(x);
-      var item_content = '';
-      var item_classname = '';
-      var item_type = "";
-if (arrayItem.einsatzkraft){
-  item_content = 'Einsatzkraft';
-  item_classname = 'ek';
-  item_type = 'ek';
-};
-if (arrayItem.maschinist){
-  item_content = 'Maschinist';
-  item_classname = 'ma';
-  item_type = 'ma';
-};
-if (arrayItem.fuehrungskraft){
-  item_content = 'Führungskraft';
-  item_classname = 'fk'
-  item_type = 'fk';
-};
-if (arrayItem.agt){
-  item_content = item_content + (' (AGT)');
-  item_classname = item_classname + ('-agt');
-};
-//var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
-
-      var new_item = {
-        id: arrayItem.resp_uuid,
-        group: arrayItem.wache_id,
-        className: item_classname,
-        start: new Date(arrayItem.set_time),
-        end: new Date(arrayItem.arrival_time),
-        content: item_content
-      };
-      add_resp_progressbar(arrayItem.resp_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
-       items.update(new_item);
-      groups.update({ id: arrayItem.wache_id, content: arrayItem.wache_name });
-      var tmp_count = parseInt( $( '#'+item_type+'-counter' ).text() );
-      $( '#'+item_type+'-counter' ).text(tmp_count + 1 );
-
-      if (arrayItem.agt){
-        var tmp_agt = parseInt( $( '#agt-counter' ).text() );
-        $( '#agt-counter' ).text(tmp_agt + 1 );
-      };
-      
-  });
-
-  console.log(items.get());*/
 
 
 
@@ -664,6 +576,59 @@ socket.on('io.Einsatz', function (data) {
   resize_text();*/
 });
 
+
+
+var container = document.getElementById('visualization');
+// Create a DataSet (allows two way data-binding)
+var names = ["CB FW Cottbus 1", "CB FW Madlow", "Lee", "Grant"];
+var groupCount = 2;
+var groups = new vis.DataSet();
+
+
+var markerText = 'Alarmierung';
+var id2 = "id2";
+var customDate = new Date();
+var alert_start = new Date(customDate.setMinutes(customDate.getMinutes() - 2));
+var timeline_end = new Date(customDate.setMinutes(customDate.getMinutes() + 13));
+
+
+
+
+// Configuration for the Timeline
+var options = {
+  rollingMode: {
+    follow: true,
+    offset: 0.25
+  },
+  start: alert_start,
+  end: timeline_end
+};
+// Create a Timeline
+var timeline = new vis.Timeline(container, items, options);
+timeline.setGroups(groups);
+// DOM element where the Timeline will be attached
+var container2 = document.getElementById('visualization2');
+// Create a DataSet (allows two way data-binding)
+var items2 = new vis.DataSet([
+
+]);
+
+timeline.addCustomTime(
+  alert_start,
+  id2
+);
+timeline.setCustomTimeMarker(markerText, id2, false);
+
+// Configuration for the Timeline
+//var options2 = {};
+// Create a Timeline
+//var timeline2 = new vis.Timeline(container2, items2, options2);
+
+
+
+
+
+
 socket.on('io.new_rmld', function (data) {
   // DEBUG
   console.log('rmld'+data);
@@ -672,20 +637,32 @@ socket.on('io.new_rmld', function (data) {
   data.forEach(function (arrayItem) {
     // HTML festlegen
     var item_type = '';
+    var item_content = '';
+    var item_classname = '';
     // wenn Einsatzkraft dann:
     if (arrayItem.einsatzkraft) {
+      item_content = 'Einsatzkraft';
+      item_classname = 'ek';
       item_type = 'ek';
     };
     // wenn Maschinist dann:
     if (arrayItem.maschinist) {
+      item_content = 'Maschinist';
+      item_classname = 'ma';
       item_type = 'ma';
     };
     // wenn Fuehrungskraft dann:
     if (arrayItem.fuehrungskraft) {
+      item_content = 'Führungskraft';
+      item_classname = 'fk'
       item_type = 'fk';
     };
     // wenn AGT
     var item_agt = arrayItem.agt;
+    if (arrayItem.agt){
+      item_content = item_content + (' (AGT)');
+      item_classname = item_classname + ('-agt');
+    };
     // Variablen für Anzeige vorbereiten
     var pg_waip_uuid = arrayItem.waip_uuid;
     console.log(arrayItem.waip_uuid);
@@ -693,13 +670,60 @@ socket.on('io.new_rmld', function (data) {
     var pg_rmld_uuid = arrayItem.rmld_uuid;
     var pg_start = new Date(arrayItem.set_time);
     var pg_end = new Date(arrayItem.arrival_time);
+    var timeline_item = {
+      id: arrayItem.resp_uuid,
+      group: arrayItem.wache_id,
+      className: item_classname,
+      start: new Date(arrayItem.set_time),
+      end: new Date(arrayItem.arrival_time),
+      content: item_content
+    };
     // Progressbar hinterlegen
     add_resp_progressbar(pg_waip_uuid, pg_rmld_uuid, item_type, item_agt, pg_start, pg_end);
+    // in Timeline hinterlegen
+    items.update(timeline_item);
+    groups.update({ id: arrayItem.wache_id, content: arrayItem.wache_name });
     // Anzahl der Rückmeldung zählen
     recount_rmld(pg_waip_uuid);
   });
+
+
+
   // Text anpassen
-  resize_text();
+  //resize_text();
 });
 
 // TODO Socket.on io.deleted
+
+/*arr_resp.forEach(function (arrayItem) {
+  //var x = arrayItem.prop1 + 2;
+  //console.log(x);
+  
+if (arrayItem.einsatzkraft){
+
+};
+if (arrayItem.maschinist){
+
+item_type = 'ma';
+};
+if (arrayItem.fuehrungskraft){
+
+item_type = 'fk';
+};
+
+//var item_id = Math.floor(Math.random() * 100) + Math.floor(Math.random() * 100);
+
+  
+  add_resp_progressbar(arrayItem.resp_uuid, item_type, arrayItem.agt, new Date(arrayItem.set_time), new Date(arrayItem.arrival_time));
+   
+  var tmp_count = parseInt( $( '#'+item_type+'-counter' ).text() );
+  $( '#'+item_type+'-counter' ).text(tmp_count + 1 );
+
+  if (arrayItem.agt){
+    var tmp_agt = parseInt( $( '#agt-counter' ).text() );
+    $( '#agt-counter' ).text(tmp_agt + 1 );
+  };
+  
+});
+
+console.log(items.get());*/
