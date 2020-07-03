@@ -369,14 +369,16 @@ socket.on('io.Einsatz', function (data) {
       em_div.className = 'pr-2';
       em_div.innerHTML = data.einsatzmittel[i].einsatzmittel;
       
-
+      var status_div  = document.createElement('div');
+      status_div.className = 'p-2 badge badge-dark';
+      status_div.innerHTML = data.einsatzmittel[i].status;
 
       flex_div.appendChild(flex_under_div);
 
       flex_under_div.appendChild(justify_div);
 
       justify_div.appendChild(em_div);
-
+      justify_div.appendChild(status_div);
 
       table_em.rows[wache_zeile].cells[1].appendChild(flex_div);
 
@@ -389,10 +391,40 @@ socket.on('io.Einsatz', function (data) {
       var newRow = tableRef.insertRow();
       var newCell = newRow.insertCell(0);
       var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
+      //newCell.outerHTML = "<th></th>";
       newCell.appendChild(newText);
+      
+
+
+      var flex_div = document.createElement('div');
+      flex_div.className = 'd-flex flex-wrap justify-content-between align-items-center';
+
+      var flex_under_div = document.createElement('div');
+      flex_under_div.className = 'flex-fill rounded bg-secondary p-2 m-1';
+
+      var justify_div = document.createElement('div');
+      justify_div.className = 'd-flex justify-content-between';
+
+      var em_div  = document.createElement('div');
+      em_div.className = 'pr-2';
+      em_div.innerHTML = data.einsatzmittel[i].einsatzmittel;
+      
+      var status_div  = document.createElement('div');
+      status_div.className = 'p-2 badge badge-dark';
+      status_div.innerHTML = data.einsatzmittel[i].status;
+
+      flex_div.appendChild(flex_under_div);
+
+      flex_under_div.appendChild(justify_div);
+
+      justify_div.appendChild(em_div);
+      justify_div.appendChild(status_div);
+
+      table_em.rows[wache_zeile].cells[1].appendChild(flex_div);
+
       var newCell2 = newRow.insertCell(1);
       var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
-      newCell2.appendChild(newText2);
+      newCell2.appendChild(flex_div);
     };
   
     
