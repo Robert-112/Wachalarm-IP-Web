@@ -1,3 +1,17 @@
+
+$(document).ready(function() {
+  // Sound nicht beim laden der Seite abspielen
+  var audio = document.getElementById('audio');
+  audio.src = ('/media/bell_message.mp3');
+  audio.volume = 0.0;
+  setTimeout(function () {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.volume = 1.0;
+  }, 1000);
+});
+
+
 /* ########################### */
 /* ######### LEAFLET ######### */
 /* ########################### */

@@ -326,6 +326,18 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
       // nach alten Einsaetzen suchen und diese ggf. loeschen
       if (waip) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip.id + ' ist veraltet und kann gelöscht werden.')
+        // Dashboards trennen, deren Einsatz geloescht wurde
+        sql.db_socket_get_dbrd(waip.uuid, function (socket_ids) {
+          // TODO TEST: Dashboard-Trennen-Funktion testen
+          if (socket_ids) {
+            socket_ids.forEach(function (row) {
+              var socket = io.of('/dbrd').connected[row.socket_id];
+              socket.emit('io.deleted', null);
+              sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
+              sql.db_client_update_status(socket, null);
+            });
+          };
+        });
         // beteiligte Wachen zum Einsatz ermitteln
         sql.db_einsatz_get_rooms(waip.id, function (data) {
           if (data) {
@@ -348,18 +360,6 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
               };
             });
           };
-          sql.db_socket_get_by_room(waip.uuid, function (socket_ids) {
-            // Dashboards trennen, deren Einsatz geloescht wurde
-            // TODO TEST: Dashboard-Trennen-Funktion testen
-            if (socket_ids) {
-              socket_ids.forEach(function (row) {
-                var socket = io.of('/dbrd').connected[row.socket_id];
-                socket.emit('io.deleted', null);
-                sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
-                sql.db_client_update_status(socket, null);
-              });
-            };
-          });
           sql.db_rmld_get_for_export(waip.einsatznummer, waip.uuid, function (full_rmld) {
             // beteiligte Wachen aus den Einsatz-Rueckmeldungen filtern
             var arry_wachen = full_rmld.map(a => a.wache_nr);
