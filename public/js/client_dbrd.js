@@ -374,7 +374,12 @@ socket.on('io.Einsatz', function (data) {
     var flex_div_wa = document.createElement('div');
     flex_div_wa.className = 'd-flex flex-wrap justify-content-between align-items-center';
     flex_div_wa.id = wachen_idstr;
-    table_em.rows[wache_zeile].cells[1].appendChild(flex_div_wa);
+
+    //Flexelement zur Tabelle hinzuefuegen
+    var new_td = document.createElement('td');
+    new_td.appendChild(flex_div_wa);
+    newRow.appendChild(new_td);
+    //table_em.rows[wache_zeile].cells[1].appendChild(flex_div_wa);
     };
     
     //Flex-Element fuer Einsatzmittel erzeugen
@@ -392,7 +397,27 @@ socket.on('io.Einsatz', function (data) {
     
     //Status-Div erzeugen
     var status_div  = document.createElement('div');
-    status_div.className = 'p-2 badge badge-dark';
+    switch (data.einsatzmittel[i].status) {
+      case '1':
+        status_div.className = 'p-2 badge badge-info';
+        break;
+      case '2':
+        status_div.className = 'p-2 badge badge-success';
+        break;
+      case '3':
+        status_div.className = 'p-2 badge badge-warning';
+        break;
+      case '4':
+        status_div.className = 'p-2 badge badge-danger';
+        break;
+      default:
+        status_div.className = 'p-2 badge badge-dark';
+        break;
+    }
+
+
+    
+    
     status_div.innerHTML = data.einsatzmittel[i].status;
 
     //Erzeugte Div zusammensetzen
@@ -525,6 +550,7 @@ th(scope='row') CB FW Cottbus 1
       data.zeitstempel,
       alarm_zeit
     );
+    timeline.customTimes[timeline.customTimes.length - 1].hammer.off("panstart panmove panend");
     timeline.setCustomTimeMarker(markerText, alarm_zeit, false);
     
     // Configuration for the Timeline
