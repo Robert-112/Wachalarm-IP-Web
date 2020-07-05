@@ -616,5 +616,15 @@ socket.on('io.new_rmld', function (data) {
     // Anzahl der Rückmeldung zählen
     recount_rmld(pg_waip_uuid);
   });
-
+  var audio = document.getElementById('audio');
+  audio.src = ('/media/bell_message.mp3');
+  // Audio-Blockade des Browsers erkennen
+  var playPromise = document.querySelector('audio').play();
+  if (playPromise !== undefined) {
+    playPromise.then(function () {
+      audio.play();
+    }).catch(function (error) {
+      console.log('Notification playback failed'); 
+    });
+  };
 });
