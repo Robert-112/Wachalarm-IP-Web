@@ -79,6 +79,8 @@ style(type='text/css').
             #map.rounded(style={height: '30em'})
         div.border-top.m-3
         .card.mt-2
+          .card-header.bg-dark.px-3
+            .text-info.font-weight-bold Einsatzort
           .card-body.p-0
             ul#einsatzort_list.list-group.list-group-flush
               li.list-group-item -Objekt-
@@ -86,7 +88,7 @@ style(type='text/css').
               li.list-group-item -Orststeil-
               li.list-group-item -Straße Hsnr-
               li.list-group-item.text-warning -Besonderheiten-
-        div.border-top.m-3.d-block.d-sm-none
+        div.border-top.mx-3.mt-3.mb-2.d-block.d-lg-none
 
                 
   //.col-12
@@ -168,8 +170,8 @@ style(type='text/css').
           table#table_einsatzmittel.table.table-hover  
             thead.table-borderless 
               tr
-                th(scope='col').text-info Wache
-                th(scope='col').text-info Einsatzmittel
+                th(scope='col').text-info.pl-3 Wache
+                th(scope='col').text-info.pl-3 Einsatzmittel
             tbody
               tr
                 th(scope='row') CB FW Cottbus 1
@@ -244,7 +246,7 @@ style(type='text/css').
                       div.p-2.badge.badge-warning 3 
         div.border-top.m-3
         .card
-          .card-header.bg-dark.px-2
+          .card-header.bg-dark.px-3
             .text-info.font-weight-bold Einsatzrückmeldungen   
           .card-body.p-2#rmld_container
             .d-flex.fustify-content-between.font-weight-bold
