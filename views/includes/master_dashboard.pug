@@ -53,16 +53,19 @@ style(type='text/css').
    .vis-custom-time-marker {  
     right: 2px;
   }
-
+.row
+  .col-12.d-flex.justify-content-between
+    .d-flex.justify-content-start
+      .text-muted Alarmierung:&nbsp;
+      #einsatz_datum.text-muted.text-right &nbsp; 2345
+    .d-flex.justify-content-end
+      #dbrd_id.text-muted 2341234345453
 
 .row
   //.col-12.text-center.p-3
     h2.rounded.bg-danger Einsatzübersicht
-  .col-4
+  .col-lg-4.col-12
     .row.no-gutters
-      .col-12.d-flex.justify-content-start
-        .text-muted Alarmierung:&nbsp;
-        #einsatz_datum.text-muted.text-right &nbsp; 2345
       .col-10.mt-2
         #einsatz_art.align-items-center.font-weight-bold.rounded.bg-secondary.p-3.mr-2
           #einsatz_stichwort.ion-md-apps  -Stichwort-
@@ -153,10 +156,8 @@ style(type='text/css').
             div.d-flex.justify-content-between.align-items-center
               div FL SPN 00/00-00
               div.badge.badge-info 1
-  .col-8
+  .col-lg-8.col-12
     .row.no-gutters
-      .col-12.d-flex.justify-content-end
-        #dbrd_id.text-muted 2341234345453
       .col-12
         //.card.bg-dark.mt-2
           .card-header.bg-secondary.p-2
