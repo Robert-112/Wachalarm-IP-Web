@@ -25,7 +25,7 @@ app_cfg.public = {
   url: 'https://wachalarm.mooo.com',
   app_name: 'Wachalarm IP-Web',
   company: 'Leitstelle Lausitz',
-  version: 'Version 1.2',
+  version: 'Version 1.2.1',
   map_tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   map_attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   ext_imprint: false,

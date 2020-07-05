@@ -348,6 +348,7 @@ socket.on('io.Einsatz', function (data) {
     var table_em = document.getElementById('table_einsatzmittel');
     var wache_vorhanden = false;
     var wache_zeile = 0;
+    var wachen_idstr =data.einsatzmittel[i].wachenname.replace(/[^A-Z0-9]+/ig, '_');
     for (var j = 0, row; row = table_em.rows[j]; j++) {
       //console.log(row.cells[0].innerHTML);
       if (row.cells[0].innerHTML == data.einsatzmittel[i].wachenname) {
@@ -355,7 +356,66 @@ socket.on('io.Einsatz', function (data) {
         wache_zeile = j;
       };
     };
-    if (wache_vorhanden) {
+    if (!wache_vorhanden){
+      // Zeile fuer Wache anlegen, falls diese noch nicht hinterlegt
+      var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
+      var newRow = tableRef.insertRow();
+
+      //var newCell = newRow.insertCell(0);
+      // Wachennamen hinterlegen
+      var new_th = document.createElement('th');
+      new_th.innerHTML = data.einsatzmittel[i].wachenname;
+      //var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
+      //newCell.outerHTML = "<th></th>";
+      //newCell.appendChild(newText);
+      newRow.appendChild(new_th);
+
+      //Flex-Element fuer Einsatzmittel der Wache erzeugen
+    var flex_div_wa = document.createElement('div');
+    flex_div_wa.className = 'd-flex flex-wrap justify-content-between align-items-center';
+    flex_div_wa.id = wachen_idstr;
+    table_em.rows[wache_zeile].cells[1].appendChild(flex_div_wa);
+    };
+    
+    //Flex-Element fuer Einsatzmittel erzeugen
+    var flex_div_em = document.createElement('div');
+    flex_div_em.className = 'flex-fill rounded bg-secondary p-2 m-1';
+
+    //Justify-Rahmen feuer Einsatzmittel erzeugen
+    var justify_div = document.createElement('div');
+    justify_div.className = 'd-flex justify-content-between';
+
+    //Einsatzmittel-Div erzeugen
+    var em_div  = document.createElement('div');
+    em_div.className = 'pr-2';
+    em_div.innerHTML = data.einsatzmittel[i].einsatzmittel;
+    
+    //Status-Div erzeugen
+    var status_div  = document.createElement('div');
+    status_div.className = 'p-2 badge badge-dark';
+    status_div.innerHTML = data.einsatzmittel[i].status;
+
+    //Erzeugte Div zusammensetzen
+    flex_div_em.appendChild(justify_div);
+    justify_div.appendChild(em_div);
+    justify_div.appendChild(status_div);
+
+    // Einsatzmittel hinzuefuegen
+    document.getElementById(wachen_idstr).appendChild(flex_div_em);
+    
+
+
+    
+
+    //var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
+    //newCell2.appendChild(newText2);
+    //table_em.rows[wache_zeile].cells[1].appendChild(newText2);
+    //table_em.rows[wache_zeile].cells[1].setAttribute('pr-2');
+
+
+
+
+  /*  if (wache_vorhanden) {
       var flex_div = document.createElement('div');
       flex_div.className = 'd-flex flex-wrap justify-content-between align-items-center';
 
@@ -387,18 +447,7 @@ socket.on('io.Einsatz', function (data) {
       //table_em.rows[wache_zeile].cells[1].appendChild(newText2);
       //table_em.rows[wache_zeile].cells[1].setAttribute('pr-2');
     } else {
-      //var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
-      //var newRow = tableRef.insertRow();
-      //var newCell = newRow.insertCell(0);
-      //var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
-      //newCell.outerHTML = "<th></th>";
-      //newCell.appendChild(newText);
       
-
-      var tr = document.getElementById('tatable_einsatzmittelble').tHead.children[0],
-      th = document.createElement('th');
-      th.innerHTML = data.einsatzmittel[i].wachenname;
-      tr.appendChild(th);
 
 
       var flex_div = document.createElement('div');
@@ -430,7 +479,7 @@ socket.on('io.Einsatz', function (data) {
       var newCell2 = newRow.insertCell(1);
       var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
       newCell2.appendChild(flex_div);
-    };
+    };/*
   
     
 /*
