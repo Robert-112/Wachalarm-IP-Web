@@ -387,13 +387,18 @@ socket.on('io.Einsatz', function (data) {
       //table_em.rows[wache_zeile].cells[1].appendChild(newText2);
       //table_em.rows[wache_zeile].cells[1].setAttribute('pr-2');
     } else {
-      var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
-      var newRow = tableRef.insertRow();
-      var newCell = newRow.insertCell(0);
-      var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
+      //var tableRef = document.getElementById('table_einsatzmittel').getElementsByTagName('tbody')[0];
+      //var newRow = tableRef.insertRow();
+      //var newCell = newRow.insertCell(0);
+      //var newText = document.createTextNode(data.einsatzmittel[i].wachenname);
       //newCell.outerHTML = "<th></th>";
-      newCell.appendChild(newText);
+      //newCell.appendChild(newText);
       
+
+      var tr = document.getElementById('tatable_einsatzmittelble').tHead.children[0],
+      th = document.createElement('th');
+      th.innerHTML = data.einsatzmittel[i].wachenname;
+      tr.appendChild(th);
 
 
       var flex_div = document.createElement('div');
