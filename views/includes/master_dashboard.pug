@@ -75,12 +75,14 @@ style(type='text/css').
       .col-2.mt-2
         .align-items-center.justify-content-center.rounded.bg-secondary.text-info.p-3.text-center
           #sondersignal.ion-md-apps
-      .col-12
-        div.border-top.m-3
+    div.border-top.m-3
+    .row
+      .col-lg-12.col-md-6.col-12
         .card.mt-2
           .card-body.p-0
             #map.rounded(style={height: '30em'})
-        div.border-top.m-3
+        div.border-top.m-3.d-md-none.d-lg-block
+      .col-lg-12.col-md-6.col-12
         .card.mt-2
           .card-header.bg-dark.px-3
             .text-info.font-weight-bold Einsatzort
@@ -91,7 +93,7 @@ style(type='text/css').
               li.list-group-item -Orststeil-
               li.list-group-item -Straße Hsnr-
               li.list-group-item.text-warning -Besonderheiten-
-        div.border-top.mx-3.mt-3.mb-2.d-block.d-lg-none
+    div.border-top.mx-3.mt-3.mb-2.d-block.d-lg-none
 
                 
   //.col-12

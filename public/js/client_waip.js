@@ -444,7 +444,7 @@ socket.on('io.new_waip', function (data) {
   var data_em_alarmiert = JSON.parse(data.em_alarmiert);
   for (var i in data_em_alarmiert) {
     var tmp = data_em_alarmiert[i].name.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
-    $('#em_alarmiert').append('<div id="cn_' + tmp + '" class="rounded bg-secondary d-flex justify-content-between flex-fill p-2 m-1"></div>');
+    $('#em_alarmiert').append('<div id="cn_' + tmp + '" class="rounded bg-secondary d-flex justify-content-between p-2 m-1"></div>');
     $('#cn_' + tmp).append('<div class="pr-2">' + data_em_alarmiert[i].name + '</div>');
   };
   // weitere alarmierte Einsatzmittel setzen
