@@ -615,7 +615,7 @@ socket.on('io.new_rmld', function (data) {
     var pg_start = new Date(arrayItem.set_time);
     var pg_end = new Date(arrayItem.arrival_time);
     var timeline_item = {
-      id: arrayItem.resp_uuid,
+      id: arrayItem.rmld_uuid,
       group: arrayItem.wache_id,
       className: item_classname,
       start: new Date(arrayItem.set_time),
