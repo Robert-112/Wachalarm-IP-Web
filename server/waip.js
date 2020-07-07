@@ -332,9 +332,11 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
           if (socket_ids) {
             socket_ids.forEach(function (row) {
               var socket = io.of('/dbrd').connected[row.socket_id];
-              socket.emit('io.deleted', null);
-              sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
-              sql.db_client_update_status(socket, null);
+              if (typeof socket !== 'undefined') {
+                socket.emit('io.deleted', null);
+                sql.db_log('DBRD', 'Dashboard mit dem  Socket ' + socket.id + ' getrennt, da Einsatz gelöscht.');
+                sql.db_client_update_status(socket, null);
+              };
             });
           };
         });

@@ -357,9 +357,12 @@ socket.on('io.Einsatz', function (data) {
   if (data.besonderheiten) {
     $('#einsatzort_list').append('<li class="list-group-item text-warning">' + data.besonderheiten+ '</li>');
   };
+  // Alte Einsatzmittel loeschen
+  var table_em = document.getElementById('table_einsatzmittel');
+  table_em.getElementsByTagName('tbody')[0].innerHTML = '';
   // Einsatzmittel-Tabelle
   for (var i in data.einsatzmittel) {
-    var table_em = document.getElementById('table_einsatzmittel');
+
     var wache_vorhanden = false;
     var wache_zeile = 0;
     var wachen_idstr =data.einsatzmittel[i].wachenname.replace(/[^A-Z0-9]+/ig, '_');

@@ -570,10 +570,7 @@ module.exports = function (db, app_cfg) {
 
   function db_socket_get_dbrd(waip_id, callback) {
     // Client-Eintrag per Socket-ID finden
-    console.log(waip_id);
     db.all('select socket_id from waip_clients where client_status = ? and socket_id like \'/dbrd#%\'', [waip_id], function (err, rows) {
-      console.log(rows);
-      console.log(err);
       if (err == null && rows) {
         callback && callback(rows);
       } else {
