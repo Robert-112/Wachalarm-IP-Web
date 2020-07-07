@@ -746,8 +746,6 @@ function set_clock() {
     $('#time').html(element_time);
     // Datum (Text) anzeigen
     $('#day').html(element_day);
-    // Datum anzeigen, sofern sichtbar
-    $('#date-time').html(element_date_time);
     // Textgröße neu setzen
     resize_text();
   };

@@ -24,7 +24,7 @@ body {
 }
 
 .fullheight {
-  height: calc(100vh - 60px - 5rem);
+  height: calc(100vh - 60px - 5rem - 3rem);
 }
 
 /*** Anpassungen an Bootstrap ******************/
@@ -210,5 +210,5 @@ audio {
 }
 
 #headline {
-  font-size: 1vw;
+  height: 3rem;
 }

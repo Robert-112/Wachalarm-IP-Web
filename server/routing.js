@@ -166,15 +166,28 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
   /* ######################## */
 
   // Dasboard-Uebersicht
-  app.get('/dbrd', function (req, res) {
-    sql.db_einsatz_get_active(function (data) {
-      res.render('overviews/overview_dbrd', {
-        public: app_cfg.public,
-        title: 'Dashboard',
-        user: req.user,
-        dataSet: data
+  app.get('/dbrd', function (req, res, next) {
+    // pruefen ob ein Paramater fuer die Einsatznummer angegeben wurde, dann Dashboard direkt oeffnen
+    if (req.query.enr_str) {
+      sql.db_einsatz_get_uuid_by_enr(req.query.enr_str, function (data) {
+        if (data) {
+          res.redirect('/dbrd/' + data);
+        } else {
+          var err = new Error('Dashboard oder Einsatz nicht (mehr) vorhanden!');
+          err.status = 404;
+          next(err);
+        };
       });
-    });
+    } else {
+      sql.db_einsatz_get_active(function (data) {
+        res.render('overviews/overview_dbrd', {
+          public: app_cfg.public,
+          title: 'Dashboard',
+          user: req.user,
+          dataSet: data
+        });
+      });
+    };
   });
 
   // Dasboard fuer einen Einsatz
@@ -190,7 +203,7 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
           user: req.user
         });
       } else {
-        var err = new Error('Dashboard oder Einsatz nicht vorhanden!');
+        var err = new Error('Dashboard oder Einsatz nicht (mehr) vorhanden!');
         err.status = 404;
         next(err);
       };

@@ -1,126 +1,126 @@
 // BUG: Darstellung in Safari-Mobil fehlerhaft (generell Mobil, ggf. extra Darstellung)
-#waiptableau.fullheight.row.no-gutters
-  .col-12.h-5.d-flex.py-1.text-muted
-    .btn-group.h-100.mr-1
-      label#replay.btn.btn-outline-light
+#waiptableau
+  .row.no-gutters
+    #headline.col-12.d-flex.justify-content-between.py-1.text-muted
+      .btn-group.h-100.mr-1
+        label#replay.btn.btn-outline-light
+          .ion-md-play-circle
+        label#volume.btn.btn-outline-light
+          .ion-md-volume-high
+      #date-time || -Datum- - -Uhrzeit-  
+      #wachenname.ion-md-business= data_wache || ' -Wachenname-'
+    //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
+      // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
+      
+
+
+    // BUG: Buttons für Sounds werden fehlerhaft dargestellt
+    //.col-6.h-5.d-flex.align-items-center.py-1.text-muted.tf_singleline 
+      button#replay.btn.btn-outline-light.h-100.py-1
         .ion-md-play-circle
-      label#volume.btn.btn-outline-light
+      button#volume.btn.btn-outline-light.h-100.mx-1
         .ion-md-volume-high
-    .flex-grow-1.h-100
-      #headline.d-flex.justify-content-between
-        #date-time.align-self-center || -Datum- - -Uhrzeit-  
-        #wachenname.ion-md-business= data_wache || ' -Wachenname-'
-  //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
-    // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
-    
+      #date-time 
+        div -Datum- - -Uhrzeit-  
+    //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
+      // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
+      #wachenname.ion-md-business=data_wache || ' -Wachenname-'
+  .row.no-gutters.fullheight
+    .col-10.h-15.h-20_ls.pr-3
+      #einsatz_art.h-100.w-100.d-flex.align-items-center.font-weight-bold.p-3.rounded.bg-dark.tf_singleline
+        #einsatz_stichwort.ion-md-apps  -Stichwort-
+    .col-2.h-15.h-20_ls.d-flex.align-items-center.justify-content-center.p-3.rounded.bg-dark.text-info.tf_singleline
+      #sondersignal.ion-md-apps
+    .col-12.col-5_ls.h-35.h-70_ls.pt-3_pt.ptr-3_ls 
+      #map.h-100.rounded  
+    .col-12.col-7_ls.h-45.h-70_ls
+      .row.no-gutters.h-100.pt-3
+        .col-12.h-20.h-100.w-100#rmld_container
+          // TODO: Rueckmedlung ohne Rueckmeldung ausbleden
+          .d-flex.fustify-content-between.font-weight-bold
+            .list-group.list-group-horizontal.text-center.w-100
+              .list-group-item.flex-fill.text-success 
+                a#ek-counter 0
+                a &nbsp;EK
+              .list-group-item.flex-fill.text-info 
+                a#ma-counter 0
+                a &nbsp;MA
+              .list-group-item.flex-fill.text-light 
+                a#fk-counter 0 
+                a &nbsp;FK
+            .list-group.text-center
+              .list-group-item.border.border-warning.flex-fill.text-warning 
+                a#agt-counter 0
+                a &nbsp;AGT
+              //a.badge.badge-warning 2&nbsp;AGT
+          .row
+            .col-4#pg-ek.pr-1
+              //.progress.mt-1
+                  .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 
+                    a(style='') 2min
+              //.progress.mt-1.border.border-warning(style='height: 20px;')
+                  .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 
+                    h 2min
+              //.progress.mt-1
+                  .progress-bar.progress-bar-striped.bg-success.ion-md-checkmark-circle(role='progressbar', style='width: 100%', aria-valuenow='100', aria-valuemin='0', aria-valuemax='100')
+            .col-4#pg-ma.px-1
+              //.progress.mt-1
+                  .progress-bar.progress-bar-striped.bg-info(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 3min
+              //.progress.mt-1
+                  .progress-bar.progress-bar-striped.bg-info(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 1min     
+            .col-4#pg-fk.pl-1
+              //.progress.mt-1.border.border-warning
+                  .progress-bar.progress-bar-striped.bg-light(role='progressbar', style='width: 50%', aria-valuenow='50', aria-valuemin='0', aria-valuemax='100') 10min    
+        .col-6.h-60.d-flex.align-items-end.justify-content-start.tf_multiline
+          #ortsdaten.flex-fill -Objekt-
+            br
+            | -Ort-
+            br
+            | -Ortsteil-
+            br
+            | -Straße Hsnr-
+        //.col-6.h-65.d-flex.align-items-around.justify-content-end
+        #em_alarmiert.col-6.h-60.d-flex.flex-wrap.align-content-end
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+          div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
+            div.pr-2 FL CB 01/42-01
+            div.p-2.badge.badge-success 2
+                                                  
+            
 
-
-  // BUG: Buttons für Sounds werden fehlerhaft dargestellt
-  //.col-6.h-5.d-flex.align-items-center.py-1.text-muted.tf_singleline 
-    button#replay.btn.btn-outline-light.h-100.py-1
-      .ion-md-play-circle
-    button#volume.btn.btn-outline-light.h-100.mx-1
-      .ion-md-volume-high
-    #date-time 
-      div -Datum- - -Uhrzeit-  
-  //.col-6.h-5.d-flex.flex-row.align-items-center.justify-content-end.py-1.text-muted.tf_singleline
-    // TODO Information in Wachalarm-Bild ob alle Rechte, oder ob reduzierte Version
-    #wachenname.ion-md-business=data_wache || ' -Wachenname-'
-  .col-10.h-15.h-20_ls.pr-3
-    #einsatz_art.h-100.w-100.d-flex.align-items-center.font-weight-bold.p-3.rounded.bg-dark.tf_singleline
-      #einsatz_stichwort.ion-md-apps  -Stichwort-
-  .col-2.h-15.h-20_ls.d-flex.align-items-center.justify-content-center.p-3.rounded.bg-dark.text-info.tf_singleline
-    #sondersignal.ion-md-apps
-  .col-12.col-5_ls.h-35.h-70_ls.pt-3_pt.ptr-3_ls 
-    #map.h-100.rounded  
-  .col-12.col-7_ls.h-40.h-70_ls
-    .row.no-gutters.h-100.pt-3
-      .col-12.h-20.h-100.w-100#rmld_container
-        // TODO: Rueckmedlung ohne Rueckmeldung ausbleden
-        .d-flex.fustify-content-between.font-weight-bold
-          .list-group.list-group-horizontal.text-center.w-100
-            .list-group-item.flex-fill.text-success 
-              a#ek-counter 0
-              a &nbsp;EK
-            .list-group-item.flex-fill.text-info 
-              a#ma-counter 0
-              a &nbsp;MA
-            .list-group-item.flex-fill.text-light 
-              a#fk-counter 0 
-              a &nbsp;FK
-          .list-group.text-center
-            .list-group-item.border.border-warning.flex-fill.text-warning 
-              a#agt-counter 0
-              a &nbsp;AGT
-            //a.badge.badge-warning 2&nbsp;AGT
-        .row
-          .col-4#pg-ek.pr-1
-            //.progress.mt-1
-                .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 
-                  a(style='') 2min
-            //.progress.mt-1.border.border-warning(style='height: 20px;')
-                .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 
-                  h 2min
-            //.progress.mt-1
-                .progress-bar.progress-bar-striped.bg-success.ion-md-checkmark-circle(role='progressbar', style='width: 100%', aria-valuenow='100', aria-valuemin='0', aria-valuemax='100')
-          .col-4#pg-ma.px-1
-            //.progress.mt-1
-                .progress-bar.progress-bar-striped.bg-info(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 3min
-            //.progress.mt-1
-                .progress-bar.progress-bar-striped.bg-info(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 1min     
-          .col-4#pg-fk.pl-1
-            //.progress.mt-1.border.border-warning
-                .progress-bar.progress-bar-striped.bg-light(role='progressbar', style='width: 50%', aria-valuenow='50', aria-valuemin='0', aria-valuemax='100') 10min    
-      .col-6.h-60.d-flex.align-items-end.justify-content-start.tf_multiline
-        #ortsdaten.flex-fill -Objekt-
-          br
-          | -Ort-
-          br
-          | -Ortsteil-
-          br
-          | -Straße Hsnr-
-      //.col-6.h-65.d-flex.align-items-around.justify-content-end
-      #em_alarmiert.col-6.h-60.d-flex.flex-wrap.align-content-end
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-        div.rounded.bg-secondary.d-flex.justify-content-between.flex-fill.p-2.m-1
-          div.pr-2 FL CB 01/42-01
-          div.p-2.badge.badge-success 2
-                                                
-          
-
-          //ul#em_alarmiert.list-group
-            li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 1-
-            li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 2-
-            li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel n-  
-          // TODO: Status mit anzeigen (als .badge.badge-pill)
-          // TODO: auflistung vieler Fahrzeuge verbessern. flexfill
-      .col-12.h-5.d-flex.align-items-end.justify-content-center.text-muted.tf_singleline
-        #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
-      .col-12.h-15.d-flex.align-items-center.rounded.bg-dark.font-weight-bold.text-info.tf_singleline
-        // TODO: Besonderheiten bei neuer Alarmierung neu in der größe angpassen
-        #besonderheiten -Besonderheiten-
-  .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
-    .progress(style='height: 100%;').flex-fill
-      #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width: 0%')       
+            //ul#em_alarmiert.list-group
+              li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 1-
+              li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel 2-
+              li.list-group-item.d-flex.justify-content-between.align-items-center -Einsatzmittel n-  
+            // TODO: Status mit anzeigen (als .badge.badge-pill)
+            // TODO: auflistung vieler Fahrzeuge verbessern. flexfill
+        .col-12.h-5.d-flex.align-items-end.justify-content-center.text-muted.tf_singleline
+          #em_weitere -weiteres Einsatzmittel 1-, -weiteres Einsatzmittel 2-, -weiteres Einsatzmittel n-
+        .col-12.h-15.d-flex.align-items-center.rounded.bg-dark.font-weight-bold.text-info.tf_singleline
+          // TODO: Besonderheiten bei neuer Alarmierung neu in der größe angpassen
+          #besonderheiten -Besonderheiten-
+    .col-12.h-5.d-flex.align-items-end.justify-content-center.pt-3 
+      .progress(style='height: 100%;').flex-fill
+        #hilfsfrist.progress-bar.progress-bar-striped.progress-bar-animated(role='progressbar', aria-valuenow='0', aria-valuemin='0', aria-valuemax='100', style='width: 0%')       
   audio#audio(controls='')
     source(src='', type='audio/mpeg')  
