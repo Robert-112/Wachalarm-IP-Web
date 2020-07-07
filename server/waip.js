@@ -327,7 +327,7 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
       if (waip) {
         sql.db_log('WAIP', 'Einsatz mit der ID ' + waip.id + ' ist veraltet und kann gelöscht werden.')
         // Dashboards trennen, deren Einsatz geloescht wurde
-        sql.db_socket_get_dbrd(waip.uuid, function (socket_ids) {
+        sql.db_socket_get_dbrd(waip.id, function (socket_ids) {
           // TODO TEST: Dashboard-Trennen-Funktion testen
           if (socket_ids) {
             socket_ids.forEach(function (row) {

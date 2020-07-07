@@ -282,7 +282,7 @@ socket.on('io.deleted', function (data) {
   setTimeout(function () {
     $('#waipModalTitle').html('ACHTUNG');
     $('#waipModalBody').html(`Der aufgerufene Einsatz wurde gel&ouml;scht und ist in diesem System nicht mehr verfügbar.<br>
-    Sie werden in einer Minute auf die Startseite zurück`);
+    Sie werden in einer Minute auf die Startseite zurückgeleitet.`);
     $('#waipModal').modal('show');
     setTimeout(function () {
       window.location.href = window.location.origin;
