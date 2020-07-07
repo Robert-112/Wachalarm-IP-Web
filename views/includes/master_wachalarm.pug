@@ -3,9 +3,9 @@
   .row.no-gutters
     #headline.col-12.d-flex.justify-content-between.py-1.text-muted
       .btn-group.h-100.mr-1
-        label#replay.btn.btn-outline-light
+        label#replay.btn.btn-outline-light.m-0.py-0
           .ion-md-play-circle
-        label#volume.btn.btn-outline-light
+        label#volume.btn.btn-outline-light.m-0.py-0
           .ion-md-volume-high
       #date-time || -Datum- - -Uhrzeit-  
       #wachenname.ion-md-business= data_wache || ' -Wachenname-'
@@ -37,23 +37,23 @@
       .row.no-gutters.h-100.pt-3
         .col-12.h-20.h-100.w-100#rmld_container
           // TODO: Rueckmedlung ohne Rueckmeldung ausbleden
-          .d-flex.fustify-content-between.font-weight-bold
-            .list-group.list-group-horizontal.text-center.w-100
-              .list-group-item.flex-fill.text-success 
+          .d-flex.fustify-content-between.font-weight-bold.h-30
+            .list-group.list-group-horizontal.text-center.w-100.h-100
+              .list-group-item.flex-fill.text-success.py-0
                 a#ek-counter 0
                 a &nbsp;EK
-              .list-group-item.flex-fill.text-info 
+              .list-group-item.flex-fill.text-info.py-0
                 a#ma-counter 0
                 a &nbsp;MA
-              .list-group-item.flex-fill.text-light 
+              .list-group-item.flex-fill.text-light.py-0
                 a#fk-counter 0 
                 a &nbsp;FK
-            .list-group.text-center
-              .list-group-item.border.border-warning.flex-fill.text-warning 
+            .list-group.list-group-horizontal.text-center.h-100
+              .list-group-item.flex-fill.border.border-warning.text-warning.py-0
                 a#agt-counter 0
                 a &nbsp;AGT
               //a.badge.badge-warning 2&nbsp;AGT
-          .row
+          .row.h-70
             .col-4#pg-ek.pr-1
               //.progress.mt-1
                   .progress-bar.progress-bar-striped.bg-success(role='progressbar', style='width: 25%', aria-valuenow='25', aria-valuemin='0', aria-valuemax='100') 

@@ -151,7 +151,7 @@ function do_on_Inactive() {
   $('.navbar').fadeOut('slow');
   $('.footer').fadeOut('slow');
   $('.fullheight').css({
-    height: 'calc(100vh - 2rem)',
+    height: 'calc(100vh - 4rem)',
     cursor: 'none'
   });
   $('body').css({
@@ -173,7 +173,7 @@ function do_on_Active() {
     paddingBottom: '0'
   });
   $('.fullheight').css({
-    height: 'calc(100vh - 60px - 5rem)',
+    height: 'calc(100vh - 60px - 7rem)',
     cursor: 'auto'
   });
   resize_text();
@@ -378,6 +378,8 @@ socket.on('io.new_waip', function (data) {
   console.log(data);
   // Einsatz-ID speichern
   waip_id = data.id;
+  // Alarmzeitsetzen:
+  $('#date-time').html(data.zeitstempel);  
   // Hintergrund der Einsatzart zunächst entfernen
   $('#einsatz_art').removeClass(function (index, className) {
     return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
