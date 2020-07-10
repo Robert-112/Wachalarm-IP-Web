@@ -13,8 +13,9 @@ block content
       include includes/master_wachalarm
 
   script.
-    var map_tile = !{JSON.stringify(public.map_tile).replace(/<\//g, '<\\/')}
-    var client_id = !{JSON.stringify(app_id).replace(/<\//g, '<\\/')}
+    map_tile='#{map_tile}'
+    map_attribution='!{map_attribution}'
+    client_id="#{app_id}"
   script(src='/js/leaflet.js')
   script(src='/js/textFit.min.js')
   script(src='/socket.io/socket.io.js') 

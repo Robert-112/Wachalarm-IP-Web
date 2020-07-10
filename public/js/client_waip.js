@@ -236,7 +236,8 @@ var map = L.map('map', {
 // Layer der Karte
 mapLink = L.tileLayer(
   map_tile, {
-    maxZoom: 18
+    maxZoom: 18,
+    attribution: map_attribution
   }).addTo(map);
 
 // Icon der Karte zuordnen

@@ -10,9 +10,9 @@ var map = L.map('map', {
 // Layer der Karte
 // TODO: internen Kartendienst setzten
 mapLink = L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  //map_tile, {
-    maxZoom: 18
+  map_tile, {
+    maxZoom: 18,
+    attribution: map_attribution
   }).addTo(map);
 
 // Icon der Karte zuordnen

@@ -11,6 +11,9 @@ block content
           .card.bg-dark
             .card-body.text-muted.text-center
               h3 Dashboard-Übersicht
+        .col-12
+          div.border-top.m-3
+      .row 
         each val, index in dataSet
           .col-12.col-xl-6.d-flex.align-self-stretch.p-3
             .card.w-100
@@ -35,8 +38,13 @@ block content
               .card-footer.text-right
                 a.btn.btn-primary.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen
         else
-          li There are no values
-  
+          .col-12.p-3
+            .card.bg-danger.w-100
+              .card-header
+                h5 Achtung
+              .card-body                
+                div Aktuell sind keine Einsätze verfügbar. Bitte versuchen Sie es später erneut.
+
   script(src='/js/leaflet.js')
   script.  
     var data = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}

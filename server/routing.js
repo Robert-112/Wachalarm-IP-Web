@@ -252,6 +252,8 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
             title: 'Einsatz-Rückmeldung',
             user: req.user,
             einsatzdaten: einsatzdaten,
+            map_tile: app_cfg.public.map_tile,
+            map_attribution: app_cfg.public.map_attribution,
             error: req.flash("errorMessage"),
             success: req.flash("successMessage")
           });

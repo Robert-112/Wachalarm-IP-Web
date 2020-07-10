@@ -23,9 +23,9 @@ var map = L.map('map', {
 
 // Layer der Karte
 mapLink = L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    //map_tile, {
-    maxZoom: 18
+  map_tile, {
+    maxZoom: 18,
+    attribution: map_attribution
   }).addTo(map);
 
 // Icon der Karte zuordnen
@@ -444,104 +444,7 @@ socket.on('io.Einsatz', function (data) {
 
     // Einsatzmittel hinzuefuegen
     document.getElementById(wachen_idstr).appendChild(flex_div_em);
-    
-
-
-    
-
-    //var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
-    //newCell2.appendChild(newText2);
-    //table_em.rows[wache_zeile].cells[1].appendChild(newText2);
-    //table_em.rows[wache_zeile].cells[1].setAttribute('pr-2');
-
-
-
-
-  /*  if (wache_vorhanden) {
-      var flex_div = document.createElement('div');
-      flex_div.className = 'd-flex flex-wrap justify-content-between align-items-center';
-
-      var flex_under_div = document.createElement('div');
-      flex_under_div.className = 'flex-fill rounded bg-secondary p-2 m-1';
-
-      var justify_div = document.createElement('div');
-      justify_div.className = 'd-flex justify-content-between';
-
-      var em_div  = document.createElement('div');
-      em_div.className = 'pr-2';
-      em_div.innerHTML = data.einsatzmittel[i].einsatzmittel;
-      
-      var status_div  = document.createElement('div');
-      status_div.className = 'p-2 badge badge-dark';
-      status_div.innerHTML = data.einsatzmittel[i].status;
-
-      flex_div.appendChild(flex_under_div);
-
-      flex_under_div.appendChild(justify_div);
-
-      justify_div.appendChild(em_div);
-      justify_div.appendChild(status_div);
-
-      table_em.rows[wache_zeile].cells[1].appendChild(flex_div);
-
-      //var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
-      //newCell2.appendChild(newText2);
-      //table_em.rows[wache_zeile].cells[1].appendChild(newText2);
-      //table_em.rows[wache_zeile].cells[1].setAttribute('pr-2');
-    } else {
-      
-
-
-      var flex_div = document.createElement('div');
-      flex_div.className = 'd-flex flex-wrap justify-content-between align-items-center';
-
-      var flex_under_div = document.createElement('div');
-      flex_under_div.className = 'flex-fill rounded bg-secondary p-2 m-1';
-
-      var justify_div = document.createElement('div');
-      justify_div.className = 'd-flex justify-content-between';
-
-      var em_div  = document.createElement('div');
-      em_div.className = 'pr-2';
-      em_div.innerHTML = data.einsatzmittel[i].einsatzmittel;
-      
-      var status_div  = document.createElement('div');
-      status_div.className = 'p-2 badge badge-dark';
-      status_div.innerHTML = data.einsatzmittel[i].status;
-
-      flex_div.appendChild(flex_under_div);
-
-      flex_under_div.appendChild(justify_div);
-
-      justify_div.appendChild(em_div);
-      justify_div.appendChild(status_div);
-
-      table_em.rows[wache_zeile].cells[1].appendChild(flex_div);
-
-      var newCell2 = newRow.insertCell(1);
-      var newText2 = document.createTextNode(data.einsatzmittel[i].einsatzmittel);
-      newCell2.appendChild(flex_div);
-    };/*
   
-    
-/*
-th(scope='row') CB FW Cottbus 1
-                td
-                  div
-
-                    div.flex-fill.rounded.bg-secondary.p-2.m-1
-                      div.d-flex.justify-content-between
-                        div.pr-2 FL CB 01/42-01
-                        div.p-2.badge.badge-success 2
-                  
-                    div.flex-fill.rounded.bg-secondary.p-2.m-1
-                      div.d-flex.justify-content-between
-                        div.pr-2 FL CB 01/82-01
-                        div.p-2.badge.badge-warning 3
-*/
-
-
-
   };
   // Karte leeren
   map.removeLayer(marker);
@@ -570,10 +473,6 @@ th(scope='row') CB FW Cottbus 1
     timeline.customTimes[timeline.customTimes.length - 1].hammer.off("panstart panmove panend");
     timeline.setCustomTimeMarker(markerText, alarm_zeit, false);
     
-    // Configuration for the Timeline
-    //var options2 = {};
-    // Create a Timeline
-    //var timeline2 = new vis.Timeline(container2, items2, options2);
 
   // TODO Ablaufzeit setzen
 });

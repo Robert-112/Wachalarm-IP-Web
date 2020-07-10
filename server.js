@@ -20,6 +20,7 @@ const { v4: uuidv4 } = require('uuid');
 // Basis-Konfiguration laden und generische App-UUID erzeugen
 var app_cfg = require('./server/app_cfg.js');
 app_cfg.global.app_id = uuidv4();
+app_cfg.public.version = 'Version 1.2.1';
 
 // Remote-Api aktivieren
 var remote_api;
