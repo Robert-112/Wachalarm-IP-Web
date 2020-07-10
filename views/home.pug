@@ -8,27 +8,50 @@ block content
         h5.text-muted &copy; #{public.company}
         hr
         a Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
-        p Zusätzlich besteht für Einsatzkräfte die Möglichkeit zur einfachen Rückmeldung.
+        br
+        a Zusätzlich besteht für Einsatzkräfte die Möglichkeit zur einfachen Rückmeldung.
     .container
       .row
-        .col-md-12.p-3
-          .card
-            if !user
+        .col-12.p-3
+          if !user
+            .card.bg-light.border-warning
               .card-header
-                h4.card-title.text-warning Sie sind nicht angemeldet! 
+                h4.card-title.text-warning Sie sind nicht angemeldet 
               .card-body
-                .card-text 
-                  p Ohne Anmeldung haben Sie nur Zugriff auf einen eingeschr&auml;nkten Funktionsumfang.
-                  p.text-muted Bitte melden Sie sich #[a(href="/login") hier] an.
-            else
+                p Auch ohne Anmeldung haben Sie Zugriff auf alle Alarmmonitore, jedoch werden datenschutzrelevante Inhalte ausgeblendet.
+              .card-footer 
+                p.text-muted Um mehr Funktionen nutzen zu können, melden Sie sich bitte #[a(href="/login") hier] an, sofern Sie über Zugangsdaten verfügen.
+          else
+            .card.bg-primary
               .card-header
-                h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet.'
+                h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet'
               .card-body
-                p.card-text Entsprechend Ihrer Berechtigungen haben Zugriff auf folgende Wachalarme:
+                p Entsprechend Ihrer Berechtigungen haben Sie vollen Zugriff auf folgende Wachalarme:
                 ul
                   each val in user.permissions.split(',')
                     li
                       if user.permissions == 'admin'
-                        a.text-muted Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
+                        a Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
                       else
-                        a(href="/waip/" + val)= val 
+                        a(href="/waip/" + val)= val  
+        .col-12.col-md-6.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header.text-center
+              .display-1.ion-md-desktop
+              h2.text-danger Alarmmonitor
+            .card-body
+              p.text-muted Zeigt Wachalarme inkl. eingehender Rückmeldungen im Vollbild an. Es können verschiedene Monitoren angezeigt werden.
+            .card-footer.text-right
+              .dropdown
+                a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  Alarmmonitor aufrufen
+                
+        .col-12.col-md-6.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header.text-center
+              .display-1.ion-md-clipboard
+              h2.text-danger Dashboard
+            .card-body
+              p.text-muted Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
+            .card-footer.text-right
+              .dropdown
+                a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  Dashboard aufrufen

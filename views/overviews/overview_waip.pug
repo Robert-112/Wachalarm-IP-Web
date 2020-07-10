@@ -6,41 +6,24 @@ block content
       .row
         .col-12.p-3
           .card.bg-dark
-            .card-body.text-center.text-muted
-              h3 - wählen Sie einen Alarmmonitor -
-        .col-12.p-3
-          if !user
-            .card.border-warning
-              .card-header
-                h4.card-title.text-warning Sie sind nicht angemeldet! 
-              .card-body
-                p Auch ohne Anmeldung haben Sie Zugriff auf alle Alarmmonitore, jedoch mit eingeschr&auml;nktem Funktionsumfang.
-                p.text-muted Um mehr Funktionen nutzen zu können, melden Sie sich bitte #[a(href="/login") hier] an.
-          else
-            .card.border-info
-              .card-header
-                h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet.'
-              .card-body
-                p Entsprechend Ihrer Berechtigungen haben Sie vollen Zugriff auf folgende Wachalarme:
-                ul
-                  each val in user.permissions.split(',')
-                    li
-                      if user.permissions == 'admin'
-                        a.text-muted Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
-                      else
-                        a(href="/waip/" + val)= val  
+            .card-body.text-muted.text-center
+              h3 Alarmmonitor-Übersicht
+        .col-12
+          div.border-top.m-3
+      .row 
         .col-12.d-flex.align-self-stretch.p-3
           .card.border-success.w-100.h-100
             .card-header
               h2.text-success Alle Wachalarme 
             .card-body
-              p.text-muted Zeigt Wachalarme aller Wachen an.
+              p Zeigt Ihnen alle Wachalarme der im System hinterlegten Wachen an. Entsprechend Ihrer Berechtigungen werden alle Informationen oder nur Teilinformationen angezeigt.
+              p Wollen Sie nur Alarme für einen bestimmten Bereich erhalten, wählen Sie bitte einen Alarmmonitor für die unten genannten Bereiche.
             .card-footer.text-right
-              a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  alle anzeigen
-        .col-12.col-xl-4.d-flex.align-self-stretch.p-3
+              a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  alle Wachalarme anzeigen
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
           .card.w-100.h-100
             .card-header
-              h2.text-info Alarmmonitor Wache
+              h3.text-info Alarmmonitor Wache
             .card-body
               p.text-muted Zeigt den Wachalarm einer einzelnen Wache (z.B. Feuerwache, Rettungswache etc.) an.
             .card-footer.text-right
@@ -51,10 +34,10 @@ block content
                   each item in list_wachen
                     if item.typ == 'wache'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name
-        .col-12.col-xl-4.d-flex.align-self-stretch.p-3
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
           .card.w-100.h-100
             .card-header            
-              h2.text-info Alarmmonitor Tr&auml;ger
+              h3.text-info Alarmmonitor Tr&auml;ger
             .card-body
               p.text-muted Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
             .card-footer.text-right
@@ -65,10 +48,10 @@ block content
                   each item in list_wachen
                     if item.typ == 'traeger'
                       a.dropdown-item(href='/waip/'+ item.nr)= item.name
-        .col-12.col-xl-4.d-flex.align-self-stretch.p-3
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
           .card.w-100.h-100
             .card-header
-              h2.text-info Alarmmonitor Kreis
+              h3.text-info Alarmmonitor Kreis
             .card-body
               p.text-muted Zeigt alle Wachalarme des gesamten Kreises (egal ob f&uuml; Feuerwehr oder Rettungsdienst) an.
             .card-footer.text-right
