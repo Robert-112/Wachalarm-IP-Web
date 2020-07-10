@@ -9,7 +9,9 @@ block content
     include includes/master_dashboard
   script(src='/socket.io/socket.io.js') 
   script(src='/js/leaflet.js')
-  script.
+  script.    
     dbrd_uuid="#{dbrd_uuid}"
+    map_tile="#{map_tile}"
+    map_attribution="#{map_attribution}"
     client_id="#{app_id}"
   script(src='/js/client_dbrd.js')

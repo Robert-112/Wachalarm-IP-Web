@@ -150,6 +150,8 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
           title: 'Alarmmonitor',
           wachen_id: parmeter_id,
           data_wache: wache.name,
+          map_tile: app_cfg.public.map_tile,
+          map_attribution: app_cfg.public.map_attribution,
           app_id: app_cfg.global.app_id,
           user: req.user
         });
@@ -183,6 +185,8 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
         res.render('overviews/overview_dbrd', {
           public: app_cfg.public,
           title: 'Dashboard',
+          map_tile: app_cfg.public.map_tile,
+          map_attribution: app_cfg.public.map_attribution,
           user: req.user,
           dataSet: data
         });
@@ -199,6 +203,8 @@ module.exports = function (app, sql, uuidv4, app_cfg, passport, auth, udp, saver
           public: app_cfg.public,
           title: 'Dashboard',
           dbrd_uuid: dbrd_uuid,
+          map_tile: app_cfg.public.map_tile,
+          map_attribution: app_cfg.public.map_attribution,
           app_id: app_cfg.global.app_id,
           user: req.user
         });

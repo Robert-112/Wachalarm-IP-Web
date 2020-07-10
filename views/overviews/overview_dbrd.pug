@@ -10,7 +10,7 @@ block content
         .col-12.p-3
           .card.bg-dark
             .card-body.text-center.text-muted
-              h3 - wählen Sie ein Dashboard -
+              h3 - Dashboard- -
         each val, index in dataSet
           .col-12.col-xl-6.d-flex.align-self-stretch.p-3
             .card.w-100
@@ -37,9 +37,8 @@ block content
   
   script(src='/js/leaflet.js')
   script.  
-    // TODO: internen Kartendienst nutzen
-    // TODO: Kartendienst-Credit anzeigen
-    // var map_tile = !{JSON.stringify(public.map_tile).replace(/<\//g, '<\\/')}
+    var map_tile="#{map_tile}"
+    var map_attribution="#{map_attribution}"
     var data = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
     for (var i in data) {
       // Karte definieren
@@ -48,8 +47,9 @@ block content
       });
       // Layer der Karte
       mapLink = L.tileLayer(        
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 12
+        map_tile, {
+          maxZoom: 12,
+          attribution: map_attribution
         }).addTo(map);
       // Karte setzen
       var geojson = L.geoJSON(JSON.parse(data[i].wgs84_area)).addTo(map);
