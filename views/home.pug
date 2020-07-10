@@ -12,6 +12,26 @@ block content
         a Zusätzlich besteht für Einsatzkräfte die Möglichkeit zur einfachen Rückmeldung.
     .container
       .row
+        .col-12.col-md-6.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header.text-center
+              .display-1.ion-md-desktop.text-light
+              h2.text-danger Alarmmonitor
+            .card-body
+              p.text-muted Zeigt Wachalarme inkl. eingehender Rückmeldungen im Vollbild an. Es können verschiedene Monitore ausgewählt werden.
+            .card-footer.text-right
+              .dropdown
+                a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/', role='button')  Alarmmonitor aufrufen                
+        .col-12.col-md-6.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header.text-center
+              .display-1.ion-md-clipboard.text-light
+              h2.text-danger Dashboard
+            .card-body
+              p.text-muted Zeigt eine Gesamtübersicht pro Einsatz an und bietet detailierte Informationen über die alarmierten Kräfte inkl. deren Rückmeldungen.
+            .card-footer.text-right
+              .dropdown
+                a.btn.btn-success.ion-md-arrow-round-forward(href='/dbrd/', role='button')  Dashboard aufrufen
         .col-12.p-3
           if !user
             .card.bg-light.border-warning
@@ -34,24 +54,3 @@ block content
                         a Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
                       else
                         a(href="/waip/" + val)= val  
-        .col-12.col-md-6.d-flex.align-self-stretch.p-3
-          .card.w-100.h-100
-            .card-header.text-center
-              .display-1.ion-md-desktop
-              h2.text-danger Alarmmonitor
-            .card-body
-              p.text-muted Zeigt Wachalarme inkl. eingehender Rückmeldungen im Vollbild an. Es können verschiedene Monitoren angezeigt werden.
-            .card-footer.text-right
-              .dropdown
-                a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  Alarmmonitor aufrufen
-                
-        .col-12.col-md-6.d-flex.align-self-stretch.p-3
-          .card.w-100.h-100
-            .card-header.text-center
-              .display-1.ion-md-clipboard
-              h2.text-danger Dashboard
-            .card-body
-              p.text-muted Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
-            .card-footer.text-right
-              .dropdown
-                a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  Dashboard aufrufen
