@@ -13,7 +13,7 @@
   "dependencies": {
     "@turf/turf": "^5.1.6",
     "async": "^3.2.0",
-    "bcrypt": "^3.0.8",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "connect-sqlite3": "^0.9.11",
@@ -27,12 +27,12 @@
     "passport-ip": "^0.1.2",
     "passport-local": "^1.0.0",
     "passport.socketio": "^3.7.0",
-    "pug": "^2.0.4",
+    "pug": "^3.0.0",
     "req-flash": "0.0.3",
     "serve-favicon": "^2.5.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "sqlite3": "^4.2.0",
+    "sqlite3": "^5.0.0",
     "twit": "^2.2.11",
     "uuid": "^8.3.0"
   },
