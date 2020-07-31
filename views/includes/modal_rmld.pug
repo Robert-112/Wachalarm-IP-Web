@@ -1,0 +1,62 @@
+// Modal
+
+// if (!einsatzdaten) {
+//    var einsatzdaten = {};
+//    einsatzdaten.uuid = '0';
+//    einsatzdaten.wachen = {};
+//    einsatzdaten.wachen.waip_wachen_ID = 0;
+//    einsatzdaten.wachen.wachenname = '';
+//  }
+
+#responseModal.modal.fade(tabindex='-1', role='dialog', aria-hidden='true')
+  .modal-dialog.modal-dialog-centered(role='document')
+    .modal-content
+      .modal-header
+        h3#responseModalTitle.modal-title.text-info Einsatzrückmeldung
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') ×
+      #responseModalBody.modal-body
+        form#send_response.was-validated(action=einsatzdaten.uuid, method="POST")
+          input(type="hidden" name="waip_uuid" value=einsatzdaten.uuid)
+          input(type="hidden" name="rmld_uuid" value=einsatzdaten.rmld_uuid)
+          .form-group
+            p.text-muted Ich komme als ...
+            .custom-control.custom-radio.form-control-lg
+              input#radios_res_ek.custom-control-input(type='radio', name='radio_efunction', value='ek', required='')
+              label.custom-control-label(for='radios_res_ek')
+                | Einsatzkraft
+            .custom-control.custom-radio.form-control-lg
+              input#radios_res_ma.custom-control-input(type='radio', name='radio_efunction', value='ma', required='')
+              label.custom-control-label(for='radios_res_ma')
+                | Maschinist
+            .custom-control.custom-radio.form-control-lg
+              input#radios_res_fk.custom-control-input(type='radio', name='radio_efunction', value='fk', required='')
+              label.custom-control-label(for='radios_res_fk')
+                | Führungskraft
+              .invalid-feedback wählen Sie eine Einsatzfunktion!
+          div.border-top.my-3
+          .form-group
+            .custom-control.custom-switch.form-control-lg
+              input#cb_res_agt.custom-control-input(type='checkbox', name='cb_agt', value='1')
+              label.custom-control-label.text-warning(for='cb_res_agt')
+                | und bin Atemschutzgeräteträger!
+          div.border-top.my-3
+          .form-group
+            label(for='eintreffzeit').text-muted in ungefähr ...
+            select#eintreffzeit.form-control.form-control-lg(name='eintreffzeit', required='')
+              option(value='') bitte Eintreffzeit wählen
+              option(value='5') 5 Minuten
+              option(value='10') 10 Minuten
+              option(value='15') 15 Minuten
+              option(value='20') 20 Minuten
+          .form-group
+            label(for='wachenauswahl').text-muted zur Wache ...
+            select#wachenauswahl.form-control.form-control-lg(name='wachenauswahl', required='')
+              option(value='') bitte Wache wählen
+              each val in einsatzdaten.wachen
+                option(value=val.waip_wachen_ID) #{val.wachenname}
+                //option(value='2') CB FW Cottbus 3
+                //option(value='3') CB FW Madlow
+                //option(value='4') CB FW Kieckebusch
+      .modal-footer
+          button.btn.btn-lg.btn-block.btn-warning.btn-outline-primary.p-3.ion-md-paper-plane(type='submit', form="send_response", value='submit')  Rückmeldung absenden!

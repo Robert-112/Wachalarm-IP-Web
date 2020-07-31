@@ -1,13 +1,11 @@
 module.exports = function (fs, bcrypt, app_cfg) {
 
-  // TODO: gegen better-sqlite3 ersetzen
-
   // Datenbank einrichten
   const sqlite3 = require('sqlite3').verbose();
   var dbFile = app_cfg.global.database;
   var dbExists = fs.existsSync(dbFile);
 
-  // Datenbank erstellen
+  // Datenbank erstellen, falls nicht vorhanden
   var db = new sqlite3.Database(dbFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
       console.error(err.message);
@@ -28,8 +26,9 @@ module.exports = function (fs, bcrypt, app_cfg) {
     db.serialize(function () {
       // Einsatz-Tabelle erstellen
       db.run(`CREATE TABLE waip_einsaetze (
-        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        zeitstempel DATETIME DEFAULT CURRENT_TIMESTAMP,
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        uuid TEXT, 
+        zeitstempel DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),
         einsatznummer TEXT,
         alarmzeit TEXT,
         einsatzart TEXT,
@@ -43,10 +42,12 @@ module.exports = function (fs, bcrypt, app_cfg) {
         objektnr TEXT,
         objektart TEXT,
         wachenfolge INTEGER,
+        sonstiger_ort TEXT,
         wgs84_x TEXT,
-        wgs84_y TEXT)`);
+        wgs84_y TEXT,
+        wgs84_area TEXT,
+        UNIQUE (id, uuid))`);
       // Einsatzmittel-Tabelle erstellen
-      // TODO: Erweitern um Status, Staerke, AGT
       db.run(`CREATE TABLE waip_einsatzmittel (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         waip_einsaetze_ID INTEGER NOT NULL,
@@ -70,10 +71,18 @@ module.exports = function (fs, bcrypt, app_cfg) {
         name_kreis TEXT,
         wgs84_x TEXT,
         wgs84_y TEXT)`);
+      // History-Tabelle erstellen
+      db.run(`CREATE TABLE waip_history (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        waip_uuid TEXT,
+        socket_id TEXT,
+        uuid_einsatz_grunddaten TEXT,
+        uuid_em_alarmiert TEXT,
+        uuid_em_weitere TEXT)`);
       // Client-Tabelle erstellen
       db.run(`CREATE TABLE waip_clients (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        connect_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        connect_time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),
         socket_id TEXT,
         client_ip TEXT,
         room_name TEXT,
@@ -85,11 +94,18 @@ module.exports = function (fs, bcrypt, app_cfg) {
       // Rueckmelde-Tabelle erstellen
       db.run(`CREATE TABLE waip_response (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        waip_einsaetze_id INTEGER NOT NULL,
-        einsatzkraft TEXT,
-        maschinist TEXT,
-        fuehrungskraft TEXT,
-        atemschutz TEXT)`);
+        waip_uuid TEXT,
+        rmld_uuid TEXT,
+        alias TEXT,
+        einsatzkraft INTEGER,
+        maschinist INTEGER,
+        fuehrungskraft INTEGER,
+        agt INTEGER,
+        set_time DATETIME,
+        arrival_time DATETIME,
+        wache_id INTEGER,
+        wache_nr INTEGER,
+        wache_name TEXT)`);
       // Benutzer-Tabelle erstellen
       db.run(`CREATE TABLE waip_users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -98,18 +114,46 @@ module.exports = function (fs, bcrypt, app_cfg) {
         permissions TEXT,
         ip_address TEXT)`);
       // Einstellungs-Tabelle für Benutzer erstellen
-      db.run(`CREATE TABLE waip_configs (
+      db.run(`CREATE TABLE waip_user_config (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
-        reset_counter INTEGER)`);
+        reset_counter INTEGER,
+        display_options TEXT,
+        sound_options TEXT,
+        FOREIGN KEY(user_id) REFERENCES waip_users(id))`);
       // Ersetzungs-Tabelle fuer Einsatzmittelnamen erstellen
       db.run(`CREATE TABLE waip_ttsreplace (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         einsatzmittel_typ TEXT,
         einsatzmittel_rufname TEXT)`);
+      // Vermittlungs-Tabelle erstellen
+      db.run(`CREATE TABLE waip_vmtl (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        waip_wachenname TEXT,
+        vmtl_typ TEXT,
+        vmtl_account_name TEXT,
+        vmtl_account_group TEXT,
+        vmtl_history TEXT)`);
+      // Twitter-Account-Tabelle erstellen
+      db.run(`CREATE TABLE waip_tw_accounts (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        tw_screen_name TEXT,
+        tw_consumer_key TEXT,
+        tw_consumer_secret TEXT,
+        tw_access_token_key TEXT,
+        tw_access_token_secret TEXT)`);
+      // Export-Tabelle erstellen
+      db.run(`CREATE TABLE waip_export (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        export_typ TEXT,
+        export_name TEXT,
+        export_text TEXT,
+        export_filter TEXT,
+        export_recipient TEXT)`);
+      // Log erstellen
       db.run(`CREATE TABLE waip_log (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        log_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        log_time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')),
         log_typ TEXT,
         log_text TEXT)`);
       // Default-Wachen speichern
@@ -117,24 +161,26 @@ module.exports = function (fs, bcrypt, app_cfg) {
         nr_wache, nr_traeger, nr_kreis, name_wache, name_traeger, name_kreis, wgs84_x, wgs84_y)
         VALUES
         (0,\'0\',0,\'Global - Alle Einsätze\',\'Global\',\'Global\',\'0\',\'0\'),
-        (520101,\'01\',52,\'CB FW Cottbus 1\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7329037496\',\'14.3377829699\'),
-        (520201,\'02\',52,\'CB FW Cottbus 2\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7654389234\',\'14.3352138763\'),
-        (521101,\'11\',52,\'CB FW Branitz\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7363607074\',\'14.3673504518\'),
-        (521102,\'11\',52,\'CB FW Dissenchen\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7628368787\',\'14.3925021325\'),
-        (521103,\'11\',52,\'CB FW Kahren\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7226384039\',\'14.409874149\'),
-        (521104,\'11\',52,\'CB FW Kiekebusch\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7241108468\',\'14.3624851518\'),
-        (521201,\'12\',52,\'CB FW Merzdorf\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7791567132\',\'14.3860451556\'),
-        (521202,\'12\',52,\'CB FW Sandow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7656727968\',\'14.3352466545\'),
-        (521203,\'12\',52,\'CB FW Saspow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7887535908\',\'14.356240843\'),
-        (521204,\'12\',52,\'CB FW Willmersdorf\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.8057039156\',\'14.3803709656\'),
-        (521301,\'13\',52,\'CB FW Döbbrick\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.8173690763\',\'14.3421287282\'),
-        (521302,\'13\',52,\'CB FW Schmellwitz\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.784034245\',\'14.3351144771\'),
-        (521303,\'13\',52,\'CB FW Sielow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7994083121\',\'14.3041128045\'),
-        (521304,\'13\',52,\'CB FW Ströbitz\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.754401066\',\'14.3010033167\'),
-        (521401,\'14\',52,\'CB FW Gallinchen\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.710035337\',\'14.3533658895\'),
-        (521402,\'14\',52,\'CB FW Groß Gaglow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7125349362\',\'14.3200961957\'),
-        (521403,\'14\',52,\'CB FW Madlow\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7204777791\',\'14.3457788456\'),
-        (521404,\'14\',52,\'CB FW Sachsendorf\',\'Stadt Cottbus\',\'Stadt Cottbus\',\'51.7328922537\',\'14.3192552006\'),
+        (520101,\'01\',52,\'CB FW Cottbus 1\',\'Stadt Cottbus - Berufsfeuerwehr\',\'Stadt Cottbus\',\'51.7329037496\',\'14.3377829699\'),
+        (520201,\'02\',52,\'CB FW Cottbus 2\',\'Stadt Cottbus - Berufsfeuerwehr\',\'Stadt Cottbus\',\'51.7654389234\',\'14.3352138763\'),
+        (520301,\'03\',52,\'CB FW Cottbus 3\',\'Stadt Cottbus - Berufsfeuerwehr\',\'Stadt Cottbus\',\'51.743946\',\'14.320619\'),
+        (521101,\'11\',52,\'CB FW Branitz\',\'Stadt Cottbus - Löschbezirk 1\',\'Stadt Cottbus\',\'51.7363607074\',\'14.3673504518\'),
+        (521102,\'11\',52,\'CB FW Dissenchen\',\'Stadt Cottbus - Löschbezirk 1\',\'Stadt Cottbus\',\'51.7628368787\',\'14.3925021325\'),
+        (521103,\'11\',52,\'CB FW Kahren\',\'Stadt Cottbus - Löschbezirk 1\',\'Stadt Cottbus\',\'51.7226384039\',\'14.409874149\'),
+        (521104,\'11\',52,\'CB FW Kiekebusch\',\'Stadt Cottbus - Löschbezirk 1\',\'Stadt Cottbus\',\'51.7241108468\',\'14.3624851518\'),
+        (521201,\'12\',52,\'CB FW Merzdorf\',\'Stadt Cottbus - Löschbezirk 2\',\'Stadt Cottbus\',\'51.7791567132\',\'14.3860451556\'),
+        (521202,\'12\',52,\'CB FW Sandow\',\'Stadt Cottbus - Löschbezirk 2\',\'Stadt Cottbus\',\'51.7656727968\',\'14.3352466545\'),
+        (521203,\'12\',52,\'CB FW Saspow\',\'Stadt Cottbus - Löschbezirk 2\',\'Stadt Cottbus\',\'51.7887535908\',\'14.356240843\'),
+        (521204,\'12\',52,\'CB FW Willmersdorf\',\'Stadt Cottbus - Löschbezirk 2\',\'Stadt Cottbus\',\'51.8057039156\',\'14.3803709656\'),
+        (521301,\'13\',52,\'CB FW Döbbrick\',\'Stadt Cottbus - Löschbezirk 3\',\'Stadt Cottbus\',\'51.8173690763\',\'14.3421287282\'),
+        (521302,\'13\',52,\'CB FW Schmellwitz\',\'Stadt Cottbus - Löschbezirk 3\',\'Stadt Cottbus\',\'51.784034245\',\'14.3351144771\'),
+        (521303,\'13\',52,\'CB FW Sielow\',\'Stadt Cottbus - Löschbezirk 3\',\'Stadt Cottbus\',\'51.7994083121\',\'14.3041128045\'),
+        (521304,\'13\',52,\'CB FW Ströbitz\',\'Stadt Cottbus - Löschbezirk 3\',\'Stadt Cottbus\',\'51.754401066\',\'14.3010033167\'),
+        (521401,\'14\',52,\'CB FW Gallinchen\',\'Stadt Cottbus - Löschbezirk 4\',\'Stadt Cottbus\',\'51.710035337\',\'14.3533658895\'),
+        (521402,\'14\',52,\'CB FW Groß Gaglow\',\'Stadt Cottbus - Löschbezirk 4\',\'Stadt Cottbus\',\'51.7125349362\',\'14.3200961957\'),
+        (521403,\'14\',52,\'CB FW Madlow\',\'Stadt Cottbus - Löschbezirk 4\',\'Stadt Cottbus\',\'51.7204777791\',\'14.3457788456\'),
+        (521404,\'14\',52,\'CB FW Sachsendorf\',\'Stadt Cottbus - Löschbezirk 4\',\'Stadt Cottbus\',\'51.7328922537\',\'14.3192552006\'),
+        (521501,\'15\',52,\'CB FW Gerätehaus Süd\',\'Stadt Cottbus - Gerätehäuser\',\'Stadt Cottbus\',\'51.718385\',\'14.337278\'),
         (610101,\'01\',61,\'LDS FW Lübben\',\'Stadt Lübben\',\'Landkreis Dahme-Spreewald\',\'51.9430718379\',\'13.8955064944\'),
         (610102,\'01\',61,\'LDS FW Lubolz\',\'Stadt Lübben\',\'Landkreis Dahme-Spreewald\',\'51.9631954482\',\'13.8277078818\'),
         (610104,\'01\',61,\'LDS FW Neuendorf (Lübben)\',\'Stadt Lübben\',\'Landkreis Dahme-Spreewald\',\'51.9080633268\',\'13.8557762577\'),
@@ -311,6 +357,7 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (619002,\'90\',61,\'LDS RW Bestensee\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.2393402333\',\'13.6651219943\'),
         (619004,\'90\',61,\'LDS RW Königs Wusterhausen\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.3038264488\',\'13.6298907439\'),
         (619005,\'90\',61,\'LDS RW Schulzendorf\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.3595783918\',\'13.6008186158\'),
+        (619008,\'90\',61,\'LDS RW Bindow\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.283327\',\'13.743823\'),
         (619009,\'90\',61,\'LDS RW Golßen\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'51.9799257518\',\'13.5771941984\'),
         (619012,\'90\',61,\'LDS RW Luckau\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'51.8504295155\',\'13.7130790573\'),
         (619015,\'90\',61,\'LDS RW Goyatz\',\'Rettungswachen Dahme-Spreewald\',\'Landkreis Dahme-Spreewald\',\'52.014304731\',\'14.1786723155\'),
@@ -778,10 +825,11 @@ module.exports = function (fs, bcrypt, app_cfg) {
       db.run(`INSERT OR REPLACE INTO waip_ttsreplace (
         einsatzmittel_typ, einsatzmittel_rufname)
         VALUES
-        (\'10\',\'ELW\'),
+        (\'10\',\'KDOW\'),
         (\'11\',\'ELW\'),
+        (\'12\',\'ELW 2\'),
         (\'14\',\'KDOW\'),
-        (\'19\',\'MTW\'),
+        (\'19\',\'MTF\'),
         (\'20\',\'Tanklöschfahrzeug\'),
         (\'21\',\'Tanklöschfahrzeug\'),
         (\'22\',\'Vorauslöschfahrzeug\'),
@@ -789,13 +837,14 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (\'24\',\'Tanklöschfahrzeug\'),
         (\'25\',\'Großtanklöschfahrzeug\'),
         (\'26\',\'Tanklöschfahrzeug\'),
+        (\'27\',\'Tanklöschfahrzeug\'),
         (\'29\',\'Großtanklöschfahrzeug\'),
         (\'30\',\'Drehleiter\'),
         (\'31\',\'Drehleiter\'),
         (\'32\',\'Drehleiter\'),
         (\'33\',\'Drehleiter\'),
         (\'34\',\'Hubarbeitsbühne\'),
-        (\'35\',\'Drehleiter\'),
+        (\'35\',\'Gelenkmast\'),
         (\'36\',\'Teleskopmast\'),
         (\'37\',\'Teleskopmast \'),
         (\'38\',\'Hubretter\'),
@@ -808,24 +857,36 @@ module.exports = function (fs, bcrypt, app_cfg) {
         (\'46\',\'Löschfahrzeug\'),
         (\'47\',\'TSF\'),
         (\'48\',\'TSF\'),
+        (\'49\',\'Speziallöschfahrzeug\'),
         (\'51\',\'Rüstwagen\'),
         (\'52\',\'Rüstwagen\'),
-        (\'59\',\'Rüstwagen\'),
+        (\'53\',\'Rüstwagen\'),
         (\'59\',\'Gerätewagen\'),
+        (\'61\',\'Schlauchwagen\'),
+        (\'62\',\'Schlauchwagen\'),
+        (\'63\',\'Schlauchwagen\'),
+        (\'64\',\'Schlauchtransportwagen\'),
+        (\'65\',\'Wechsellader\'),
+        (\'66\',\'Wechsellader\'),
+        (\'67\',\'Wechsellader\'),
         (\'69\',\'TSA\'),
+        (\'76\',\'Krad\'),
+        (\'78\',\'Löschboot\'),
         (\'79\',\'Mehrzweckboot\'),
         (\'82\',\'NEF\'),
         (\'83\',\'RTW\'),
         (\'85\',\'KTW\'),
-        (\'88\',\'Rettungsboot\')`);
+        (\'88\',\'Rettungsboot\'),
+        (\'91\',\'Gerätewagen Dekontamination Personal\')`);
       // Benutzer-Tabelle mit Standard-Admin befuellen
       bcrypt.hash(app_cfg.global.defaultpass, app_cfg.global.saltRounds, function (err, hash) {
         db.run(`INSERT INTO waip_users ( user, password, permissions, ip_address ) VALUES( ?, ?, 'admin', ? )`,
-          app_cfg.global.defaultuser, hash, app_cfg.global.defaultuserip, function (err) {
-          if (err) {
-            console.error(err.message);
-          };
-        });
+          app_cfg.global.defaultuser, hash, app_cfg.global.defaultuserip,
+          function (err) {
+            if (err) {
+              console.error(err.message);
+            };
+          });
       });
     });
   };

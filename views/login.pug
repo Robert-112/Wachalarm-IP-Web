@@ -2,6 +2,12 @@ extends layout
 
 block content
   main(role='main')
+    // TODO: - Login verbessern:
+    // Login-Seite benötigt Fehlerrückmeldung (wie Nutzerverwaltung): falsches Kennwort, Nutzer nicht vorhanden etc.
+    // - Login/Logout protokollieren
+    // - fehlerhafte/doppelte Logins protokollieren 
+    // - prüfen ob es sinnvoll ist, bereits eingeloggte User nicht mehr zulassen (Session prüfen)
+    // - bei fehlendem Login zur Login-Seite weiterleiten und nach dem Login die zuvor besuchte Seite anzeigen
     .container
       .row
         .col-sm-9.col-md-7.col-lg-5.mx-auto
@@ -17,9 +23,9 @@ block content
                   label(for='inputPassword') Passwort
                   input#login-password.form-control(type='password' name='password' placeholder='Passwort' required='')  
                 .form-group
-                  .form-check
-                    input#rembemerme.form-check-input(type='checkbox' name='rememberme')
-                    label.form-check-label.text-warning(for='rembemerme') Anmeldung dauerhaft speichern
+                  .custom-control.custom-switch
+                    input#rembemerme.custom-control-input(type='checkbox' name='rememberme' checked='')
+                    label.custom-control-label.text-warning(for='rembemerme') Anmeldung dauerhaft speichern
                 button.btn.btn-lg.btn-primary.btn-block.text-uppercase(type='submit') Anmelden
       .row
         .col-sm-9.col-md-7.col-lg-5.mx-auto

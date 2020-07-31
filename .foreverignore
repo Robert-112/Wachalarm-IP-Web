@@ -1,0 +1,13 @@
+node_modules/*
+public/*
+views/*
+misc/*
+*.html
+*.jpeg
+*.png
+*.mp3
+*.wav
+*.md
+*.sqlite3
+*-journal
+sessions

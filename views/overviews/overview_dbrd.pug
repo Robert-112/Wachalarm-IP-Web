@@ -1,0 +1,67 @@
+extends ../layout
+
+append head
+  link(rel='stylesheet', href='/css/leaflet.css')
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-12.p-3
+          .card.bg-dark
+            .card-body.text-muted.text-center
+              h3 Dashboard-Übersicht
+        .col-12
+          div.border-top.m-3
+      .row 
+        each val, index in dataSet
+          .col-12.col-xl-6.d-flex.align-self-stretch.p-3
+            .card.w-100
+              .card-header
+                case val.einsatzart
+                  when 'Brandeinsatz'
+                    h5.font-weight-bold.text-danger.ion-md-flame= ' ' + val.einsatzart + ' - ' + val.stichwort
+                  when 'Hilfeleistungseinsatz'
+                    h5.font-weight-bold.text-info.ion-md-construct= ' ' + val.einsatzart + ' - ' + val.stichwort
+                  when 'Rettungseinsatz'
+                    h5.font-weight-bold.text-warning.ion-md-medkit= ' ' + val.einsatzart + ' - ' + val.stichwort
+                  when 'Krankentransport'
+                    h5.font-weight-bold.text-success.ion-md-medical= ' ' + val.einsatzart + ' - ' + val.stichwort                    
+                  default
+                    h5.font-weight-bold.ion-md-information-circle= ' ' + val.einsatzart + ' - ' + val.stichwort
+              .card-body                
+                if val.ortsteil
+                  p= val.ort + ', ' + val.ortsteil
+                else
+                  p= val.ort
+                .w-100.rounded( id='map' + val.uuid style='height:150px')
+              .card-footer.text-right
+                a.btn.btn-primary.mx-2.ion-md-arrow-round-forward(href='/dbrd/' + val.uuid, role='button')  Dashboard aufrufen
+        else
+          .col-12.p-3
+            .card.bg-danger.w-100
+              .card-header
+                h5 Achtung
+              .card-body                
+                div Aktuell sind keine Einsätze verfügbar. Bitte versuchen Sie es später erneut.
+
+  script(src='/js/leaflet.js')
+  script.  
+    var data = !{JSON.stringify(dataSet).replace(/<\//g, '<\\/')}
+    for (var i in data) {
+      // Karte definieren
+      var map = L.map('map'+data[i].uuid, {
+        zoomControl: false
+      });
+      // Layer der Karte
+      mapLink = L.tileLayer(        
+        '#{map_tile}', {
+          maxZoom: 12,
+          attribution: '!{map_attribution}'
+        }).addTo(map);
+      // Karte setzen
+      var geojson = L.geoJSON(JSON.parse(data[i].wgs84_area)).addTo(map);
+      map.fitBounds(geojson.getBounds());
+      map.setZoom(13);
+    };    
+ 

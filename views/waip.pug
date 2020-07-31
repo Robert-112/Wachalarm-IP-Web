@@ -4,21 +4,22 @@ append head
   link(rel='stylesheet', href='/css/leaflet.css')
 
 block content
-  include includes/modal
-  include includes/modal_response
+  include includes/modal_info
+  //include includes/modal_rmld
   .container-fluid
     #waipclock.d-none
-      include includes/clock
+      include includes/master_clock
     #waiptableau.d-none
-      include includes/wachalarm
+      include includes/master_wachalarm
 
   script.
-    var map_tile = !{JSON.stringify(map_tile).replace(/<\//g, '<\\/')}
-    var client_id = !{JSON.stringify(app_id).replace(/<\//g, '<\\/')}
+    map_tile='#{map_tile}'
+    map_attribution='!{map_attribution}'
+    client_id="#{app_id}"
   script(src='/js/leaflet.js')
   script(src='/js/textFit.min.js')
   script(src='/socket.io/socket.io.js') 
   script.
     wachen_id="#{wachen_id}"
     waip_id=null
-  script(src='/js/waip.js')
+  script(src='/js/client_waip.js')

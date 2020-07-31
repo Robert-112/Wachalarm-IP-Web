@@ -1,0 +1,64 @@
+extends ../layout
+
+block content
+  main(role='main')
+    .container
+      .row
+        .col-12.p-3
+          .card.bg-dark
+            .card-body.text-muted.text-center
+              h3 Alarmmonitor-Übersicht
+        .col-12
+          div.border-top.m-3
+      .row 
+        .col-12.d-flex.align-self-stretch.p-3
+          .card.border-success.w-100.h-100
+            .card-header
+              h2.text-success Alle Wachalarme 
+            .card-body
+              p Zeigt Ihnen alle Wachalarme der im System hinterlegten Wachen an. Entsprechend Ihrer Berechtigungen werden alle Informationen oder nur Teilinformationen angezeigt.
+              p Wollen Sie nur Alarme für einen bestimmten Bereich erhalten, wählen Sie bitte einen Alarmmonitor für die unten genannten Bereiche.
+            .card-footer.text-right
+              a.btn.btn-success.ion-md-arrow-round-forward(href='/waip/0', role='button')  alle Wachalarme anzeigen
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header
+              h3.text-info Alarmmonitor Wache
+            .card-body
+              p.text-muted Zeigt den Wachalarm einer einzelnen Wache (z.B. Feuerwache, Rettungswache etc.) an.
+            .card-footer.text-right
+              .dropdown
+                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                  | bitte ausw&auml;hlen
+                .dropdown-menu
+                  each item in list_wachen
+                    if item.typ == 'wache'
+                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header            
+              h3.text-info Alarmmonitor Tr&auml;ger
+            .card-body
+              p.text-muted Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
+            .card-footer.text-right
+              .dropdown
+                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                  | bitte ausw&auml;hlen
+                .dropdown-menu
+                  each item in list_wachen
+                    if item.typ == 'traeger'
+                      a.dropdown-item(href='/waip/'+ item.nr)= item.name
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header
+              h3.text-info Alarmmonitor Kreis
+            .card-body
+              p.text-muted Zeigt alle Wachalarme des gesamten Kreises (egal ob f&uuml; Feuerwehr oder Rettungsdienst) an.
+            .card-footer.text-right
+              .dropdown
+                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                  | bitte ausw&auml;hlen
+                .dropdown-menu
+                  each item in list_wachen
+                    if item.typ == 'kreis'
+                      a.dropdown-item(href='/waip/'+ item.nr)= item.name

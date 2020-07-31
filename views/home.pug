@@ -3,67 +3,63 @@ extends layout
 block content
   main(role='main')
     .jumbotron
-       .container
-         h1.text-danger.display-3 Wachalarm-IP-Web
-         p Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
-         p Nachfolgend können Sie aus einer der aufgef&uuml;hrten Wachen ausw&auml;hlen. Entsprechend Ihrer Berechtigungen werden Ihnen auf dem Alarmmonitor alle oder nur ausgew&auml;hlte Einsatzdaten angezeigt.
+      .container      
+        h1.text-danger.display-4= public.app_name
+        h5.text-muted &copy; #{public.company}
+        hr
+        a Dieser Webdienst zeigt Wachalarme im Vollbild an (inkl. synthetischer Sprachdurchsage und Karte).
+        br
+        a Zusätzlich besteht für Einsatzkräfte die Möglichkeit zur einfachen Rückmeldung.
     .container
       .row
-        .col-md-12
-          .card
-            if !user
+        .col-12
+          .border-top.mx-3.mb-3
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header.text-center
+              .display-2.ion-md-desktop
+              h4.text-danger Alarmmonitor
+            .card-body
+              p Zeigt Wachalarme inkl. eingehender Rückmeldungen im Vollbild an. Es können verschiedene Monitore ausgewählt werden.
+            .card-footer.text-center
+              a.btn.btn-outline-info.ion-md-arrow-round-forward(href='/waip/', role='button')  Alarmmonitor aufrufen                
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100.bg-dark
+            .card-header.text-center
+              .display-2.ion-md-clipboard
+              h4.text-danger Dashboard
+            .card-body
+              p Zeigt eine Gesamtübersicht pro Einsatz an und bietet detailierte Informationen über die alarmierten Kräfte inkl. deren Rückmeldungen.
+            .card-footer.text-center
+              a.btn.btn-outline-info.ion-md-arrow-round-forward(href='/dbrd/', role='button')  Dashboard aufrufen
+        .col-12.col-md-4.d-flex.align-self-stretch.p-3
+          .card.w-100.h-100
+            .card-header.text-center
+              .display-2.ion-md-paper-plane
+              h4.text-warning Rückmeldung
+            .card-body
+              p Mithilfe der Rückmeldefunktion können Einsatzkräfte mitteilen ob und in welcher Funktion Sie am Einsatz teilnehmen.
+              p.text-muted Details zur Funktion erhalten Sie auf Anfrage bei der #{public.company}.  
+        .col-12
+          .border-top.m-3
+        .col-12.p-3
+          if !user
+            .card.border-warning
               .card-header
-                h4.card-title.text-warning Sie sind nicht eingeloggt! 
+                h4.card-title.text-warning Sie sind nicht angemeldet 
               .card-body
-                p.card-text.text-muted Bitte melden Sie sich #[a(href="/login") hier] an.
-            else
+                p Auch ohne Anmeldung haben Sie Zugriff auf alle Funktionen, jedoch werden datenschutzrelevante Inhalte ausgeblendet.
+                p.text-muted Um mehr Funktionen nutzen zu können, melden Sie sich bitte #[a(href="/login") hier] an, sofern Sie über Zugangsdaten verfügen.
+          else
+            .card.bg-primary
               .card-header
-                h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet.'
+                h4.card-title.text-info='Sie sind als Nutzer \''+user.user+'\' angemeldet'
               .card-body
-                p.card-text Entsprechend Ihrer Berechtigungen haben Zugriff auf folgende Wachalarme:
+                p Entsprechend Ihrer Berechtigungen haben Sie vollen Zugriff auf folgende Wachalarme:
                 ul
                   each val in user.permissions.split(',')
                     li
                       if user.permissions == 'admin'
-                        a.text-muted Sie sind Administrator und haben somit vollständigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
+                        a Sie sind Administrator und haben somit vollst&auml;ndigen Zugriff auf #[a(href="/waip/0") alle] Wachalarme
                       else
                         a(href="/waip/" + val)= val  
-        .col-md-4.p-3
-          .card.h-100
-            .card-header
-              h1.text-info Wache
-            .card-body
-              p.text-muted Zeigt den Wachalarm einer der einzelnen Wache (z.B. Feuerwach, Rettungswache etc.) an.
-            .card-footer.text-right
-              .dropdown
-                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                  | bitte ausw&auml;hlen
-                .dropdown-menu
-                  each item in list_wache
-                    a.dropdown-item(href='/waip/'+ item.nr)= item.name
-        .col-md-4.p-3
-          .card.h-100
-            .card-header            
-              h1.text-info Tr&auml;ger
-            .card-body
-              p.text-muted Zeigt alle Wachalarme der Wachen eines Tr&auml;gers (Amt, amtsfreie Gemeinde, Stadt) an.
-            .card-footer.text-right
-              .dropdown
-                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                  | bitte ausw&auml;hlen
-                .dropdown-menu
-                  each item in list_traeger
-                    a.dropdown-item(href='/waip/'+ item.nr)= item.name
-        .col-md-4.p-3
-          .card.h-100
-            .card-header
-              h1.text-info Kreis
-            .card-body
-              p.text-muted Zeigt alle Wachalarme des gesamten Kreises (egal ob f&uuml; Feuerwehr oder Rettungsdienst) an.
-            .card-footer.text-right
-              .dropdown
-                button.btn.btn-info.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
-                  | bitte ausw&auml;hlen
-                .dropdown-menu
-                  each item in list_kreis
-                    a.dropdown-item(href='/waip/'+ item.nr)= item.name

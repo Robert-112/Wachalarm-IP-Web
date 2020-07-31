@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 append head
   link(rel='stylesheet', href='/css/ionicons.min.css')
@@ -6,10 +6,9 @@ append head
   link(rel='stylesheet', href='/css/waip.css')
 
 block content
-  include includes/modal_response
   .container-fluid
-    include includes/wachalarm
+    include ../includes/master_wachalarm
   script(src='/js/leaflet.js')
   script(src='/js/textFit.min.js')
-  script(src='/js/waip.js')
+  script(src='/js/client_waip.js')
   

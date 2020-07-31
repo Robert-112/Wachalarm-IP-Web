@@ -1,0 +1,12 @@
+extends /layout
+
+append head
+  link(rel='stylesheet', href='/css/leaflet.css')
+
+block content
+  //include includes/modal_response
+  .container-fluid
+    include /includes/master_dashboard
+  script(src='/js/leaflet.js')
+  script(src='/js/client_dbrd.js')
+  

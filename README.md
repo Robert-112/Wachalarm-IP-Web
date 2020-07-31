@@ -1,7 +1,7 @@
 # Wachalarm-IP-Web
 ![enter image description here](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
 # DEMO
-[📺🔥 https://am7.info.tm/](https://am7.info.tm/)
+[📺🔥 https://wachalarm.info.tm/](https://wachalarm.info.tm/)
 
 Login-Daten:
 - Benutzer: me
@@ -9,17 +9,11 @@ Login-Daten:
 
 Die Demo-Version zeigt frei erfundene Einsätze die jede Stunde neu alarmiert werden. Ohne Login wird der Wachalarm mit reduziertem Inhalt dargestellt (zur Wahrung des Datenschutzes).
 
-## TO-DO
-Nachfolgende Funktionen befinden sich noch in der Entwicklung:
-- Dauer der Anzeige des Wachalarms sollte durch Benutzer festgelegt werden können (aktuell immer 10 Minuten)
-- für jeden neuen Einsatz sollte eine UUID erstellt werden, die bei nachfolgen Alarmierungen verglichen wird (zur Vermeidung von doppelten Alarmierungen)
-- Rückmeldefunktion für Einsatzkräfte (auf der Oberfläche des Wachalarms, ohne externe Schnittstelle)
-- Mehr Informationen für angemeldete Benutzer ("Angemeldet als ...", Berechtigungen, etc.)
-
 # Beschreibung
 Ziel dieser Version des Wachalarms soll es sein, auf jedem Endgerät - egal ob Windows, Linux, Mac, PC oder Smartphone - Alarme anzuzeigen ohne zusätzliche Software zu installieren. Da es sich beim Wachalarm-IP-Web um eine reine Web-Server-Anwendung handelt, sollte dieser am besten durch eine Leitstelle betrieben werden, die Einsatzalarme direkt an das System übergibt. Der Zugriff erfolgt dann innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).
 Der Web-Server empfängt Einsatzdaten über eine definierte [Schnittstelle
 ](#schnittstelle) aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann  an die jeweiligen Clients.
+
 ## Funktionsumfang
  - Anzeige verschiedener Wachalarme für einzelne Wachen, Träger oder ganze Kreise
  - Ausgabe synthetischer Sprachdurchsagen (Gong, Einsatzart, Stichwort, Ort, Ortsteile, beteiligte Einsatzmittel, Sondersignal)
@@ -31,6 +25,11 @@ Der Web-Server empfängt Einsatzdaten über eine definierte [Schnittstelle
  - Steuerung der übermittelten Daten durch den Server - auf dem Client werden keine Daten gespeichert (außer dem Session-Cookie)
  - Volle kompatibilität mit den gängigen Browsern (getestet in Chrome, Firefox, Safari, Microsoft Edge)
  - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
+
+## offene Punkte
+Neue Funktionen oder bekannte Probleme werden schrittweise hinterlegt.
+Eine Aufzählung findet sich [hier](https://github.com/Robert-112/Wachalarm-IP-Web/TODO.md).
+
 
 # Installation & Konfiguration
 ## Vorbereitung & Installation

@@ -24,7 +24,7 @@ body {
 }
 
 .fullheight {
-  height: calc(100vh - 60px - 5rem);
+  height: calc(100vh - 60px - 5rem - 2rem);
 }
 
 /*** Anpassungen an Bootstrap ******************/
@@ -61,10 +61,6 @@ audio {
   height: 40% !important;
 }
 
-.h-70 {
-  height: 70% !important;
-}
-
 .h-45 {
   height: 45% !important;
 }
@@ -73,8 +69,16 @@ audio {
   height: 55% !important;
 }
 
+.h-60 {
+  height: 60% !important;
+}
+
 .h-65 {
   height: 65% !important;
+}
+
+.h-70 {
+  height: 70% !important;
 }
 
 .h-80 {
@@ -161,7 +165,23 @@ audio {
   }
 }
 
-/*** Texte des Bildschirmschoners dynamisch bewegen lassen **********/
+/*** Texte des Bildschirmschoners dynamisch bewegen lassen ***/
+
+.clock_y {
+  position:fixed;
+}
+
+.client_wache {
+  animation: x2 1200s linear infinite alternate;
+}
+
+@keyframes x2 {
+  100% {
+    transform: translatex(300%);
+  }
+}
+
+/*** Texte des Bildschirmschoners dynamisch bewegen lassen 
 
 .clock_x {
   animation: x 1200s linear infinite alternate;
@@ -183,12 +203,12 @@ audio {
   }
 }
 
-.client_wache {
-  animation: x2 1200s linear infinite alternate;
+******/
+
+#em_alarmiert, #rmld_container {
+  font-size: 1.6vw;
 }
 
-@keyframes x2 {
-  100% {
-    transform: translatex(300%);
-  }
+#headline {
+  height: 2rem;
 }

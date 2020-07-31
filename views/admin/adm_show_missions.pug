@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   main(role='main')
@@ -9,7 +9,8 @@ block content
         .col-12        
           ol
             each val in dataSet
-              li= val.einsatzart + ', ' + val.stichwort + ', ' + val.ort + ' ' + val.ortsteil
+              li= val.einsatzart + ', ' + val.stichwort + ', ' + val.ort + ' ' + val.ortsteil 
+              a(href="/rmld/" + val.uuid)= val.uuid
                 ul
                   if val.a
                     each val_a in (val.a).split(",")

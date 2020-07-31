@@ -80,9 +80,8 @@ _old/
 
 # db
 *.sqlite3
-
-# other
 *.db
+sessions
 
 # ssl
 .crt
@@ -95,4 +94,11 @@ public/media/*
 !public/media/marker-shadow.png
 !public/media/bell_long.mp3
 !public/media/bell_short.mp3
+!public/media/bell_message.mp3
 *.bak
+*.save
+
+# backup-files
+misc/*
+!misc/server.cert
+!misc/server.key

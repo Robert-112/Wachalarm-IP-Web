@@ -1,41 +1,26 @@
-module.exports = function(app_cfg, waip_io, sql) {
+module.exports = function (app_cfg, sql, saver) {
 
   // Module laden
   var dgram = require('dgram');
   var udp_server = dgram.createSocket('udp4');
 
-  // Funktion um zu pruefen, ob Nachricht im JSON-Format ist
-  function isValidJSON(text) {
-    try {
-      JSON.parse(text);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
-
   // UDP-Server für Schnittstelle starten
   udp_server.bind(app_cfg.global.udpport);
-  udp_server.on('listening', function() {
+  udp_server.on('listening', function () {
     var address = udp_server.address();
     sql.db_log('Anwendung', 'UDP Server auf ' + address.address + ':' + address.port + ' gestartet.');
   });
 
   // Warten auf Einsatzdaten
-  udp_server.on('message', function(message, remote) {
-    if (isValidJSON(message)) {
-      sql.db_log('WAIP', 'Neuer Einsatz von ' + remote.address + ':' + remote.port + ': ' + message);
-      waip_io.einsatz_speichern(message);
-    } else {
-      sql.db_log('Fehler-WAIP', 'Fehler: Einsatz von ' + remote.address + ':' + remote.port + ' Fehlerhaft: ' + message);
-    }
+  udp_server.on('message', function (message, remote) {
+    saver.save_new_waip(message.toString('utf8'), remote.address + ':' + remote.port, 'udp')
   });
 
+  // UDP-Daten senden
   function send_message(message) {
-    udp_server.send(message, 0, message.length, app_cfg.global.udpport, 'localhost', function(err, bytes) {
+    udp_server.send(message, 0, message.length, app_cfg.global.udpport, 'localhost', function (err, bytes) {
       if (err) throw err;
-      sql.db_log('UDP-Testalarm an localhost Port ' + app_cfg.global.udpport + ' gesendet.');
-      //client.close();
+      sql.db_log('WAIP', 'UDP-Testalarm an localhost:' + app_cfg.global.udpport + ' gesendet.');
     });
   };
 
