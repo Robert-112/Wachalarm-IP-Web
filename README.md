@@ -1,13 +1,12 @@
 # Wachalarm IP-Web
 ![Titelbild Wachalarm IP-Web](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
 
-# Beschreibung
 Ziel des Wachalarm IP-Web soll es sein auf jedem Endgerät - egal ob Windows, Linux, Mac, PC oder Smartphone - Alarme anzuzeigen, ohne das zusätzliche Software zu installieren ist. Da es sich dabei um eine reine Web-Server-Anwendung handelt, sollte der Dienst am besten durch eine Leitstelle betrieben werden um die Einsatzalarme direkt an das System zu übergeben. Der Zugriff erfolgt dann innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).
 Der Web-Server empfängt Einsatzdaten über eine definierte [Schnittstelle
 ](#schnittstelle) aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann an die jeweiligen Clients.
 Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte zudem mitteilen ob Sie am Einsatz teilnehmen. Dabei wird nur die fachliche Qualifikation gemeldet, persönliche Daten (wie Name, Vorname) werden nicht verarbeitet.
 
-# DEMO
+## DEMO
 [📺🔥 https://wachalarm.mooo.com/](https://wachalarm.mooo.com/)
 
 Login-Daten:
@@ -27,7 +26,7 @@ Die Demo-Version zeigt frei erfundene Einsätze die jede Stunde neu alarmiert we
  - Anzeige eines reduzierten (Datenschutz beachtenden) Wachalarms bei fehlender Berechtigung
  - Steuerung der übermittelten Daten durch den Server - auf dem Client werden keine Daten gespeichert (außer dem Session-Cookie)
  - Volle kompatibilität mit den gängigen Browsern (getestet in Chrome, Firefox, Safari, Microsoft Edge)
- - Rückmeldefunktion zu den Einsätzen (gesteuert über externe Gruppenverwaltung)
+ - Rückmeldefunktion (für Feuerwehren, gesteuert über externe Gruppenverwaltung)
  - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
 
 
