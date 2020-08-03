@@ -5,7 +5,7 @@ Ziel des Wachalarm IP-Web soll es sein auf jedem Endgerät - egal ob Windows, Li
 Der Web-Server empfängt Einsatzdaten über eine definierte Schnittstelle aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann an die jeweiligen Clients.\
 Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte zudem mitteilen ob Sie am Einsatz teilnehmen. Dabei wird nur die fachliche Qualifikation gemeldet, persönliche Daten (wie Name, Vorname) werden nicht verarbeitet.\
 \
-Weitere Informationen finden Sie im [Wiki](wiki/)
+Weitere Informationen finden Sie im [Wiki](https://github.com/Robert-112/Wachalarm-IP-Web/wiki)
 
 ## DEMO
 [📺🔥 https://wachalarm.mooo.com/](https://wachalarm.mooo.com/)
