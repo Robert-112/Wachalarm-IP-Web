@@ -1,10 +1,11 @@
 # Wachalarm IP-Web
 ![Titelbild Wachalarm IP-Web](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
 
-Ziel des Wachalarm IP-Web soll es sein auf jedem Endgerät - egal ob Windows, Linux, Mac, PC oder Smartphone - Alarme anzuzeigen, ohne das zusätzliche Software zu installieren ist. Da es sich dabei um eine reine Web-Server-Anwendung handelt, sollte der Dienst am besten durch eine Leitstelle betrieben werden um die Einsatzalarme direkt an das System zu übergeben. Der Zugriff erfolgt dann innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).
-Der Web-Server empfängt Einsatzdaten über eine definierte [Schnittstelle
-](#schnittstelle) aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann an die jeweiligen Clients.
-Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte zudem mitteilen ob Sie am Einsatz teilnehmen. Dabei wird nur die fachliche Qualifikation gemeldet, persönliche Daten (wie Name, Vorname) werden nicht verarbeitet.
+Ziel des Wachalarm IP-Web soll es sein auf jedem Endgerät - egal ob Windows, Linux, Mac, PC oder Smartphone - Alarme anzuzeigen, ohne das zusätzliche Software zu installieren ist. Da es sich dabei um eine reine Web-Server-Anwendung handelt, sollte der Dienst am besten durch eine Leitstelle betrieben werden um die Einsatzalarme direkt an das System zu übergeben. Der Zugriff erfolgt dann innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).\
+Der Web-Server empfängt Einsatzdaten über eine definierte Schnittstelle aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann an die jeweiligen Clients.\
+Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte zudem mitteilen ob Sie am Einsatz teilnehmen. Dabei wird nur die fachliche Qualifikation gemeldet, persönliche Daten (wie Name, Vorname) werden nicht verarbeitet.\
+\
+Weitere Informationen finden Sie im [Wiki](wiki/)
 
 ## DEMO
 [📺🔥 https://wachalarm.mooo.com/](https://wachalarm.mooo.com/)
