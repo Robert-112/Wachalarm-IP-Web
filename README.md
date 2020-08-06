@@ -36,17 +36,58 @@ Login-Daten:
 
 
 # Screenshots (Version 1.0)
-### Startseite
-![FireShot Capture 001 - Startseite - localhost](https://user-images.githubusercontent.com/19272095/54091416-0b8a5200-4380-11e9-8ecd-9125e033a5e3.png)
-### Einsatz (Querformat)
-![FireShot Capture 005 - Alarmmonitor - localhost](https://user-images.githubusercontent.com/19272095/54091420-0c22e880-4380-11e9-8fbd-a047d9fae63e.png)
-### Einsatz (Hochformat)
-![FireShot Capture 006 - Alarmmonitor - localhost](https://user-images.githubusercontent.com/19272095/54091415-0b8a5200-4380-11e9-800b-e34ad99eeae5.png)
+## Startseite
+
+![image](https://user-images.githubusercontent.com/19272095/89553393-bcaf4900-d80d-11ea-845e-18b80ae58865.png)
+
+## Alarmmonitor
+
+### Darstellung im Querformat
+
+> Angemeldeter Benutzer mit vollen Rechten auf den Alarmmonitor der Wache 1
+
+![image](https://user-images.githubusercontent.com/19272095/89553449-d355a000-d80d-11ea-9841-46e856eae81f.png)
+
+### Darstellung im Hochformat
+
+>  Benutzer ist nicht angemeldet, sieht reduzierten Inhalt der Wache 2
+
+![image](https://user-images.githubusercontent.com/19272095/89553608-0730c580-d80e-11ea-8aea-5197ef7dcc9b.png)
+
 ### Bildschirmschoner
-![FireShot Capture 002 - Alarmmonitor - localhost](https://user-images.githubusercontent.com/19272095/54091417-0b8a5200-4380-11e9-8775-e64f089c92e9.png)
-### Login
+
+> wird angezeigt wenn kein Einsatz für die Wache vorhanden ist
+
+![image](https://user-images.githubusercontent.com/19272095/89553283-98ec0300-d80d-11ea-9675-8dbf895931b6.png)
+
+## Dashboard
+
+### Übersicht
+
+> Auflistung der im System hinterlegten laufenden Einsätze
+
+![image](https://user-images.githubusercontent.com/19272095/89554016-93db8380-d80e-11ea-9b43-62c127a386fb.png)
+
+### Einsatz im Dashboard
+
+> vollständiger Einsatz inkl. aller Wachen und aller Einsatzrückmeldungen; Benutzer ist Angemeldet und hat das Recht zur Einsicht aller Daten der Wache
+
+![image](https://user-images.githubusercontent.com/19272095/89554140-bc637d80-d80e-11ea-8fe9-2956d13b4972.png)
+
+## Rückmeldung
+
+> Darstellung auf einem Smartphone
+
+![image](https://user-images.githubusercontent.com/19272095/89553052-50cce080-d80d-11ea-8922-38948ea2a989.png)
+![image](https://user-images.githubusercontent.com/19272095/89553092-5e826600-d80d-11ea-9aa6-2b354b9049bd.png)
+
+## Login
+
 ![FireShot Capture 003 - Login - localhost](https://user-images.githubusercontent.com/19272095/54091418-0c22e880-4380-11e9-8657-5011db2435df.png)
-### Benutzerverwaltung
+
+## Benutzerverwaltung
+
 ![FireShot Capture 004 - Benutzer und Rechte verwalten - localhost](https://user-images.githubusercontent.com/19272095/54091419-0c22e880-4380-11e9-8677-b7f9db1a422d.png)
+
 # Lizenz
 #### [\[Creative Commons Attribution Share Alike 4.0 International\]](https://github.com/Robert-112/Wachalarm-IP-Web/blob/master/LICENSE.md)
