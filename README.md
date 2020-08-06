@@ -44,7 +44,7 @@ Login-Daten:
 
 ### Darstellung im Querformat
 
-> Angemeldeter Benutzer mit vollen Rechten auf den Alarmmonitor der Wache 1
+> angemeldeter Benutzer mit vollen Rechten auf den Alarmmonitor der Wache 1
 
 ![image](https://user-images.githubusercontent.com/19272095/89553449-d355a000-d80d-11ea-9841-46e856eae81f.png)
 
@@ -70,13 +70,14 @@ Login-Daten:
 
 ### Einsatz im Dashboard
 
-> vollständiger Einsatz inkl. aller Wachen und aller Einsatzrückmeldungen; Benutzer ist Angemeldet und hat das Recht zur Einsicht aller Daten der Wache
+> vollständiger Einsatz inkl. aller Wachen und aller Einsatzrückmeldungen; Benutzer ist angemeldet und hat das Recht zur Einsicht aller Daten der Wache
 
 ![image](https://user-images.githubusercontent.com/19272095/89554140-bc637d80-d80e-11ea-8fe9-2956d13b4972.png)
 
 ## Rückmeldung
 
-> Darstellung auf einem Smartphone
+> Darstellung auf einem Smartphone;\
+benötigt externen Verteilerdienst wie z.B. Twitter
 
 ![image](https://user-images.githubusercontent.com/19272095/89553052-50cce080-d80d-11ea-8922-38948ea2a989.png)
 ![image](https://user-images.githubusercontent.com/19272095/89553092-5e826600-d80d-11ea-9aa6-2b354b9049bd.png)
