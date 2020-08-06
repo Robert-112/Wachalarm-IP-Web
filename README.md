@@ -35,7 +35,7 @@ Login-Daten:
  - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
 
 
-# Screenshots (Version 1.0)
+# Screenshots (Version 1.2)
 ## Startseite
 
 ![image](https://user-images.githubusercontent.com/19272095/89553393-bcaf4900-d80d-11ea-845e-18b80ae58865.png)
