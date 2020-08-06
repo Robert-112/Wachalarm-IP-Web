@@ -6,6 +6,8 @@ Der Web-Server empfängt Einsatzdaten über eine definierte Schnittstelle aus de
 
 Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte mitteilen ob Sie an einem Einsatz teilnehmen. Dabei wird die fachliche Qualifikation und wahrscheinliche Eintreffzeit übermittelt. Persönliche Daten (wie Name, Vorname etc.) werden nicht verarbeitet.
 
+Die Anwendung ist Open-Source und kann - unter Berücksichtung der [Lizenz](https://github.com/Robert-112/Wachalarm-IP-Web/blob/master/LICENSE.md) - von jedem frei verwendet werden. Außerdem ist jeder dazu eingeladen an der Weiterentwicklung dieses Repositories mitzuhelfen.
+
 **Weitere Informationen zur Funktionsweise finden Sie im [Wiki](https://github.com/Robert-112/Wachalarm-IP-Web/wiki)**
 
 # DEMO
@@ -33,7 +35,7 @@ Login-Daten:
  - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
 
 
-# Screenshots (Version 1.2)
+# Screenshots (Version 1.0)
 ### Startseite
 ![FireShot Capture 001 - Startseite - localhost](https://user-images.githubusercontent.com/19272095/54091416-0b8a5200-4380-11e9-8ecd-9125e033a5e3.png)
 ### Einsatz (Querformat)
