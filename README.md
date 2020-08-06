@@ -1,37 +1,39 @@
 # Wachalarm IP-Web
 ![Titelbild Wachalarm IP-Web](https://user-images.githubusercontent.com/19272095/54090568-cbbe6d00-4375-11e9-937e-ae2a6cd9ea7a.jpg)
 
-Ziel des Wachalarm IP-Web soll es sein auf jedem Endgerät - egal ob Windows, Linux, Mac, PC oder Smartphone - Alarme anzuzeigen, ohne das zusätzliche Software zu installieren ist. Da es sich dabei um eine reine Web-Server-Anwendung handelt, sollte der Dienst am besten durch eine Leitstelle betrieben werden um die Einsatzalarme direkt an das System zu übergeben. Der Zugriff erfolgt dann innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).\
-Der Web-Server empfängt Einsatzdaten über eine definierte Schnittstelle aus dem Einsatzleitsystem (oder anderen Systemen) und übersendet diese dann an die jeweiligen Clients.\
-Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte zudem mitteilen ob Sie am Einsatz teilnehmen. Dabei wird nur die fachliche Qualifikation gemeldet, persönliche Daten (wie Name, Vorname) werden nicht verarbeitet.\
-\
-Weitere Informationen finden Sie im [Wiki](https://github.com/Robert-112/Wachalarm-IP-Web/wiki)
+Wachalarm IP-Web ist ein Dienst, der auf jedem internetfähigem Endgerät - egal ob Windows, Linux, Mac oder Smartphone - Wachalarme anzeigen kann, ohne das zusätzliche Software zu installieren ist. Da es sich dabei um eine reine Web-Server-Anwendung handelt, sollte der Dienst am besten durch eine Leitstelle betrieben werden um die Einsatzalarme direkt an das System zu übergeben. Der Zugriff erfolgt innerhalb eines geschützten Netzwerkes (VPN, LAN etc.) oder direkt über das Internet (sofern freigegeben und gewollt).\
+Der Web-Server empfängt Einsatzdaten über eine definierte Schnittstelle aus dem Einsatzleitsystem (oder auch von anderen Systemen) und übersendet diese dann an die jeweiligen verbunden Clients.
 
-## DEMO
+Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte mitteilen ob Sie an einem Einsatz teilnehmen. Dabei wird die fachliche Qualifikation und wahrscheinliche Eintreffzeit übermittelt. Persönliche Daten (wie Name, Vorname etc.) werden nicht verarbeitet.
+
+**Weitere Informationen zur Funktionsweise finden Sie im [Wiki](https://github.com/Robert-112/Wachalarm-IP-Web/wiki)**
+
+# DEMO
+
+Die Demo-Version zeigt frei erfundene Einsätze an, die jede Stunde neu alarmiert werden.
+
 [📺🔥 https://wachalarm.mooo.com/](https://wachalarm.mooo.com/)
 
 Login-Daten:
 - Benutzer: me
 - Passwort: 123
 
-Die Demo-Version zeigt frei erfundene Einsätze die jede Stunde neu alarmiert werden. Ohne Login werden die Alarmdaten mit reduziertem Inhalt dargestellt (zur Wahrung des Datenschutzes).
-
-
-## Funktionsumfang
+# Funktionsumfang (Auszug)
  - Anzeige verschiedener Wachalarme für einzelne Wachen, Träger oder ganze Kreise
  - Ausgabe synthetischer Sprachdurchsagen (Gong, Einsatzart, Stichwort, Ort, Ortsteile, beteiligte Einsatzmittel, Sondersignal)
  - Kartenmodul zur Anzeige des Einsatzortes
  - Responsive Webdesign - gleiche Anzeige des Wachalarms auf allen Geräten, Unterstützung von Hoch- und Querformat
  - Rechteverwaltung von Benutzern zur Sicht von Wachalarmen verschiedenster Wachen, Träger oder ganzer Kreise
- - Verschlüsselte Übertragung der Einsatzdaten (https)
- - Anzeige eines reduzierten (Datenschutz beachtenden) Wachalarms bei fehlender Berechtigung
+ - Verschlüsselte Übertragung der Einsatzdaten über https und Websocket
+ - Anzeige von reduzierten Alarmen bei fehlender Berechtigung  (Datenschutzoption) 
  - Steuerung der übermittelten Daten durch den Server - auf dem Client werden keine Daten gespeichert (außer dem Session-Cookie)
  - Volle kompatibilität mit den gängigen Browsern (getestet in Chrome, Firefox, Safari, Microsoft Edge)
  - Rückmeldefunktion (für Feuerwehren, gesteuert über externe Gruppenverwaltung)
+ - Dashboard zur Einzeige des Gesamteinsatzes, inkl. aller Alarmierten Einsatzmittel und aller Einsatzrückmeldungen
  - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
 
 
-# Screenshots (Version 1.0)
+# Screenshots (Version 1.2)
 ### Startseite
 ![FireShot Capture 001 - Startseite - localhost](https://user-images.githubusercontent.com/19272095/54091416-0b8a5200-4380-11e9-8ecd-9125e033a5e3.png)
 ### Einsatz (Querformat)
