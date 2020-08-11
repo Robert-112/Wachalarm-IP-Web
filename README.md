@@ -8,7 +8,7 @@ Mithilfe der eingebauten Rückmeldefunktion können Einsatzkräfte mitteilen ob 
 
 Die Anwendung ist Open-Source und kann - unter Berücksichtung der [Lizenz](https://github.com/Robert-112/Wachalarm-IP-Web/blob/master/LICENSE.md) - von jedem frei verwendet werden. Außerdem ist jeder dazu eingeladen an der Weiterentwicklung dieses Repositories mitzuhelfen.
 
-**Weitere Informationen zur Funktionsweise finden Sie im [Wiki](https://github.com/Robert-112/Wachalarm-IP-Web/wiki)**
+**Weitere Informationen zur Benutzung und Funktionsweise finden Sie im [Wiki](https://github.com/Robert-112/Wachalarm-IP-Web/wiki)**
 
 # DEMO
 
@@ -21,18 +21,19 @@ Login-Daten:
 - Passwort: 123
 
 # Funktionsumfang (Auszug)
- - Anzeige verschiedener Wachalarme für einzelne Wachen, Träger oder ganze Kreise
- - Ausgabe synthetischer Sprachdurchsagen (Gong, Einsatzart, Stichwort, Ort, Ortsteile, beteiligte Einsatzmittel, Sondersignal)
- - Kartenmodul zur Anzeige des Einsatzortes
- - Responsive Webdesign - gleiche Anzeige des Wachalarms auf allen Geräten, Unterstützung von Hoch- und Querformat
- - Rechteverwaltung von Benutzern zur Sicht von Wachalarmen verschiedenster Wachen, Träger oder ganzer Kreise
- - Verschlüsselte Übertragung der Einsatzdaten über https und Websocket
- - Anzeige von reduzierten Alarmen bei fehlender Berechtigung  (Datenschutzoption) 
- - Steuerung der übermittelten Daten durch den Server - auf dem Client werden keine Daten gespeichert (außer dem Session-Cookie)
- - Volle kompatibilität mit den gängigen Browsern (getestet in Chrome, Firefox, Safari, Microsoft Edge)
- - Rückmeldefunktion (für Feuerwehren, gesteuert über externe Gruppenverwaltung)
- - Dashboard zur Einzeige des Gesamteinsatzes, inkl. aller Alarmierten Einsatzmittel und aller Einsatzrückmeldungen
- - Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
+* Anzeige verschiedener Wachalarme für einzelne Wachen, Träger oder ganze Kreise
+* Ausgabe synthetischer Sprachdurchsagen (Gong, Einsatzart, Stichwort, Ort, Ortsteile, beteiligte Einsatzmittel, Sondersignal)
+* Kartenmodul zur Anzeige des Einsatzortes
+* Responsive Webdesign - gleiche Anzeige des Wachalarms auf allen Geräten, Unterstützung von Hoch- und Querformat
+* Rechteverwaltung von Benutzern zur Sicht von Wachalarmen verschiedenster Wachen, Träger oder ganzer Kreise
+* Verschlüsselte Übertragung der Einsatzdaten über https und Websocket
+* Anzeige von reduzierten Alarmen bei fehlender Berechtigung  (Datenschutzoption) 
+* Steuerung der übermittelten Daten durch den Server - auf dem Client werden keine Daten gespeichert (außer dem Session-Cookie)
+* Volle kompatibilität mit den gängigen Browsern (getestet in Chrome, Firefox, Safari, Microsoft Edge)
+* Rückmeldefunktion (für Feuerwehren, gesteuert über externe Gruppenverwaltung)
+* Dashboard zur Einzeige des Gesamteinsatzes, inkl. aller Alarmierten Einsatzmittel und aller Einsatzrückmeldungen
+* verschiedene Schnittstellen zur Übermittlung von Einsatzalarmen sowie zum Austausch und zur Verteilung von Rückmeldungen
+* Basierend auf modernsten Web-Technologien ([Node.js](https://nodejs.org/), [Express](https://expressjs.com/de/), [Socket.io](https://socket.io/), [Passport](http://www.passportjs.org/), [SQLite](https://www.sqlite.org/), [Bootstrap](https://getbootstrap.com/), [Leaflet](https://leafletjs.com/))
 
 
 # Screenshots (Version 1.2)
