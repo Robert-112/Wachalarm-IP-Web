@@ -27,7 +27,7 @@
     "passport-ip": "^0.1.2",
     "passport-local": "^1.0.0",
     "passport.socketio": "^3.7.0",
-    "pug": "^3.0.0",
+    "pug": "^3.0.1",
     "req-flash": "0.0.3",
     "serve-favicon": "^2.5.0",
     "socket.io": "^2.3.0",
