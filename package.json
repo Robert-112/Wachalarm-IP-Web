@@ -18,7 +18,7 @@
     "compression": "^1.7.4",
     "connect-sqlite3": "^0.9.11",
     "cookie-parser": "^1.4.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-session": "^1.17.1",
     "json2csv": "^5.0.1",
     "nodemailer": "^6.4.11",
