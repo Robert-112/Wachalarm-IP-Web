@@ -856,6 +856,43 @@ module.exports = function (db, app_cfg) {
     });
   };
 
+  function db_telegram_get_chats(waip_id, callback) {
+    // Pruefen, welche Telegram-Chats fuer eine bestimmte Wache hinterlegt sind
+    db.get(`select tg.waip_wache_name, tg.waip_wache_nr, tg.tg_chat_id from waip_telegram_chats tg 
+      where tg.waip_wache_name in (select distinct w.name_wache waip_wachenname from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
+      where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
+      if (err == null && liste) {
+        // waip_id zu Daten hinzufuegen
+        liste.waip_id = waip_id;
+        callback && callback(liste);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_telegram_get_wachen(chat_id, callback) {
+    // Pruefen, welche Wachen fuer einen bestimmten Telegram-Chat hinterlegt sind
+    db.all(`select tg.waip_wache_nr, tg.waip_wache_name from waip_telegram_chats tg 
+      where tg.tg_chat_id = ?`, [chat_id], function (err, rows) {
+      if (err == null && rows.length > 0) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  }
+
+  function db_telegram_add_chat(chat_id, wache_nr, wache_name) {
+    db.run(`insert or replace into waip_telegram_chats 
+      (tg_chat_id, waip_wache_nr, waip_wache_name) values (?,?,?)`, [chat_id, wache_nr, wache_name]);
+  }
+  
+  function db_telegram_remove_chat(chat_id, wache_nr) {
+    db.run(`delete from waip_telegram_chats 
+      where tg_chat_id = ? and waip_wache_nr = ?`, [chat_id, wache_nr]);
+  }
+
   function db_vmtl_get_tw_account(list_data, callback) {
     // falls Liste für Wache hinterlegt, dann hier die Twitter-Account-Daten, Einsatz-UUID, Einsatzart und Wachenname auslesen
     db.get(`select tw.tw_screen_name, tw.tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, we.stichwort, wa.name_wache 
@@ -962,6 +999,10 @@ module.exports = function (db, app_cfg) {
     db_vmtl_get_list: db_vmtl_get_list,
     db_vmtl_check_history: db_vmtl_check_history,
     db_vmtl_get_tw_account: db_vmtl_get_tw_account,
+    db_telegram_get_chats: db_telegram_get_chats,
+    db_telegram_get_wachen: db_telegram_get_wachen,
+    db_telegram_add_chat: db_telegram_add_chat,
+    db_telegram_remove_chat: db_telegram_remove_chat,
     db_export_get_for_rmld: db_export_get_for_rmld
   };
 

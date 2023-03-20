@@ -45,6 +45,12 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
           sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
         };
       });
+      // pruefen, ob für die beteiligten Wachen Telegram-Chats hinterlegt sind, falls ja: Benachrichtigung senden
+      sql.db_telegram_get_chats(waip_id, function (list) {
+        if (list) {
+
+        }
+      });
     });
   };
 

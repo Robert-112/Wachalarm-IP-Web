@@ -47,6 +47,11 @@ app_cfg.rmld = {
   mail_from: 'xyz@xxx.xxx'//'keineantwort@wachalarm.info.tm'
 };
 
+// Einstellungen fuer den Telegram-Bot
+app_cfg.telegram = {
+  token: "123456789:ABC_abcdefghijklmnopqrstuvwxyzabcde"//vom @BotFather
+};
+
 // Schnittstelle um Daten von anderen Clients zu empfangen
 app_cfg.api = {
   enabled: true,
