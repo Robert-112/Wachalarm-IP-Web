@@ -11,20 +11,19 @@ module.exports = function (app_cfg, sql) {
 
   function sendStartMessage(msg) {
     let text = 'Hallo ' + msg.from.first_name + '! Ich kann dir helfen, Wachalarme in einen Telegram-Chat zu integrieren.\n\n';
-    
+
     sql.db_telegram_get_wachen(msg.chat.id, function (data) {
       if (!data) {
-        text += "Du hast momentan noch keine Wachalarme für diesen Chat hinterlegt.";
+        text += "In diesem Chat sind momentan *noch keine Wachalarme* hinterlegt.";
       }
       else {
-        text += "Du hast momentan folgende Wachalarme für diesen Chat hinterlegt:"
+        text += "In diesem Chat sind momentan folgende Wachalarme hinterlegt:"
         data.forEach(function (wache) {
           text += "\n  - *" + wache.waip_wache_name + "* (" + wache.waip_wache_nr + ")";
         });
       }
 
       text += "\n\nWas kann ich für dich tun?"
-      
       bot.sendMessage(
         chatId = msg.chat.id,
         message = text,
@@ -34,13 +33,16 @@ module.exports = function (app_cfg, sql) {
             inline_keyboard: [
               [{
                 text: 'Ich möchte diesem Chat einen neuen Wachalarm hinzufügen.',
-                callback_data: JSON.stringify({ action: "add_alarm" })
+                callback_data: JSON.stringify({ action: "add_alarm", nr: "" })
               }],
               [{
-                text: 'Ich möchte einen der Wachalarme aus diesem Chat entfernen.',
+                text: 'Ein vorhanderner Wachalarm soll wieder entfernt werden.',
                 callback_data: JSON.stringify({ action: "remove_alarm" })
+              }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
+              [{
+                text: 'Danke. Es gibt nix weiter zu tun.',
+                callback_data: JSON.stringify({ action: "finish", nr: "" })
               }]
-                .slice(end = (!data) ? 1 : 0) // falls es noch keine Alarme gibt, nur die erste Auswahl zurückgeben
             ],
             one_time_keyboard: true
           }
@@ -50,50 +52,44 @@ module.exports = function (app_cfg, sql) {
 
   function onCallbackQuery(callbackQuery) {
     const msg = callbackQuery.message;
-    const callback_data = JSON.parse(callbackQuery.data);
+    const callback_data = (callbackQuery.data) ? JSON.parse(callbackQuery.data) : {};
     let text = msg.text;
 
     if (callback_data.action == "add_alarm") {
-      if (!callback_data.typ && !callback_data.nr) {
-        bot.editMessageText('Klasse! Welche Wachalarme möchtest du denn erhalten?',
-          options = {
-            chat_id: msg.chat.id, message_id: msg.message_id,
-            reply_markup: {
-              inline_keyboard: [
-                [{
-                  text: 'Zeige den Wachalarm einer einzelnen Wache (z.B. Feuerwache, Rettungswache etc.) an.',
-                  callback_data: JSON.stringify({ action: "add_alarm", typ: "wache" })
-                }],
-                [{
-                  text: 'Zeige alle Wachalarme der Wachen eines Trägers (Amt, amtsfreie Gemeinde, Stadt) an.',
-                  callback_data: JSON.stringify({ action: "add_alarm", typ: "traeger" })
-                }],
-                [{
-                  text: 'Zeige alle Wachalarme des gesamten Kreises (egal ob für Feuerwehr oder Rettungsdienst) an.',
-                  callback_data: JSON.stringify({
-                    action: "add_alarm", typ: "kreis"
-                  })
-                }]
-              ],
-              one_time_keyboard: true
-            }
-          });
-      }
-      else if (callback_data.typ) {
-        text = "Super! Welchen Wachalarm möchtest du genau erhalten?";
+      if (!callback_data.final) {
+        switch (callback_data.nr.toString().length)
+        {
+          case 0: text = "Super! Aus welchem Landkreis möchtest du denn Wachalarme erhalten?"; break;
+          case 2: text = "Alles klar! Wo genau in diesem Landkreis soll es denn sein?"; break;
+          case 4: text = "Perfekt! Von welcher *Wache* möchtest du denn Wachalarme erhalten?"; break;
+        }
+
         sql.db_wache_get_all(function (data) {
           let inline_keyboard = [];
           data.forEach(function (wache) {
-            if (wache.typ == callback_data.typ && wache.nr) {
+            if (wache.nr == callback_data.nr || (wache.nr.toString().startsWith(callback_data.nr) && wache.nr.toString().length == callback_data.nr.toString().length + 2)) {
               inline_keyboard.push([{
-                text: wache.name,
-                callback_data: JSON.stringify({ action: "add_alarm", nr: wache.nr })
+                text: (wache.nr == callback_data.nr) ? wache.name + " (alle Wachen)" : wache.name,
+                callback_data: JSON.stringify({ action: "add_alarm", nr: wache.nr, final: (wache.typ == 'wache' || wache.nr == callback_data.nr) })
               }]);
             }
           });
+          if (callback_data.nr.toString().length >= 2) {
+            inline_keyboard.push([{
+              text: "« zurück",
+              callback_data: JSON.stringify({ action: "add_alarm", nr: callback_data.nr.toString().slice(0, -2) })
+            }]);
+          }
+          else {
+            inline_keyboard.push([{
+              text: "« abbrechen",
+              callback_data: JSON.stringify({ action: "restart", nr: callback_data.nr.toString().slice(0, -2) })
+            }]);
+          }
 
           bot.editMessageText(text, options = {
             chat_id: msg.chat.id, message_id: msg.message_id,
+            parse_mode: 'Markdown',
             reply_markup: { inline_keyboard: inline_keyboard, one_time_keyboard: true }
           });
         });
@@ -103,14 +99,11 @@ module.exports = function (app_cfg, sql) {
           if (wache) {
             sql.db_telegram_add_chat(msg.chat.id, wache.nr, wache.name);
 
-            let text = "Du erhältst jetzt Wachalarme für *" + wache.name + "* (" + wache.nr + ")";
+            let text = "Erledigt. Du erhältst jetzt Wachalarme für *" + wache.name + "* (" + wache.nr + ")";
             bot.editMessageText(text, options = {
-              chat_id: msg.chat.id,
-              message_id: msg.message_id,
+              chat_id: msg.chat.id, message_id: msg.message_id,
               parse_mode: 'Markdown'
             });
-            
-            text += "\n\nWas kann ich für dich tun?"
           }
         });
       }
@@ -123,7 +116,7 @@ module.exports = function (app_cfg, sql) {
           let inline_keyboard = [];
           data.forEach(function (wache) {
             inline_keyboard.push([{
-              text: wache.waip_wache_name + " (" + wache.waip_wache_nr +")",
+              text: wache.waip_wache_name + " (" + wache.waip_wache_nr + ")",
               callback_data: JSON.stringify({ action: "remove_alarm", nr: wache.waip_wache_nr })
             }]);
           });
@@ -137,8 +130,8 @@ module.exports = function (app_cfg, sql) {
         sql.db_wache_vorhanden(callback_data.nr, function (wache) {
           if (wache) {
             sql.db_telegram_remove_chat(msg.chat.id, wache.nr, wache.name);
-            
-            let text = "Du erhältst jetzt *keine* Wachalarme mehr für *" + wache.name + "* (" + wache.nr + ")";
+
+            let text = "Erledigt. Du erhältst jetzt *keine* Wachalarme mehr für *" + wache.name + "* (" + wache.nr + ")";
             bot.editMessageText(text, options = {
               chat_id: msg.chat.id,
               message_id: msg.message_id,
@@ -147,6 +140,11 @@ module.exports = function (app_cfg, sql) {
           }
         });
       }
+    }
+
+    if (callback_data.action == "restart") {
+      bot.deleteMessage(msg.chat.id, msg.message_id);
+      sendStartMessage(msg);
     }
   }
 }
