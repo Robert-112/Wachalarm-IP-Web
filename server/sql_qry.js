@@ -533,6 +533,8 @@ module.exports = function (db, app_cfg) {
       (
         SELECT id FROM waip_log ORDER BY id DESC LIMIT 50000, 100
       )`);
+
+    console.log(typ + ': ' + text);
   };
 
   function db_log_get_5000(callback) {
