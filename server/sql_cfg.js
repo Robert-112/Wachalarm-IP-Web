@@ -144,10 +144,10 @@ module.exports = function (fs, bcrypt, app_cfg) {
         tw_access_token_secret TEXT)`);
       // Telegram-Chat-Tabelle erstellen
       db.run(`CREATE TABLE waip_telegram_chats (
-        tg_chat_id INTEGER,
-        waip_wache_nr INTEGER,
-        waip_wache_name TEXT,
-        PRIMARY KEY (tg_chat_id, waip_wache_nr))`);
+        chat_id INTEGER,
+        wache_nr INTEGER,
+        wache_name TEXT,
+        PRIMARY KEY (chat_id, wache_nr))`);
       // Export-Tabelle erstellen
       db.run(`CREATE TABLE waip_export (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,

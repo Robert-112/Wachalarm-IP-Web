@@ -16,14 +16,14 @@ module.exports = function (app_cfg, sql) {
     let text = (withUserInteraction) ? 'Ich kann dir helfen, Wachalarme in einen Telegram-Chat zu integrieren.\n\n' : '';
 
     // ermitteln, welche Wachalarme für diesen Chat schon hinterlegt sind
-    sql.db_telegram_get_wachen(msg.chat.id, function (data) {
+    sql.db_telegram_get_wachen_for_chat(msg.chat.id, function (data) {
       if (!data) {
         text += 'In diesem Chat sind momentan *noch keine Wachalarme* hinterlegt.';
       }
       else {
         text += 'In diesem Chat sind momentan folgende Wachalarme hinterlegt:'
         data.forEach(function (wache) {
-          text += '\n  - *' + wache.waip_wache_name + '*' + ((wache.waip_wache_nr.toString().length < 6) ? ' (alle Wachen)' : '');
+          text += '\n  - *' + wache.wache_name + '*' + ((wache.wache_nr.toString().length < 6) ? ' (alle Wachen)' : '');
         });
       }
 
@@ -122,7 +122,7 @@ module.exports = function (app_cfg, sql) {
       else if (callback_data.nr) {
         sql.db_wache_vorhanden(callback_data.nr, function (wache) {
           if (wache) {
-            sql.db_telegram_add_chat(msg.chat.id, wache.nr, wache.name);
+            sql.db_telegram_add_wache_to_chat(msg.chat.id, wache.nr, wache.name);
 
             let text = 'Du erhältst jetzt Wachalarme für *' + wache.name + '* (' + wache.nr + ')';
             bot.editMessageText(text, options = {
@@ -143,12 +143,12 @@ module.exports = function (app_cfg, sql) {
       // Auswahlmöglichkeit: vorhandene Wachalarme des aktuellen Chats
       if (!callback_data.nr) {
         text = 'Okay. Welcher Wachalarm soll aus diesem Chat wieder entfernt werden?';
-        sql.db_telegram_get_wachen(msg.chat.id, function (data) {
+        sql.db_telegram_get_wachen_for_chat(msg.chat.id, function (data) {
           let inline_keyboard = [];
           data.forEach(function (wache) {
             inline_keyboard.push([{
-              text: wache.waip_wache_name + ' (' + wache.waip_wache_nr + ')',
-              callback_data: JSON.stringify({ action: 'remove_alarm', nr: wache.waip_wache_nr })
+              text: wache.wache_name + ' (' + wache.wache_nr + ')',
+              callback_data: JSON.stringify({ action: 'remove_alarm', nr: wache.wache_nr })
             }]);
           });
           bot.editMessageText(text, options = {
@@ -161,7 +161,7 @@ module.exports = function (app_cfg, sql) {
       else {
         sql.db_wache_vorhanden(callback_data.nr, function (wache) {
           if (wache) {
-            sql.db_telegram_remove_chat(msg.chat.id, wache.nr, wache.name);
+            sql.db_telegram_remove_wache_from_chat(msg.chat.id, wache.nr, wache.name);
 
             let text = 'Du erhältst jetzt *keine* Wachalarme mehr für *' + wache.name + '* (' + wache.nr + ')';
             bot.editMessageText(text, options = {

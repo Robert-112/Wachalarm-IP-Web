@@ -858,11 +858,11 @@ module.exports = function (db, app_cfg) {
     });
   };
 
-  function db_telegram_get_chats(waip_id, callback) {
-    // Pruefen, welche Telegram-Chats fuer eine bestimmte Wache hinterlegt sind
-    db.all(`select distinct tg.tg_chat_id from waip_telegram_chats tg,
+  function db_telegram_get_chats_for_einsatz(waip_id, callback) {
+    // Pruefen, welche Telegram-Chats fuer die an einem Einsatz beteiligten Wachen hinterlegt sind
+    db.all(`select distinct tg.chat_id from waip_telegram_chats tg,
         (select nr_wache from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache where em.waip_einsaetze_ID = ?) wa
-      where wa.nr_wache like tg.waip_wache_nr||'%'`, [waip_id], function (err, liste) {
+      where wa.nr_wache like tg.wache_nr||'%'`, [waip_id], function (err, liste) {
       if (err == null && liste) {
         callback && callback(liste);
       } else {
@@ -871,10 +871,10 @@ module.exports = function (db, app_cfg) {
     });
   };
 
-  function db_telegram_get_wachen(chat_id, callback) {
+  function db_telegram_get_wachen_for_chat(chat_id, callback) {
     // Pruefen, welche Wachen fuer einen bestimmten Telegram-Chat hinterlegt sind
-    db.all(`select tg.waip_wache_nr, tg.waip_wache_name from waip_telegram_chats tg
-      where tg.tg_chat_id = ?`, [chat_id], function (err, rows) {
+    db.all(`select tg.wache_nr, tg.wache_name from waip_telegram_chats tg
+      where tg.chat_id = ?`, [chat_id], function (err, rows) {
       if (err == null && rows.length > 0) {
         callback && callback(rows);
       } else {
@@ -883,14 +883,16 @@ module.exports = function (db, app_cfg) {
     });
   }
 
-  function db_telegram_add_chat(chat_id, wache_nr, wache_name) {
+  function db_telegram_add_wache_to_chat(chat_id, wache_nr, wache_name) {
+    // Wachalarm zu einem Telegram-Chat hinzufügen
     db.run(`insert or replace into waip_telegram_chats
-      (tg_chat_id, waip_wache_nr, waip_wache_name) values (?,?,?)`, [chat_id, wache_nr, wache_name]);
+      (chat_id, wache_nr, wache_name) values (?,?,?)`, [chat_id, wache_nr, wache_name]);
   }
 
-  function db_telegram_remove_chat(chat_id, wache_nr) {
+  function db_telegram_remove_wache_from_chat(chat_id, wache_nr) {
+    // Wachalarm aus einem Telegram-Chat entfernen
     db.run(`delete from waip_telegram_chats
-      where tg_chat_id = ? and waip_wache_nr = ?`, [chat_id, wache_nr]);
+      where chat_id = ? and wache_nr = ?`, [chat_id, wache_nr]);
   }
 
   function db_vmtl_get_tw_account(list_data, callback) {
@@ -999,10 +1001,10 @@ module.exports = function (db, app_cfg) {
     db_vmtl_get_list: db_vmtl_get_list,
     db_vmtl_check_history: db_vmtl_check_history,
     db_vmtl_get_tw_account: db_vmtl_get_tw_account,
-    db_telegram_get_chats: db_telegram_get_chats,
-    db_telegram_get_wachen: db_telegram_get_wachen,
-    db_telegram_add_chat: db_telegram_add_chat,
-    db_telegram_remove_chat: db_telegram_remove_chat,
+    db_telegram_get_chats_for_einsatz: db_telegram_get_chats_for_einsatz,
+    db_telegram_get_wachen_for_chat: db_telegram_get_wachen_for_chat,
+    db_telegram_add_wache_to_chat: db_telegram_add_wache_to_chat,
+    db_telegram_remove_wache_from_chat: db_telegram_remove_wache_from_chat,
     db_export_get_for_rmld: db_export_get_for_rmld
   };
 
