@@ -19,7 +19,7 @@ module.exports = function (app_cfg, sql) {
       else {
         text += 'In diesem Chat sind momentan folgende Wachalarme hinterlegt:'
         data.forEach(function (wache) {
-          text += '\n  - *' + wache.waip_wache_name + '*' + ((wache.waip_wache_nr.toString().length<6) ? ' (alle Wachen)' : '');
+          text += '\n  - *' + wache.waip_wache_name + '*' + ((wache.waip_wache_nr.toString().length < 6) ? ' (alle Wachen)' : '');
         });
       }
 
@@ -40,6 +40,10 @@ module.exports = function (app_cfg, sql) {
                   text: 'Ein vorhanderner Wachalarm soll wieder entfernt werden.',
                   callback_data: JSON.stringify({ action: 'remove_alarm' })
                 }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
+                [{
+                  text: 'Schick mir bitte einen Test-Alarm.',
+                  callback_data: JSON.stringify({ action: 'test_alarm', nr: '' })
+                }],
                 [{
                   text: 'Danke. Es gibt nix weiter zu tun.',
                   callback_data: JSON.stringify({ action: 'finish', nr: '' })
@@ -153,6 +157,29 @@ module.exports = function (app_cfg, sql) {
       }
     }
 
+    if (callback_data.action == 'test_alarm') {
+      if (!callback_data.duration) {
+        text = 'Na klar! Wann möchtest du den Wachalarm erhalten?';
+        let inline_keyboard = [[]];
+        [3, 10, 30].forEach(sec => inline_keyboard[0].push({
+          text: 'In ' + sec + ' Sekunden',
+          callback_data: JSON.stringify({ action: 'test_alarm', duration: sec })
+        }));
+        bot.editMessageText(text, options = {
+          chat_id: msg.chat.id, message_id: msg.message_id,
+          reply_markup: { inline_keyboard: inline_keyboard, one_time_keyboard: true }
+        });
+      }
+      else {
+        new Promise(resolve => setTimeout(resolve, callback_data.duration * 1000))
+          .then(function () {
+            text = formatAlarm(msg.chat.id, { "einsatzdaten": { "nummer": "0815", "alarmzeit": "01.01.19&01:00", "art": "Sonstiges", "stichwort": "S:Testeinsatz", "sondersignal": 1, "besonderheiten": "DEMO Wachalarm-IP-Web - Testeinsatz", "patient": "" }, "ortsdaten": { "ort": "Elsterwerda", "ortsteil": "Biehla", "strasse": "Haidaer Str. 47A", "objekt": "", "objektnr": "-1", "objektart": "", "wachfolge": "611302", "wgs84_x": "52.471244", "wgs84_y": "13.502943" }, "alarmdaten": [{ "typ": "ALARM", "netzadresse": "", "wachenname": "EE FW Elsterwerda", "einsatzmittel": "FL EE 02/14-01", "zeit_a": "18:41", "zeit_b": "", "zeit_c": "" }] });
+            bot.sendMessage(msg.chat.id, text);
+          });
+        bot.deleteMessage(msg.chat.id, msg.message_id);
+      }
+    }
+
     if (callback_data.action == 'restart') {
       bot.deleteMessage(msg.chat.id, msg.message_id);
       sendStartMessage(msg, withUserInteraction = true);
@@ -160,6 +187,22 @@ module.exports = function (app_cfg, sql) {
     if (callback_data.action == 'finish') {
       bot.deleteMessage(msg.chat.id, msg.message_id);
       sendStartMessage(msg, withUserInteraction = false);
+    }
+  }
+
+  function formatAlarm(alarm) {
+    // Symbol für Sondersignal am beginn anfügen
+    let text = (alarm.einsatzdaten.sondersignal) ? '\u{1F6A8}' /*Unicode Character 'POLICE CARS REVOLVING LIGHT' (U+1F6A8)*/ : '\u{1F515}' /*Unicode Character 'BELL WITH CANCELLATION STROKE' (U+1F515)*/;
+
+    text += ' ' + alarm.einsatzdaten.alarmzeit; // Datum und Uhrzeit anfügen
+    text += ' ' + alarm.einsatzdaten.stichwort;// Stichwort anfügen
+    text += ' \u{1F310} '; //Symbol für Orte anfügen Unicode Character 'GLOBE WITH MERIDIANS' (U+1F310)
+    text += alarm.ortsdaten.ort + ((alarm.ortsdaten.ortsteil) ? ', '+ alarm.ortsdaten.ortsteil : ''); // Ort und Ortsteil anfügen
+
+    if (alarm.alarmdaten) {
+      //Wachen, Unicode Character 'FIRE ENGINE' (U+1F692) and 'RIGHTWARDS WHITE ARROW' (U+21E8)
+      text += ' \u{1F692} \u{21E8} ';
+      alarm.alarmdaten.forEach(alarmdatum => text += alarmdatum.einsatzmittel + ' ');
     }
   }
 }
