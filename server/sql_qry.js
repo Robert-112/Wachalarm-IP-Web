@@ -524,9 +524,7 @@ module.exports = function (db, app_cfg) {
     // Log-Eintrag schreiben
     if (do_log) {
       db.run(`INSERT INTO waip_log (log_typ, log_text)
-        VALUES (
-        \'` + typ + `\',
-        \'` + text + `\')`);
+        VALUES (?,?)`, [typ, text]);
     };
     // Log auf 50.000 Datensätze begrenzen um Speicherplatz der DB zu begrenzen
     db.run(`DELETE FROM waip_log WHERE id IN
