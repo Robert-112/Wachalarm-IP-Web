@@ -49,14 +49,14 @@ module.exports = function (io, sql, fs, brk, telegram, async, app_cfg) {
       sql.db_telegram_get_chats_for_einsatz(waip_id, function (list) {
         if (list) {
           let text = telegram.formatAlarm(einsatz_daten);
-          list.forEach(function(chat) {
-            try {
-            telegram.bot.sendMessage(chat.chat_id, text);
-            }
-            catch (err) {
-              console.log(err);
-            }
+          list.forEach(chat => {
+            telegram.bot.sendMessage(chat.chat_id, text)
+              .catch(err => sql.db_log('Telegram', 'Fehler beim Versenden von Einsatz ' + waip_id + ' an Chat '+ chat_id +': ' + JSON.stringify(err)));
+            sql.db_log('Telegram', 'Einsatz ' + waip_id + ' wurde an Chat ' + chat_id + ' gesendet.');
           });
+        }
+        else {
+          sql.db_log('Telegram', 'Keine Telegram-Chats für Wachen im Einsatz ' + waip_id + ' hinterlegt.');
         }
       });
     });

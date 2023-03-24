@@ -5,14 +5,16 @@ module.exports = function (app_cfg, sql) {
 
   // Verweis auf den Telegram-Bot, der mithilfe von 'polling' neue Benutzeranfragen abruft
   const bot = new TelegramBot(app_cfg.telegram.token, { polling: true });
-
+  bot.on('polling_error', err => log(err));
   bot.on('message', msg => sendStartMessage(msg, withUserInteraction = true)); // bei irgendwelchen Nachrichten mit dem Start-Dialog antworten
   bot.on('callback_query', onCallbackQuery); // Callback-Queries behandeln (bei Auswahl einer der gesendeten Antwortmöglichkeiten, die vorher als inline_keyboard verschickt wurden)
+  log('Telegram-Bot gestartet');
 
   /**
    * Senden der Start-Narchricht (führt ein sendMessage durch)
    */
   function sendStartMessage(msg) {
+    log('Nachricht in Chat ' + msg.chat.id);
     let text = (withUserInteraction) ? 'Ich kann dir helfen, Wachalarme in einen Telegram-Chat zu integrieren.\n\n' : '';
 
     // ermitteln, welche Wachalarme für diesen Chat schon hinterlegt sind
@@ -31,7 +33,8 @@ module.exports = function (app_cfg, sql) {
         bot.sendMessage(
           chatId = msg.chat.id,
           message = text,
-          options = { parse_mode: 'Markdown' });
+          options = { parse_mode: 'Markdown' }
+        ).catch(err => log(err));
       }
       else {
         // Nachricht mit Antwortmöglichkeiten versenden
@@ -61,7 +64,7 @@ module.exports = function (app_cfg, sql) {
               ],
               one_time_keyboard: true
             }
-          });
+          }).catch(err => log(err));
       }
     });
   }
@@ -71,6 +74,7 @@ module.exports = function (app_cfg, sql) {
    * (führt in der Regel ein editMessageText der Ursprungsnachricht durch)
    */
   function onCallbackQuery(callbackQuery) {
+    log('Callback in Chat ' + callbackQuery.message.chat.id + ' (' + callbackQuery.data +')');
     const msg = callbackQuery.message; // die Nachricht, deren Auswahlmöglichkeit gewählt wurde
     const callback_data = (callbackQuery.data) ? JSON.parse(callbackQuery.data) : {}; // die Callback-Daten deserialiseren
     let text = msg.text; // der (geänderte) Text der Nachricht
@@ -115,7 +119,7 @@ module.exports = function (app_cfg, sql) {
             chat_id: msg.chat.id, message_id: msg.message_id,
             parse_mode: 'Markdown',
             reply_markup: { inline_keyboard: inline_keyboard, one_time_keyboard: true }
-          });
+          }).catch(err => log(err));
         });
       }
       // Auswahl eines Wachalarms => in die Datenbank speichern
@@ -123,12 +127,13 @@ module.exports = function (app_cfg, sql) {
         sql.db_wache_vorhanden(callback_data.nr, function (wache) {
           if (wache) {
             sql.db_telegram_add_wache_to_chat(msg.chat.id, wache.nr, wache.name);
+            log('Wachalarm ' + wache.name + ' (' + wache.nr + ') zu Chat ' + msg.chat.id + ' hinzugefügt.');
 
             let text = 'Du erhältst jetzt Wachalarme für *' + wache.name + '* (' + wache.nr + ')';
             bot.editMessageText(text, options = {
               chat_id: msg.chat.id, message_id: msg.message_id,
               parse_mode: 'Markdown'
-            });
+            }).catch(err => log(err));
 
             sendStartMessage(msg, withUserInteraction = true);
           }
@@ -154,7 +159,7 @@ module.exports = function (app_cfg, sql) {
           bot.editMessageText(text, options = {
             chat_id: msg.chat.id, message_id: msg.message_id,
             reply_markup: { inline_keyboard: inline_keyboard, one_time_keyboard: true }
-          });
+          }).catch(err => log(err));
         });
       }
       // Auswahl eines Wachalarms => aus der Datenbank entfernen
@@ -162,13 +167,14 @@ module.exports = function (app_cfg, sql) {
         sql.db_wache_vorhanden(callback_data.nr, function (wache) {
           if (wache) {
             sql.db_telegram_remove_wache_from_chat(msg.chat.id, wache.nr, wache.name);
+            log('Wachalarm ' + wache.name + ' (' + wache.nr + ') aus Chat ' + msg.chat.id + ' entfernt.');
 
             let text = 'Du erhältst jetzt *keine* Wachalarme mehr für *' + wache.name + '* (' + wache.nr + ')';
             bot.editMessageText(text, options = {
               chat_id: msg.chat.id,
               message_id: msg.message_id,
               parse_mode: 'Markdown'
-            });
+            }).catch(err => log(err));
 
             sendStartMessage(msg, withUserInteraction = true);
           }
@@ -191,16 +197,19 @@ module.exports = function (app_cfg, sql) {
         bot.editMessageText(text, options = {
           chat_id: msg.chat.id, message_id: msg.message_id,
           reply_markup: { inline_keyboard: inline_keyboard, one_time_keyboard: true }
-        });
+        }).catch(err => log(err));
       }
       // Auswahl einer Zeit => Versenden des Testalarms planen
       else {
         new Promise(resolve => setTimeout(resolve, callback_data.duration * 1000))
           .then(function () {
-            text = formatAlarm({ "einsatzdaten": { "nummer": "0815", "alarmzeit": "01.01.19&01:00", "art": "Sonstiges", "stichwort": "S:Testeinsatz", "sondersignal": 1, "besonderheiten": "DEMO Wachalarm-IP-Web - Testeinsatz", "patient": "" }, "ortsdaten": { "ort": "Elsterwerda", "ortsteil": "Biehla", "strasse": "Haidaer Str. 47A", "objekt": "", "objektnr": "-1", "objektart": "", "wachfolge": "611302", "wgs84_x": "52.471244", "wgs84_y": "13.502943" }, "alarmdaten": [{ "typ": "ALARM", "netzadresse": "", "wachenname": "EE FW Elsterwerda", "einsatzmittel": "FL EE 02/14-01", "zeit_a": "18:41", "zeit_b": "", "zeit_c": "" }] });
-            bot.sendMessage(msg.chat.id, text);
+            text = formatAlarm({ "einsatzdaten": { "nummer": "0815", "alarmzeit": new Date().toLocaleString('de-DE'), "art": "Sonstiges", "stichwort": "S:Testeinsatz", "sondersignal": 1, "besonderheiten": "DEMO Wachalarm-IP-Web - Testeinsatz", "patient": "" }, "ortsdaten": { "ort": "Elsterwerda", "ortsteil": "Biehla", "strasse": "Haidaer Str. 47A", "objekt": "", "objektnr": "-1", "objektart": "", "wachfolge": "611302", "wgs84_x": "52.471244", "wgs84_y": "13.502943" }, "alarmdaten": [{ "typ": "ALARM", "netzadresse": "", "wachenname": "EE FW Elsterwerda", "einsatzmittel": "FL EE 02/14-01", "zeit_a": "18:41", "zeit_b": "", "zeit_c": "" }] });
+            bot.sendMessage(msg.chat.id, text).catch(err => log(err));
+            log('Test-Alarm an Chat ' + msg.chat.id + ' gesendet.');
+            bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => log(err));
           });
-        bot.deleteMessage(msg.chat.id, msg.message_id);
+        log('Test-Alarm an Chat ' + msg.chat.id + ' in ' + callback_data.duration + 'sec geplant.');
+        bot.editMessageText('Geht klar! Ein Testalarm kommt in ' + callback_data.duration + ' Sekunden...', options = { chat_id: msg.chat.id, message_id: msg.message_id }).catch(err => log(err));
       }
     }
 
@@ -208,16 +217,16 @@ module.exports = function (app_cfg, sql) {
      * von vorn beginnen
      */
     if (callback_data.action == 'restart') {
-      bot.deleteMessage(msg.chat.id, msg.message_id);
-      sendStartMessage(msg, withUserInteraction = true);
+      bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => log(err));
+      sendStartMessage(msg, withUserInteraction = true).catch(err => log(err));
     }
 
     /**
      * beenden des Dialogs
      */
     if (callback_data.action == 'finish') {
-      bot.deleteMessage(msg.chat.id, msg.message_id);
-      sendStartMessage(msg, withUserInteraction = false);
+      bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => log(err));
+      sendStartMessage(msg, withUserInteraction = false).catch(err => log(err));
     }
   }
 
@@ -245,6 +254,13 @@ module.exports = function (app_cfg, sql) {
     }
 
     return text;
+  }
+
+  /**
+   * Speichern von Log-Meldungen
+   */
+  function log(data) {
+    sql.db_log('Telegram', (typeof data === 'string') ? data : JSON.stringify(data));
   }
 
   return {
