@@ -6,7 +6,7 @@ module.exports = function (app_cfg, sql) {
   // Verweis auf den Telegram-Bot, der mithilfe von 'polling' neue Benutzeranfragen abruft
   const bot = new TelegramBot(app_cfg.telegram.token, { polling: true });
   bot.on('polling_error', err => log(err));
-  bot.on('message', msg => sendStartMessage(msg, withUserInteraction = true)); // bei irgendwelchen Nachrichten mit dem Start-Dialog antworten
+  bot.on('message', sendStartMessage); // bei irgendwelchen Nachrichten mit dem Start-Dialog antworten
   bot.on('callback_query', onCallbackQuery); // Callback-Queries behandeln (bei Auswahl einer der gesendeten Antwortmöglichkeiten, die vorher als inline_keyboard verschickt wurden)
   log('Telegram-Bot gestartet');
 
@@ -15,7 +15,7 @@ module.exports = function (app_cfg, sql) {
    */
   function sendStartMessage(msg) {
     log('Nachricht in Chat ' + msg.chat.id);
-    let text = (withUserInteraction) ? 'Ich kann dir helfen, Wachalarme in einen Telegram-Chat zu integrieren.\n\n' : '';
+    let text = '';
 
     // ermitteln, welche Wachalarme für diesen Chat schon hinterlegt sind
     sql.db_telegram_get_wachen_for_chat(msg.chat.id, function (data) {
@@ -29,47 +29,38 @@ module.exports = function (app_cfg, sql) {
         });
       }
 
-      if (!withUserInteraction) {
-        bot.sendMessage(
-          chatId = msg.chat.id,
-          message = text,
-          options = { parse_mode: 'Markdown' }
-        ).catch(err => log(err));
-      }
-      else {
-        // Nachricht mit Antwortmöglichkeiten versenden
-        bot.sendMessage(
-          chatId = msg.chat.id,
-          message = text,
-          options = {
-            parse_mode: 'Markdown',
-            reply_markup: {
-              inline_keyboard: [
-                [{
-                  text: 'Ich möchte diesem Chat einen neuen Wachalarm hinzufügen.',
-                  callback_data: JSON.stringify({ action: 'add_alarm', nr: '' })
-                }],
-                [{
-                  text: 'Ein vorhanderner Wachalarm soll wieder entfernt werden.',
-                  callback_data: JSON.stringify({ action: 'remove_alarm' })
-                }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
-                [{
-                  text: 'Wie kann ich den Benachrichtigungston für diesen Chat ändern?',
-                  callback_data: JSON.stringify({ action: 'notification' })
-                }],
-                [{
-                  text: 'Schick mir bitte einen Test-Alarm.',
-                  callback_data: JSON.stringify({ action: 'test_alarm' })
-                }],
-                [{
-                  text: 'Danke. Es gibt nix weiter zu tun.',
-                  callback_data: JSON.stringify({ action: 'finish' })
-                }]
-              ],
-              one_time_keyboard: true
-            }
-          }).catch(err => log(err));
-      }
+      // Nachricht mit Antwortmöglichkeiten versenden
+      bot.sendMessage(
+        chatId = msg.chat.id,
+        message = text,
+        options = {
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [
+              [{
+                text: 'Füge dem Chat einen neuen Wachalarm hinzu.',
+                callback_data: JSON.stringify({ action: 'add_alarm', nr: '' })
+              }],
+              [{
+                text: 'Entferne einen Wachalarm wieder.',
+                callback_data: JSON.stringify({ action: 'remove_alarm' })
+              }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
+              [{
+                text: 'Wie kann der Benachrichtigungston eingestellt werden?',
+                callback_data: JSON.stringify({ action: 'notification' })
+              }],
+              [{
+                text: 'Schick mir einen Test-Alarm.',
+                callback_data: JSON.stringify({ action: 'test_alarm' })
+              }],
+              [{
+                text: 'Danke. Es gibt nix weiter zu tun.',
+                callback_data: JSON.stringify({ action: 'finish' })
+              }]
+            ],
+            one_time_keyboard: true
+          }
+        }).catch(err => log(err));
     });
   }
 
@@ -87,19 +78,18 @@ module.exports = function (app_cfg, sql) {
      * einen neuen Wachalarm hinzufügen
      */
     if (callback_data.action == 'add_alarm') {
+      // Auswahlmöglichkeiten anbieten: Kreise/Träger/Wachen
       if (!callback_data.final) {
         switch (callback_data.nr.toString().length) {
           case 0: text = 'Super! Aus welchem Landkreis möchtest du denn Wachalarme erhalten?'; break;
           case 2: text = 'Alles klar! Wo genau in diesem Landkreis soll es denn sein?'; break;
           case 4: text = 'Perfekt! Von welcher *Wache* möchtest du denn Wachalarme erhalten?'; break;
         }
-
-        // Auswahlmöglichkeiten anbieten: Kreise/Träger/Wachen
         sql.db_wache_get_all(function (data) {
           let inline_keyboard = [];
           data.forEach(function (wache) {
             // Antwortmöglichkeiten hierarchisch anzeigen: Erst Kreise, dann die Träger des ausgwählten Kreises und dann alle Wachen des ausgewählten Trägers
-            if (wache.nr == callback_data.nr || (wache.nr.toString().startsWith(callback_data.nr) && wache.nr.toString().length == callback_data.nr.toString().length + 2)) {
+            if ((wache.nr && wache.nr == callback_data.nr) || (wache.nr.toString().startsWith(callback_data.nr) && wache.nr.toString().length == callback_data.nr.toString().length + 2)) {
               inline_keyboard.push([{
                 text: (wache.nr == callback_data.nr) ? wache.name + ' (alle Wachen)' : wache.name,
                 callback_data: JSON.stringify({ action: 'add_alarm', nr: wache.nr, final: (wache.typ == 'wache' || wache.nr == callback_data.nr) })
@@ -115,7 +105,7 @@ module.exports = function (app_cfg, sql) {
           else {
             inline_keyboard.push([{
               text: '« abbrechen',
-              callback_data: JSON.stringify({ action: 'restart', nr: callback_data.nr.toString().slice(0, -2) })
+              callback_data: JSON.stringify({ action: 'restart' })
             }]);
           }
 
@@ -139,7 +129,7 @@ module.exports = function (app_cfg, sql) {
               parse_mode: 'Markdown'
             }).catch(err => log(err));
 
-            sendStartMessage(msg, withUserInteraction = true);
+            sendStartMessage(msg);
           }
         });
       }
@@ -160,6 +150,10 @@ module.exports = function (app_cfg, sql) {
               callback_data: JSON.stringify({ action: 'remove_alarm', nr: wache.wache_nr })
             }]);
           });
+          inline_keyboard.push([{
+            text: '« abbrechen',
+            callback_data: JSON.stringify({ action: 'restart' })
+          }]);
           bot.editMessageText(text, options = {
             chat_id: msg.chat.id, message_id: msg.message_id,
             reply_markup: { inline_keyboard: inline_keyboard, one_time_keyboard: true }
@@ -179,7 +173,7 @@ module.exports = function (app_cfg, sql) {
               parse_mode: 'Markdown'
             }).catch(err => log(err));
 
-            sendStartMessage(msg, withUserInteraction = true);
+            sendStartMessage(msg);
           }
         });
       }
@@ -191,7 +185,7 @@ module.exports = function (app_cfg, sql) {
     if (callback_data.action == 'test_alarm') {
       // Auswahlmöglichkeiten: Sekunden, bis der Testalarm verschickt wird
       if (!callback_data.duration) {
-        text = 'Na klar! Wann möchtest du den Test-Alarm erhalten?';
+        text = 'Gerne! Wann möchtest du den Test-Alarm erhalten?';
         let inline_keyboard = [[]];
         [3, 10, 30].forEach(sec => inline_keyboard[0].push({
           text: 'In ' + sec + ' Sekunden',
@@ -230,27 +224,38 @@ module.exports = function (app_cfg, sql) {
         '3. Klicke auf `Anpassen`.\n' +
         '4. Unter `Ton` kannst du einen Systemton auswählen oder einen `Ton hochladen`\n' +
         '\n' +
-        'Spezielle *SMS-Alarmierungstöne* kannst du beispielsweise unter https://www.regan.ch/sms-alarmierungstoene/ oder https://safereach.com/de/wissen/10-alarmtoene-die-sie-garantiert-nicht-ueberhoren/ herunterladen und dann als Benachrichtigungston für den Chat verwenden.\n' +
-        '\n' +
-        'Soll ich dir einen *Test-Alarm* senden?';
-      bot.editMessageText(text, 
-        options = {
-        chat_id: msg.chat.id, message_id: msg.message_id,
-        parse_mode: 'Markdown',
-        disable_web_page_preview: true,
-        reply_markup: {
-          inline_keyboard: [
-            [{
-              text: 'Ja, gerne.',
-              callback_data: JSON.stringify({ action: 'test_alarm' })
-            },
-            {
-              text: 'Nein, danke.',
-              callback_data: JSON.stringify({ action: 'finish' })
-            }]
-          ],
-          one_time_keyboard: true
-      }}).catch(err => log(err));
+        'Spezielle *SMS-Alarmierungstöne* kannst du beispielsweise unter https://www.regan.ch/sms-alarmierungstoene/ oder https://safereach.com/de/wissen/10-alarmtoene-die-sie-garantiert-nicht-ueberhoren/ herunterladen und dann als Benachrichtigungston für den Chat verwenden.\n';
+
+      if (!callback_data.finish) {
+        text += '\nSoll ich dir einen *Test-Alarm* senden?';
+        bot.editMessageText(text,
+          options = {
+            chat_id: msg.chat.id, message_id: msg.message_id,
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{
+                  text: 'Ja, gerne.',
+                  callback_data: JSON.stringify({ action: 'test_alarm' })
+                },
+                {
+                  text: 'Nein, danke.',
+                  callback_data: JSON.stringify({ action: 'notification', finish: true })
+                }]
+              ],
+              one_time_keyboard: true
+            }
+          }).catch(err => log(err));
+      }
+      else {
+        bot.editMessageText(text,
+          options = {
+            chat_id: msg.chat.id, message_id: msg.message_id,
+            parse_mode: 'Markdown',
+            disable_web_page_preview: true
+          }).catch(err => log(err));
+      }
     }
 
     /**
@@ -258,15 +263,14 @@ module.exports = function (app_cfg, sql) {
      */
     if (callback_data.action == 'restart') {
       bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => log(err));
-      sendStartMessage(msg, withUserInteraction = true).catch(err => log(err));
+      sendStartMessage(msg);
     }
 
     /**
-     * beenden des Dialogs
+     * beenden des Dialogs (Anzeige der Auswahlmöglichkeiten entfernen)
      */
     if (callback_data.action == 'finish') {
-      bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => log(err));
-      sendStartMessage(msg, withUserInteraction = false).catch(err => log(err));
+      bot.editMessageReplyMarkup(replyMarkup = { inline_keyboard: [] }, options = { chat_id: msg.chat.id, message_id: msg.message_id }).catch(err => log(err));
     }
   }
 
@@ -300,7 +304,7 @@ module.exports = function (app_cfg, sql) {
    * Speichern von Log-Meldungen
    */
   function log(data) {
-    sql.db_log('Telegram', (typeof data === 'string') ? data : JSON.stringify(data));
+    sql.db_log('Telegram', ((data.message) ? data.message : '') + (typeof data === 'string') ? data : JSON.stringify(data));
   }
 
   return {
