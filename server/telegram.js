@@ -204,5 +204,12 @@ module.exports = function (app_cfg, sql) {
       text += ' \u{1F692} \u{21E8} ';
       alarm.alarmdaten.forEach(alarmdatum => text += alarmdatum.einsatzmittel + ' ');
     }
+
+    return text;
+  }
+
+  return {
+    bot: bot,
+    formatAlarm: formatAlarm
   }
 }

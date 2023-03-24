@@ -356,7 +356,7 @@ module.exports = function (db, app_cfg) {
   function db_wache_get_all(callback) {
     db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen  where nr_wache is not '0'
       union all
-      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis is not '0' group by nr_traeger 
+      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis is not '0' group by name_traeger 
       union all
       select 'kreis' typ, nr_kreis nr, name_kreis name from waip_wachen group by name_kreis 
       order by typ, name`, function (err, rows) {
@@ -858,12 +858,10 @@ module.exports = function (db, app_cfg) {
 
   function db_telegram_get_chats(waip_id, callback) {
     // Pruefen, welche Telegram-Chats fuer eine bestimmte Wache hinterlegt sind
-    db.get(`select tg.waip_wache_name, tg.waip_wache_nr, tg.tg_chat_id from waip_telegram_chats tg 
-      where tg.waip_wache_name in (select distinct w.name_wache waip_wachenname from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache 
-      where em.waip_einsaetze_ID = ?)`, [waip_id], function (err, liste) {
+    db.all(`select distinct tg.tg_chat_id from waip_telegram_chats tg,
+        (select nr_wache from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache where em.waip_einsaetze_ID = ?) wa
+      where wa.nr_wache like tg.waip_wache_nr||'%'`, [waip_id], function (err, liste) {
       if (err == null && liste) {
-        // waip_id zu Daten hinzufuegen
-        liste.waip_id = waip_id;
         callback && callback(liste);
       } else {
         callback && callback(null);
@@ -873,7 +871,7 @@ module.exports = function (db, app_cfg) {
 
   function db_telegram_get_wachen(chat_id, callback) {
     // Pruefen, welche Wachen fuer einen bestimmten Telegram-Chat hinterlegt sind
-    db.all(`select tg.waip_wache_nr, tg.waip_wache_name from waip_telegram_chats tg 
+    db.all(`select tg.waip_wache_nr, tg.waip_wache_name from waip_telegram_chats tg
       where tg.tg_chat_id = ?`, [chat_id], function (err, rows) {
       if (err == null && rows.length > 0) {
         callback && callback(rows);
@@ -884,12 +882,12 @@ module.exports = function (db, app_cfg) {
   }
 
   function db_telegram_add_chat(chat_id, wache_nr, wache_name) {
-    db.run(`insert or replace into waip_telegram_chats 
+    db.run(`insert or replace into waip_telegram_chats
       (tg_chat_id, waip_wache_nr, waip_wache_name) values (?,?,?)`, [chat_id, wache_nr, wache_name]);
   }
-  
+
   function db_telegram_remove_chat(chat_id, wache_nr) {
-    db.run(`delete from waip_telegram_chats 
+    db.run(`delete from waip_telegram_chats
       where tg_chat_id = ? and waip_wache_nr = ?`, [chat_id, wache_nr]);
   }
 

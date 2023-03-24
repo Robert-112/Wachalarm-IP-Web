@@ -1,4 +1,4 @@
-module.exports = function (io, sql, fs, brk, async, app_cfg) {
+module.exports = function (io, sql, fs, brk, telegram, async, app_cfg) {
 
   // Module laden
   const {
@@ -48,7 +48,15 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
       // pruefen, ob für die beteiligten Wachen Telegram-Chats hinterlegt sind, falls ja: Benachrichtigung senden
       sql.db_telegram_get_chats(waip_id, function (list) {
         if (list) {
-
+          let text = telegram.formatAlarm(einsatz_daten);
+          list.forEach(function(chat) {
+            try {
+            telegram.bot.sendMessage(chat.tg_chat_id, text);
+            }
+            catch (err) {
+              console.log(err);
+            }
+          });
         }
       });
     });
