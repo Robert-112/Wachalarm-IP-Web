@@ -54,12 +54,16 @@ module.exports = function (app_cfg, sql) {
                   callback_data: JSON.stringify({ action: 'remove_alarm' })
                 }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
                 [{
+                  text: 'Wie kann ich den Benachrichtigungston für diesen Chat ändern?',
+                  callback_data: JSON.stringify({ action: 'notification' })
+                }],
+                [{
                   text: 'Schick mir bitte einen Test-Alarm.',
-                  callback_data: JSON.stringify({ action: 'test_alarm', nr: '' })
+                  callback_data: JSON.stringify({ action: 'test_alarm' })
                 }],
                 [{
                   text: 'Danke. Es gibt nix weiter zu tun.',
-                  callback_data: JSON.stringify({ action: 'finish', nr: '' })
+                  callback_data: JSON.stringify({ action: 'finish' })
                 }]
               ],
               one_time_keyboard: true
@@ -74,7 +78,7 @@ module.exports = function (app_cfg, sql) {
    * (führt in der Regel ein editMessageText der Ursprungsnachricht durch)
    */
   function onCallbackQuery(callbackQuery) {
-    log('Callback in Chat ' + callbackQuery.message.chat.id + ' (' + callbackQuery.data +')');
+    log('Callback in Chat ' + callbackQuery.message.chat.id + ' (' + callbackQuery.data + ')');
     const msg = callbackQuery.message; // die Nachricht, deren Auswahlmöglichkeit gewählt wurde
     const callback_data = (callbackQuery.data) ? JSON.parse(callbackQuery.data) : {}; // die Callback-Daten deserialiseren
     let text = msg.text; // der (geänderte) Text der Nachricht
@@ -171,8 +175,7 @@ module.exports = function (app_cfg, sql) {
 
             let text = 'Du erhältst jetzt *keine* Wachalarme mehr für *' + wache.name + '* (' + wache.nr + ')';
             bot.editMessageText(text, options = {
-              chat_id: msg.chat.id,
-              message_id: msg.message_id,
+              chat_id: msg.chat.id, message_id: msg.message_id,
               parse_mode: 'Markdown'
             }).catch(err => log(err));
 
@@ -209,8 +212,45 @@ module.exports = function (app_cfg, sql) {
             bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => log(err));
           });
         log('Test-Alarm an Chat ' + msg.chat.id + ' in ' + callback_data.duration + 'sec geplant.');
-        bot.editMessageText('Geht klar! Ein Testalarm kommt in ' + callback_data.duration + ' Sekunden...', options = { chat_id: msg.chat.id, message_id: msg.message_id }).catch(err => log(err));
+        bot.editMessageText('Geht klar! Ein *Testalarm* kommt in ' + callback_data.duration + ' Sekunden...', options = {
+          chat_id: msg.chat.id, message_id: msg.message_id,
+          parse_mode: 'Markdown'
+        }).catch(err => log(err));
       }
+    }
+
+    /**
+    * Hinweistext, wie man den Benachrichtigungston dieses Chats ändert
+    */
+    if (callback_data.action == 'notification') {
+      text = 'Für jeden Chat können Benachrichtigungen (z.B. Alarmierungstöne und Wichtigkeit) individuell eingestellt werden. \n' +
+        '\n' +
+        '1. Klicke oben rechts auf das `Symbol mit den drei Punkten`.\n' +
+        '2. Wähle `Stumm` aus.\n' +
+        '3. Klicke auf `Anpassen`.\n' +
+        '4. Unter `Ton` kannst du einen Systemton auswählen oder einen `Ton hochladen`\n' +
+        '\n' +
+        'Spezielle *SMS-Alarmierungstöne* kannst du beispielsweise unter https://www.regan.ch/sms-alarmierungstoene/ oder https://safereach.com/de/wissen/10-alarmtoene-die-sie-garantiert-nicht-ueberhoren/ herunterladen und dann als Benachrichtigungston für den Chat verwenden.\n' +
+        '\n' +
+        'Soll ich dir einen *Test-Alarm* senden?';
+      bot.editMessageText(text, 
+        options = {
+        chat_id: msg.chat.id, message_id: msg.message_id,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+        reply_markup: {
+          inline_keyboard: [
+            [{
+              text: 'Ja, gerne.',
+              callback_data: JSON.stringify({ action: 'test_alarm' })
+            },
+            {
+              text: 'Nein, danke.',
+              callback_data: JSON.stringify({ action: 'finish' })
+            }]
+          ],
+          one_time_keyboard: true
+      }}).catch(err => log(err));
     }
 
     /**
