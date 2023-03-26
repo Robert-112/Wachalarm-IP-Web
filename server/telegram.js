@@ -6,62 +6,67 @@ module.exports = function (app_cfg, sql) {
   // Verweis auf den Telegram-Bot, der mithilfe von 'polling' neue Benutzeranfragen abruft
   const bot = new TelegramBot(app_cfg.telegram.token, { polling: true });
   bot.on('polling_error', err => log(err));
-  bot.on('message', sendStartMessage); // bei irgendwelchen Nachrichten mit dem Start-Dialog antworten
+  bot.on('message', sendStartMessage); // auf Nachrichten in (Gruppen-)Chats reagieren
+  bot.on('channel_post', sendStartMessage); // auf Posts in Channels reagieren
   bot.on('callback_query', onCallbackQuery); // Callback-Queries behandeln (bei Auswahl einer der gesendeten Antwortmöglichkeiten, die vorher als inline_keyboard verschickt wurden)
+  bot.setMyCommands([{ command: "start", description: "Wachalarme in diesem Chat verwalten" }]);
   log('Telegram-Bot gestartet');
 
   /**
    * Senden der Start-Narchricht (führt ein sendMessage durch)
    */
   function sendStartMessage(msg) {
-    log('Nachricht in Chat ' + msg.chat.id);
-    let text = '';
+    log('Nachricht in Chat ' + msg.chat.id + ' ' + JSON.stringify(msg));
+    if (msg.chat.type == 'private' || msg.text.includes('/start@wachalarm_bot')) {
+      let text = '';
 
-    // ermitteln, welche Wachalarme für diesen Chat schon hinterlegt sind
-    sql.db_telegram_get_wachen_for_chat(msg.chat.id, function (data) {
-      if (!data) {
-        text += 'In diesem Chat sind momentan *noch keine Wachalarme* hinterlegt.';
-      }
-      else {
-        text += 'In diesem Chat sind momentan folgende Wachalarme hinterlegt:'
-        data.forEach(function (wache) {
-          text += '\n  - *' + wache.wache_name + '*' + ((wache.wache_nr.toString().length < 6) ? ' (alle Wachen)' : '');
-        });
-      }
+      // ermitteln, welche Wachalarme für diesen Chat schon hinterlegt sind
+      sql.db_telegram_get_wachen_for_chat(msg.chat.id, function (data) {
+        if (!data) {
+          text += 'In diesem Chat sind momentan *noch keine Wachalarme* hinterlegt.';
+        }
+        else {
+          text += 'In diesem Chat sind momentan folgende Wachalarme hinterlegt:'
+          data.forEach(function (wache) {
+            text += '\n  - *' + wache.wache_name + '*' + ((wache.wache_nr.toString().length < 6) ? ' (alle Wachen)' : '');
+          });
+        }
 
-      // Nachricht mit Antwortmöglichkeiten versenden
-      bot.sendMessage(
-        chatId = msg.chat.id,
-        message = text,
-        options = {
-          parse_mode: 'Markdown',
-          reply_markup: {
-            inline_keyboard: [
-              [{
-                text: 'Füge dem Chat einen neuen Wachalarm hinzu.',
-                callback_data: JSON.stringify({ action: 'add_alarm', nr: '' })
-              }],
-              [{
-                text: 'Entferne einen Wachalarm wieder.',
-                callback_data: JSON.stringify({ action: 'remove_alarm' })
-              }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
-              [{
-                text: 'Wie kann der Benachrichtigungston eingestellt werden?',
-                callback_data: JSON.stringify({ action: 'notification' })
-              }],
-              [{
-                text: 'Schick mir einen Test-Alarm.',
-                callback_data: JSON.stringify({ action: 'test_alarm' })
-              }],
-              [{
-                text: 'Danke. Es gibt nix weiter zu tun.',
-                callback_data: JSON.stringify({ action: 'finish' })
-              }]
-            ],
-            one_time_keyboard: true
-          }
-        }).catch(err => log(err));
-    });
+        // Nachricht mit Antwortmöglichkeiten versenden
+        bot.sendMessage(
+          chatId = msg.chat.id,
+          message = text,
+          options = {
+            disable_notification: true,
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [
+                [{
+                  text: 'Füge dem Chat einen neuen Wachalarm hinzu.',
+                  callback_data: JSON.stringify({ action: 'add_alarm', nr: '' })
+                }],
+                [{
+                  text: 'Entferne einen Wachalarm wieder.',
+                  callback_data: JSON.stringify({ action: 'remove_alarm' })
+                }].slice((!data) ? 1 : 0), // falls es noch keine Alarme gibt, dieses Element auslassen
+                [{
+                  text: 'Wie kann der Benachrichtigungston eingestellt werden?',
+                  callback_data: JSON.stringify({ action: 'notification' })
+                }],
+                [{
+                  text: 'Schick mir einen Test-Alarm.',
+                  callback_data: JSON.stringify({ action: 'test_alarm' })
+                }],
+                [{
+                  text: 'Danke. Es gibt nix weiter zu tun.',
+                  callback_data: JSON.stringify({ action: 'finish' })
+                }]
+              ],
+              one_time_keyboard: true
+            }
+          }).catch(err => log(err));
+      });
+    }
   }
 
   /**
