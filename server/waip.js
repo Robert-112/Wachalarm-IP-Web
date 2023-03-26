@@ -1,4 +1,4 @@
-module.exports = function (io, sql, fs, brk, async, app_cfg) {
+module.exports = function (io, sql, fs, brk, telegram, async, app_cfg) {
 
   // Module laden
   const {
@@ -44,6 +44,20 @@ module.exports = function (io, sql, fs, brk, async, app_cfg) {
         } else {
           sql.db_log('VMTL', 'Keine Vermittler-Liste für Wachen im Einsatz ' + waip_id + ' hinterlegt. Rückmeldung wird nicht verteilt.');
         };
+      });
+      // pruefen, ob für die beteiligten Wachen Telegram-Chats hinterlegt sind, falls ja: Benachrichtigung senden
+      sql.db_telegram_get_chats_for_einsatz(waip_id, function (list) {
+        if (list) {
+          let text = telegram.formatAlarm(einsatz_daten);
+          list.forEach(chat => {
+            telegram.bot.sendMessage(chat.chat_id, text)
+              .catch(err => sql.db_log('Telegram', 'Fehler beim Versenden von Einsatz ' + waip_id + ' an Chat '+ chat_id +': ' + JSON.stringify(err)));
+            sql.db_log('Telegram', 'Einsatz ' + waip_id + ' wurde an Chat ' + chat_id + ' gesendet.');
+          });
+        }
+        else {
+          sql.db_log('Telegram', 'Keine Telegram-Chats für Wachen im Einsatz ' + waip_id + ' hinterlegt.');
+        }
       });
     });
   };

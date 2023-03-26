@@ -356,7 +356,7 @@ module.exports = function (db, app_cfg) {
   function db_wache_get_all(callback) {
     db.all(`select 'wache' typ, nr_wache nr, name_wache name from waip_wachen  where nr_wache is not '0'
       union all
-      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis is not '0' group by nr_traeger 
+      select 'traeger' typ, nr_kreis || nr_traeger nr, name_traeger name from waip_wachen where nr_kreis is not '0' group by name_traeger 
       union all
       select 'kreis' typ, nr_kreis nr, name_kreis name from waip_wachen group by name_kreis 
       order by typ, name`, function (err, rows) {
@@ -524,15 +524,15 @@ module.exports = function (db, app_cfg) {
     // Log-Eintrag schreiben
     if (do_log) {
       db.run(`INSERT INTO waip_log (log_typ, log_text)
-        VALUES (
-        \'` + typ + `\',
-        \'` + text + `\')`);
+        VALUES (?,?)`, [typ, text]);
     };
     // Log auf 50.000 Datensätze begrenzen um Speicherplatz der DB zu begrenzen
     db.run(`DELETE FROM waip_log WHERE id IN
       (
         SELECT id FROM waip_log ORDER BY id DESC LIMIT 50000, 100
       )`);
+
+    console.log(typ + ': ' + text);
   };
 
   function db_log_get_5000(callback) {
@@ -856,6 +856,43 @@ module.exports = function (db, app_cfg) {
     });
   };
 
+  function db_telegram_get_chats_for_einsatz(waip_id, callback) {
+    // Pruefen, welche Telegram-Chats fuer die an einem Einsatz beteiligten Wachen hinterlegt sind
+    db.all(`select distinct tg.chat_id from waip_telegram_chats tg,
+        (select nr_wache from waip_wachen w left join waip_einsatzmittel em on em.wachenname = w.name_wache where em.waip_einsaetze_ID = ?) wa
+      where wa.nr_wache like tg.wache_nr||'%'`, [waip_id], function (err, liste) {
+      if (err == null && liste) {
+        callback && callback(liste);
+      } else {
+        callback && callback(null);
+      };
+    });
+  };
+
+  function db_telegram_get_wachen_for_chat(chat_id, callback) {
+    // Pruefen, welche Wachen fuer einen bestimmten Telegram-Chat hinterlegt sind
+    db.all(`select tg.wache_nr, tg.wache_name from waip_telegram_chats tg
+      where tg.chat_id = ?`, [chat_id], function (err, rows) {
+      if (err == null && rows.length > 0) {
+        callback && callback(rows);
+      } else {
+        callback && callback(null);
+      };
+    });
+  }
+
+  function db_telegram_add_wache_to_chat(chat_id, wache_nr, wache_name) {
+    // Wachalarm zu einem Telegram-Chat hinzufügen
+    db.run(`insert or replace into waip_telegram_chats
+      (chat_id, wache_nr, wache_name) values (?,?,?)`, [chat_id, wache_nr, wache_name]);
+  }
+
+  function db_telegram_remove_wache_from_chat(chat_id, wache_nr) {
+    // Wachalarm aus einem Telegram-Chat entfernen
+    db.run(`delete from waip_telegram_chats
+      where chat_id = ? and wache_nr = ?`, [chat_id, wache_nr]);
+  }
+
   function db_vmtl_get_tw_account(list_data, callback) {
     // falls Liste für Wache hinterlegt, dann hier die Twitter-Account-Daten, Einsatz-UUID, Einsatzart und Wachenname auslesen
     db.get(`select tw.tw_screen_name, tw.tw_consumer_key, tw.tw_consumer_secret, tw.tw_access_token_key, tw.tw_access_token_secret, we.uuid, we.einsatzart, we.stichwort, wa.name_wache 
@@ -962,6 +999,10 @@ module.exports = function (db, app_cfg) {
     db_vmtl_get_list: db_vmtl_get_list,
     db_vmtl_check_history: db_vmtl_check_history,
     db_vmtl_get_tw_account: db_vmtl_get_tw_account,
+    db_telegram_get_chats_for_einsatz: db_telegram_get_chats_for_einsatz,
+    db_telegram_get_wachen_for_chat: db_telegram_get_wachen_for_chat,
+    db_telegram_add_wache_to_chat: db_telegram_add_wache_to_chat,
+    db_telegram_remove_wache_from_chat: db_telegram_remove_wache_from_chat,
     db_export_get_for_rmld: db_export_get_for_rmld
   };
 
